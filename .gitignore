@@ -1,0 +1,18 @@
+#Qt Project Files
+*.pro
+*moc_*.cpp
+*moc_*.h
+*qt_*.mak
+*.pbxproj
+.qmake*
+Makefile
+
+# Build Results
+*.o
+*.app/
+voxelized-shadows
+
+# Mac
+*.xcodeproj/*
+xcshareddata/
+*.pbxproj
