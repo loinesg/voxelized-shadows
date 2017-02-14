@@ -1,0 +1,70 @@
+vertex 2.5 -1.665335E-15 7.5
+normal 0 1 0
+texcoord -0.989899 -0.989899
+vertex 2.5 1.665335E-15 -7.5
+normal 0 1 0
+texcoord -0.989899 1.989899
+vertex -2.5 1.665335E-15 -7.5
+normal 0 1 0
+texcoord 0.003367037 1.989899
+vertex -2.5 -1.665335E-15 7.5
+normal 0 1 0
+texcoord 0.003367037 -0.989899
+vertex -2.5 1.665335E-15 -7.5
+normal 1 0 0
+texcoord -0.989899 -0.989899
+vertex -2.5 0.1387866 -7.5
+normal 1 0 0
+texcoord -0.989899 1.989899
+vertex -2.5 0.1387866 7.5
+normal 1 0 0
+texcoord 1.989899 1.989899
+vertex -2.5 -1.665335E-15 7.5
+normal 1 0 0
+texcoord 1.989899 -0.989899
+vertex -2.5 0.1387866 -7.5
+normal 0 1 0
+texcoord -0.989899 -0.989899
+vertex -2.631196 0.1387866 -7.5
+normal 0 1 0
+texcoord -0.989899 1.989899
+vertex -2.631196 0.1387866 7.5
+normal 0 1 0
+texcoord 1.989899 1.989899
+vertex -2.5 0.1387866 7.5
+normal 0 1 0
+texcoord 1.989899 -0.989899
+vertex -2.631196 0.1387866 -7.5
+normal -1 0 0
+texcoord -0.989899 -0.989899
+vertex -2.631196 0.1191766 -7.5
+normal -1 0 0
+texcoord -0.989899 1.989899
+vertex -2.631196 0.1191766 7.5
+normal -1 0 0
+texcoord 1.989899 1.989899
+vertex -2.631196 0.1387866 7.5
+normal -1 0 0
+texcoord 1.989899 -0.989899
+vertex -2.631196 0.1191766 -7.5
+normal 0 1 0
+texcoord -0.989899 -0.989899
+vertex -7.234143 0.1191766 -7.5
+normal 0 1 0
+texcoord -0.989899 1.989899
+vertex -7.234143 0.1191766 7.5
+normal 0 1 0
+texcoord 1.989899 1.989899
+vertex -2.631196 0.1191766 7.5
+normal 0 1 0
+texcoord 1.989899 -0.989899
+triangle 0 1 2
+triangle 0 2 3
+triangle 4 5 6
+triangle 4 6 7
+triangle 8 9 10
+triangle 8 10 11
+triangle 12 13 14
+triangle 12 14 15
+triangle 16 17 18
+triangle 16 18 19

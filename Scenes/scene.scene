@@ -1,0 +1,131 @@
+light 2.15 2.057255 1.804314
+position 0 0 0
+rotation 21.7 52.7 9.188932E-07
+scale 1 1 1
+
+mesh ground.mesh
+texture road_d.png
+position 5.1 0 -0.11
+rotation 0 0 0
+scale 1 1 1
+
+mesh ground.mesh
+texture road_d.png
+position 10.1 0 -0.11
+rotation 0 0 0
+scale -1 1 1
+
+mesh wall_straight.mesh
+texture bricks_d.png
+position -2 0 -1
+rotation 0 0 0
+scale 1 1 1
+
+mesh wall_straight.mesh
+texture bricks_d.png
+position -2 0 7
+rotation 0 0 0
+scale 1 1 1
+
+mesh wall_straight.mesh
+texture bricks_d.png
+position -2 0 3
+rotation 0 0 0
+scale 1 1 1
+
+mesh wall_straight.mesh
+texture bricks_d.png
+position -2 0 -5
+rotation 0 0 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 4.139277 1 -4.154304
+rotation 0 0 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 4.51 0 -4.6
+rotation 0 355.4799 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 3.365955 0 -4.245518
+rotation 0 355.4799 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 4.46873 0 -3.386392
+rotation 0 38.02773 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 9.49 1 1.92
+rotation 0 305.2483 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 3.78 1 4.71
+rotation 0 283.2556 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 4.298827 0 4.96865
+rotation 0 278.7355 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 14.20603 0.1191766 -1.795308
+rotation 0 0 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 7.92149 -1.16917E-15 5.155476
+rotation 0 0 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 5.501343 -1.878046E-16 0.7357966
+rotation 0 0 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 9.053013 0 2.632229
+rotation 0 343.2761 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 10.06793 0 1.965533
+rotation 0 300.7283 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 9.118191 0 1.235818
+rotation 0 300.7283 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 3.10809 0 5.206754
+rotation 0 321.2833 0
+scale 1 1 1
+
+mesh wood_box.mesh
+texture wood_planks_d.png
+position 3.691465 0 3.936367
+rotation 0 278.7355 0
+scale 1 1 1
+
