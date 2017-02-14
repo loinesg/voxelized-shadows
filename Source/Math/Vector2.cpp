@@ -40,6 +40,11 @@ Vector2 Vector2::operator * (float scalar) const
 	return Vector2(x * scalar, y * scalar);
 }
 
+float Vector2::dot(const Vector2 &a, const Vector2 &b)
+{
+	return (a.x * b.x) + (a.y * b.y);
+}
+
 Vector2 operator + (const Vector2 &a, const Vector2 &b)
 {
 	return Vector2(a.x + b.x, a.y + b.y);
