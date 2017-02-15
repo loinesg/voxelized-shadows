@@ -25,4 +25,5 @@ struct Vector2
 Vector2 operator+ (const Vector2 &a, const Vector2 &b);
 Vector2 operator- (const Vector2 &a, const Vector2 &b);
 
+ostream& operator << (ostream &os, Vector2 &vec);
 istream& operator >> (istream &is, Vector2 &vec);

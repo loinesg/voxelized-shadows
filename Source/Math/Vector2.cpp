@@ -55,6 +55,12 @@ Vector2 operator - (const Vector2 &a, const Vector2 &b)
 	return Vector2(a.x - b.x, a.y - b.y);
 }
 
+ostream& operator << (ostream &os, Vector2 &vec)
+{
+    os << "( " << vec.x << ", " << vec.y << ", " << " )";
+    return os;
+}
+
 istream& operator >> (istream &is, Vector2 &vec)
 {
     is >> vec.x;
