@@ -35,11 +35,6 @@ Vector3 Vector3::normalized() const
 	return Vector3(x / len, y / len, z / len);
 }
 
-Vector3 Vector3::operator * (float scalar) const
-{
-	return Vector3(x * scalar, y * scalar, z * scalar);
-}
-
 float Vector3::dot(const Vector3 &a, const Vector3 &b)
 {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
@@ -54,6 +49,16 @@ Vector3 Vector3::cross(const Vector3 &a, const Vector3 &b)
     return Vector3(x, y, z);
 }
 
+Vector3 operator * (const Vector3 &v, float scalar)
+{
+    return Vector3(v.x * scalar, v.y * scalar, v.z * scalar);
+}
+
+Vector3 operator * (float scalar, const Vector3 &v)
+{
+    return v * scalar;
+}
+
 Vector3 operator + (const Vector3 &a, const Vector3 &b)
 {
 	return Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
@@ -62,6 +67,12 @@ Vector3 operator + (const Vector3 &a, const Vector3 &b)
 Vector3 operator - (const Vector3 &a, const Vector3 &b)
 {
 	return Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+ostream& operator << (ostream &os, Vector3 &vec)
+{
+    os << "( " << vec.x << ", " << vec.y << ", " << vec.z << ", " << " )";
+    return os;
 }
 
 istream& operator >> (istream &is, Vector3 &vec)
