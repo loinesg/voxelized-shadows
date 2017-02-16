@@ -32,6 +32,9 @@ public:
 
     // Constructs an orthographic projection matrix
     static Matrix4x4 orthographic(float l, float r, float b, float t, float n, float f);
+    
+    // Constructs a perspective projection matrix
+    static Matrix4x4 perspective(float fov, float aspect, float n, float f);
 };
 
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar);

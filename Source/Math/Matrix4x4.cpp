@@ -1,6 +1,6 @@
 #include "Matrix4x4.hpp"
 
-#include <cstring>
+#include <math.h>
 
 Matrix4x4::Matrix4x4()
 {
@@ -97,6 +97,33 @@ Matrix4x4 Matrix4x4::orthographic(float l, float r, float b, float t, float n, f
     mat[1][1] = 2.0 / (t - b);
     mat[2][2] = 2.0 / (f - n);
 
+    return mat;
+}
+
+Matrix4x4 Matrix4x4::perspective(float fov, float aspect, float n, float f)
+{
+    // Compute the size of the image plane
+    float halfFov = (fov / 2.0) * (M_PI / 180.0);
+    float halfW = n * tan(halfFov);
+    float halfH = halfW * aspect;
+    
+    // Determine the image plane corners
+    float l = -halfW;
+    float r = halfW;
+    float t = halfH;
+    float b = -halfH;
+    
+    // Create the perspective projection matrix
+    Matrix4x4 mat = Matrix4x4::identity();
+    mat[0][0] = (2.0 * n) / (r - l);
+    mat[1][1] = (2.0 * n) / (t - b);
+    mat[2][2] = - (f + n) / (f - n);
+    mat[3][3] = 0.0;
+    mat[0][2] = (r + l) / (r - l);
+    mat[1][2] = (r + b) / (t - b);
+    mat[3][2] = -1.0;
+    mat[2][3] = - (2 * f * n) / (f - n);
+    
     return mat;
 }
 
