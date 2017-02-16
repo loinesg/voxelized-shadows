@@ -26,6 +26,9 @@ public:
 
     // Constructs a matrix for performing a scale, then a rotation, then a translation.
     static Matrix4x4 trs(const Vector3 &translation, const Quaternion &rotation, const Vector3 &scale);
+
+    // Constructs the inverse of a trs matrix for the given scale, rotation and translation.
+    static Matrix4x4 trsInverse(const Vector3 &translation, const Quaternion &rotation, const Vector3 &scale);
 };
 
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar);

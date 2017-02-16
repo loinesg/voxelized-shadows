@@ -68,6 +68,17 @@ Matrix4x4 Matrix4x4::trs(const Vector3 &translation, const Quaternion &rotation,
     return translationMat * rotationMat * scaleMat;
 }
 
+Matrix4x4 Matrix4x4::trsInverse(const Vector3 &translation, const Quaternion &rotation, const Vector3 &scale)
+{
+    Matrix4x4 translationMat = Matrix4x4::translation(-1.0 * translation);
+    Matrix4x4 rotationMat = Matrix4x4::rotation(rotation.inverse());
+    Matrix4x4 scaleMat = Matrix4x4::scale(1.0 / scale);
+
+    // Opposite order to Matrix4x4::trs.
+    // Translation, then rotation, then scale.
+    return scaleMat * rotationMat * translationMat;
+}
+
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar)
 {
     Matrix4x4 result;
