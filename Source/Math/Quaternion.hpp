@@ -18,6 +18,7 @@ struct Quaternion
     float sqrNorm() const;
     float norm() const;
     Quaternion conjugate() const;
+    Quaternion inverse() const;
 
     // Creates a rotation for the specified angle (degrees) around the given axis
     static Quaternion rotation(float angle, const Vector3 &axis);
@@ -27,6 +28,9 @@ struct Quaternion
     static Quaternion euler(float x, float y, float z);
     static Quaternion euler(Vector3 &euler);
 };
+
+Quaternion operator * (const Quaternion &q, float scalar);
+Quaternion operator * (float scalar, const Quaternion &q);
 
 Quaternion operator * (const Quaternion &a, const Quaternion &b);
 Quaternion operator + (const Quaternion &a, const Quaternion &b);

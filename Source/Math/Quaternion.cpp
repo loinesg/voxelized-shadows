@@ -35,6 +35,11 @@ Quaternion Quaternion::conjugate() const
     return Quaternion(-1.0 * v, w);
 }
 
+Quaternion Quaternion::inverse() const
+{
+    return (1.0 / sqrNorm()) * conjugate();
+}
+
 Quaternion Quaternion::rotation(float angle, const Vector3 &axis)
 {
     float phi = (angle / 2.0) * (M_PI / 180.0);
@@ -57,6 +62,16 @@ Quaternion Quaternion::euler(float x, float y, float z)
 Quaternion Quaternion::euler(Vector3 &euler)
 {
     return Quaternion::euler(euler.x, euler.y, euler.z);
+}
+
+Quaternion operator * (const Quaternion &q, float scalar)
+{
+    return Quaternion(scalar * q.v, scalar * q.w);
+}
+
+Quaternion operator * (float scalar, const Quaternion &q)
+{
+    return q * scalar;
 }
 
 Quaternion operator * (const Quaternion &a, const Quaternion &b)
