@@ -23,6 +23,8 @@ struct Vector3
     static Vector3 cross(const Vector3 &a, const Vector3 &b);
 };
 
+Vector3 operator / (const Vector3 &v, float scalar);
+Vector3 operator / (float scalar, const Vector3 &v);
 Vector3 operator * (const Vector3 &v, float scalar);
 Vector3 operator * (float scalar, const Vector3 &v);
 Vector3 operator + (const Vector3 &a, const Vector3 &b);

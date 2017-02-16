@@ -49,6 +49,16 @@ Vector3 Vector3::cross(const Vector3 &a, const Vector3 &b)
     return Vector3(x, y, z);
 }
 
+Vector3 operator / (const Vector3 &v, float scalar)
+{
+    return Vector3(v.x / scalar, v.y / scalar, v.z / scalar);
+}
+
+Vector3 operator / (float scalar, const Vector3 &v)
+{
+    return Vector3(scalar / v.x, scalar / v.y, scalar / v.z);
+}
+
 Vector3 operator * (const Vector3 &v, float scalar)
 {
     return Vector3(v.x * scalar, v.y * scalar, v.z * scalar);
