@@ -16,3 +16,5 @@ voxelized-shadows
 *.xcodeproj/*
 xcshareddata/
 *.pbxproj
+Info.plist
+*.build/
