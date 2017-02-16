@@ -3,7 +3,8 @@ qmake -project \
     QT+=opengl \
     QT+=gui \
     "INCLUDEPATH += . Source/Rendering" \
-    "INCLUDEPATH += . Source/Interface"
+    "INCLUDEPATH += . Source/Interface" \
+    "INCLUDEPATH += . Source/Math" 
 
 qmake
 make
