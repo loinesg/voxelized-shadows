@@ -29,6 +29,9 @@ public:
 
     // Constructs the inverse of a trs matrix for the given scale, rotation and translation.
     static Matrix4x4 trsInverse(const Vector3 &translation, const Quaternion &rotation, const Vector3 &scale);
+
+    // Constructs an orthographic projection matrix
+    static Matrix4x4 orthographic(float l, float r, float b, float t, float n, float f);
 };
 
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar);

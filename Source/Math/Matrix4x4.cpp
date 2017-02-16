@@ -79,6 +79,27 @@ Matrix4x4 Matrix4x4::trsInverse(const Vector3 &translation, const Quaternion &ro
     return scaleMat * rotationMat * translationMat;
 }
 
+Matrix4x4 Matrix4x4::orthographic(float l, float r, float b, float t, float n, float f)
+{
+    // Negate n and f so we look down the negative z axis
+    n *= -1.0;
+    f *= -1.0;
+
+    Matrix4x4 mat = Matrix4x4::identity();
+
+    // translation
+    mat[0][3] = - (r + l) / (r - l);
+    mat[1][3] = - (t + b) / (t - b);
+    mat[2][3] = - (f + n) / (f - n);
+
+    // scale
+    mat[0][0] = 2.0 / (r - l);
+    mat[1][1] = 2.0 / (t - b);
+    mat[2][2] = 2.0 / (f - n);
+
+    return mat;
+}
+
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar)
 {
     Matrix4x4 result;
