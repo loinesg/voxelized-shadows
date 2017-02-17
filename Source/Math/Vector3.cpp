@@ -14,6 +14,31 @@ Vector3::Vector3(float x, float y, float z)
 
 }
 
+Vector3 Vector3::zero()
+{
+    return Vector3(0.0, 0.0, 0.0);
+}
+
+Vector3 Vector3::one()
+{
+    return Vector3(1.0, 1.0, 1.0);
+}
+
+Vector3 Vector3::up()
+{
+    return Vector3(0.0, 1.0, 0.0);
+}
+
+Vector3 Vector3::down()
+{
+    return Vector3(0.0, -1.0, 0.0);
+}
+
+Vector3 Vector3::forwards()
+{
+    return Vector3(0.0, 0.0, 1.0);
+}
+
 float Vector3::maxComponent() const
 {
     return std::max(x, std::max(y, z));
