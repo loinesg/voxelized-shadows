@@ -4,6 +4,7 @@
 
 Scene::Scene()
     : cameras_(),
+    lights_(),
     meshInstances_(),
     meshes_(),
     textures_()
@@ -47,6 +48,10 @@ bool Scene::loadObject(ifstream &file)
     {
         return loadCamera(file);
     }
+    else if(objectType == "light")
+    {
+        return loadLight(file);
+    }
     else if(objectType == "mesh")
     {
         return loadMeshInstance(file);
@@ -77,8 +82,6 @@ bool Scene::loadCamera(ifstream &file)
     float fov, nearPlane, farPlane;
     file >> fov >> nearPlane >> farPlane;
     
-    printf("Loading camera");
-    
     // Create a new camera
     Camera camera;
     camera.setType(CameraType::Perspective);
@@ -89,6 +92,22 @@ bool Scene::loadCamera(ifstream &file)
     
     // Add to the cameras list
     cameras_.push_back(camera);
+    
+    return true;
+}
+
+bool Scene::loadLight(ifstream &file)
+{
+    // Color and ambient color are stored sequentially
+    Vector3 color, ambient;
+    file >> color >> ambient;
+    
+    // Create a light
+    Light light(color, ambient);
+    loadObjectTransform(file, &light);
+    
+    // Add to the lights list
+    lights_.push_back(light);
     
     return true;
 }
