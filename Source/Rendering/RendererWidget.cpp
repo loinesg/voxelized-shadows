@@ -3,14 +3,19 @@
 #include <assert.h>
 #include <cstdio>
 
-RendererWidget::RendererWidget()
-{
+#include <iostream>
 
+RendererWidget::RendererWidget(const QGLFormat &format)
+    : QGLWidget(format)
+{
+    
 }
 
 RendererWidget::~RendererWidget()
 {
-
+    delete scene_;
+    delete forwardPass_;
+    delete uniformManager_;
 }
 
 void RendererWidget::initializeGL()
@@ -19,6 +24,13 @@ void RendererWidget::initializeGL()
 
     // Configure OpenGL state
     glEnable(GL_DEPTH_TEST);
+    
+    // Create managers
+    uniformManager_ = new UniformManager();
+    
+    // Create required assets
+    createRenderPasses();
+    createScene();
 }
 
 void RendererWidget::resizeGL(int w, int h)
@@ -28,9 +40,21 @@ void RendererWidget::resizeGL(int w, int h)
 
 void RendererWidget::paintGL()
 {
-    // Clear Screen
-    glClearColor(0.5, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    forwardPass_->submit(scene_->mainCamera(), scene_->meshInstances());
+}
 
+void RendererWidget::createRenderPasses()
+{
+    string shaderDirectory = "voxelized-shadows.app/Contents/Resources/Shaders/";
+    string forwardPassName = "ForwardPass";
+    
+    forwardPass_ = new RenderPass(forwardPassName, shaderDirectory, uniformManager_);
+    forwardPass_->setSupportedFeatures(SF_Texture | SF_Cutout);
+    forwardPass_->setClearColor(PassClearColor(0.6, 0.1, 0.1, 1.0));
+}
 
+void RendererWidget::createScene()
+{
+    scene_ = new Scene();
+    scene_->loadFromFile("voxelized-shadows.app/Contents/Resources/Scenes/scene.scene");
 }

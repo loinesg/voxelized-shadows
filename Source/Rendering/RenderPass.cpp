@@ -1,0 +1,87 @@
+#include "RenderPass.hpp"
+
+RenderPass::RenderPass(const string &name, const string &shadersDirectory, UniformManager* uniformManager)
+    : name_(name),
+    clearFlags_(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT),
+    clearColor_(PassClearColor(0.0, 0.0, 0.0, 1.0)),
+    shaderCollection_(new ShaderCollection(name, shadersDirectory)),
+    uniformManager_(uniformManager)
+{
+    
+}
+
+RenderPass::~RenderPass()
+{
+    delete shaderCollection_;
+}
+
+void RenderPass::setClearFlags(PassClearFlags clearFlags)
+{
+    clearFlags_ = clearFlags;
+}
+
+void RenderPass::setClearColor(PassClearColor color)
+{
+    clearColor_ = color;
+}
+
+void RenderPass::enableFeature(ShaderFeature feature)
+{
+    shaderCollection_->enableFeature(feature);
+}
+
+void RenderPass::disableFeature(ShaderFeature feature)
+{
+    shaderCollection_->disableFeature(feature);
+}
+
+void RenderPass::setSupportedFeatures(ShaderFeatureList supportedFeatures)
+{
+    shaderCollection_->setSupportedFeatures(supportedFeatures);
+}
+
+void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
+{
+    // Clear the screen
+    glClearColor(clearColor_.x, clearColor_.y, clearColor_.z, clearColor_.w);
+    glClear(clearFlags_);
+    
+    // Remember the previously used state
+    // Used to skip needless state changes
+    ShaderFeatureList prevShaderFeatures = ~0;
+    Texture* prevTexture = NULL;
+    Mesh* prevMesh = NULL;
+    
+    for(auto instance = instances->begin(); instance != instances->end(); ++instance)
+    {
+        ShaderFeatureList shaderFeatures = instance->shaderFeatures();
+        Texture* texture = instance->texture();
+        Mesh* mesh = instance->mesh();
+        Matrix4x4 transform = instance->localToWorld();
+        
+        // Bind the correct shader
+        if(shaderFeatures != prevShaderFeatures)
+            shaderCollection_->getVariant(shaderFeatures)->bind();
+        
+        // Bind the correct main texture
+        if(texture != prevTexture)
+            texture->bind();
+            
+        // Bind the correct mesh
+        if(mesh != prevMesh)
+            mesh->bind();
+        
+        // Apply per object uniform data
+        PerObjectUniformBuffer data;
+        data.localToWorld = transform;
+        data.modelViewProjection = camera->worldToCameraMatrix() * transform;
+        uniformManager_->updatePerObjectBuffer(data);
+        
+        // Draw the mesh
+        glDrawElements(GL_TRIANGLES, mesh->elementsCount(), GL_UNSIGNED_SHORT, (void*)0);
+        
+        prevShaderFeatures = shaderFeatures;
+        prevTexture = texture;
+        prevMesh = mesh;
+    }
+}

@@ -8,7 +8,7 @@
 class MainWindow : public QWidget
 {
 public:
-    MainWindow();
+    MainWindow(const QGLFormat &format);
     ~MainWindow();
 
     RendererWidget* rendererWidget() const { return rendererWidget_; }

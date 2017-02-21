@@ -1,0 +1,150 @@
+#include "Scene.hpp"
+
+#include <cstdio>
+
+Scene::Scene()
+    : cameras_(),
+    meshInstances_(),
+    meshes_(),
+    textures_()
+{
+    
+}
+
+Scene::~Scene()
+{
+    
+}
+
+bool Scene::loadFromFile(const char* fileName)
+{
+    ifstream file(fileName);
+    while(file.is_open() && !file.fail() && !file.eof())
+    {
+        if(!loadObject(file))
+        {
+            printf("Failed to load object from scene %s \n", fileName);
+            return false;
+        }
+    }
+    
+    if(file.fail())
+    {
+        printf("Failed to read scene file %s \n", fileName);
+        return false;
+    }
+    
+    printf("Loaded scene %s successfully \n", fileName);
+    return true;
+}
+
+bool Scene::loadObject(ifstream &file)
+{
+    string objectType;
+    file >> objectType;
+    
+    if(objectType == "camera")
+    {
+        return loadCamera(file);
+    }
+    else if(objectType == "mesh")
+    {
+        return loadMeshInstance(file);
+    }
+    
+    printf("Object type %s not known. \n", objectType.c_str());
+    return false;
+}
+
+void Scene::loadObjectTransform(ifstream &file, Object* object)
+{
+    // Transform params are stored sequentially
+    Vector3 position, eulerAngles, scale;
+    file >> position >> eulerAngles >> scale;
+    
+    // Convert the rotation to a quaternion
+    Quaternion rotation = Quaternion::euler(eulerAngles);
+    
+    // Set the object transform params
+    object->setPosition(position);
+    object->setRotation(rotation);
+    object->setScale(scale);
+}
+
+bool Scene::loadCamera(ifstream &file)
+{
+    // Fov, nearplane and farplane are stored sequentially
+    float fov, nearPlane, farPlane;
+    file >> fov >> nearPlane >> farPlane;
+    
+    printf("Loading camera");
+    
+    // Create a new camera
+    Camera camera;
+    camera.setType(CameraType::Perspective);
+    camera.setFov(fov);
+    camera.setNearPlane(nearPlane);
+    camera.setFarPlane(farPlane);
+    loadObjectTransform(file, &camera);
+    
+    // Add to the cameras list
+    cameras_.push_back(camera);
+    
+    return true;
+}
+
+bool Scene::loadMeshInstance(ifstream &file)
+{
+    // Mesh name, shader features and texture are stored sequentially.
+    string meshName, textureName;
+    ShaderFeatureList shaderFeatures;
+    file >> meshName >> shaderFeatures >> textureName;
+    
+    // Get or create the mesh and texture
+    Mesh* mesh = getMesh(meshName);
+    Texture* texture = getTexture(textureName);
+    
+    // Check for errors
+    if(mesh == NULL || texture == NULL)
+    {
+        printf("Error loading mesh %s or texture %s \n", meshName.c_str(), textureName.c_str());
+        return false;
+    }
+    
+    // Create the instance
+    MeshInstance instance(mesh, shaderFeatures, texture);
+    loadObjectTransform(file, &instance);
+    meshInstances_.push_back(instance);
+    return true;
+}
+
+Mesh* Scene::getMesh(const string &name)
+{
+    // Use a cached mesh if possible.
+    auto existing = meshes_.find(name);
+    if(existing != meshes_.end())
+    {
+        return existing->second;
+    }
+    
+    // Load the mesh.
+    string fullPath = "voxelized-shadows.app/Contents/Resources/Meshes/" + name;
+    Mesh* mesh = Mesh::load(fullPath.c_str());
+    meshes_.insert(pair<string, Mesh*>(name, mesh));
+    return mesh;
+}
+
+Texture* Scene::getTexture(const string &name)
+{
+    // Use a cached texture if possible.
+    auto existing = textures_.find(name);
+    if(existing != textures_.end())
+    {
+        return existing->second;
+    }
+    
+    string fullPath = "voxelized-shadows.app/Contents/Resources/Textures/" + name;
+    Texture* texture = Texture::load(fullPath.c_str());
+    textures_.insert(pair<string, Texture*>(name, texture));
+    return texture;
+}
