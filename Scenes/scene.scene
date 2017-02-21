@@ -1,131 +1,104 @@
-light 2.15 2.057255 1.804314
-position 0 0 0
-rotation 21.7 52.7 9.188932E-07
-scale 1 1 1
+camera 60 0.3 150
+14.7 3.1 -9.62   18.15999 320.6 -4.492647E-07   1 1 1
 
-mesh ground.mesh
-texture road_d.png
-position 5.1 0 -0.11
-rotation 0 0 0
-scale 1 1 1
+mesh pCube1.mesh 7 bricks_d.png
+-0.73 5.168255E-16 9.94   0 158.2242 0   1.429937 1.429936 1.429937
 
-mesh ground.mesh
-texture road_d.png
-position 10.1 0 -0.11
-rotation 0 0 0
-scale -1 1 1
+mesh ground.mesh 7 road_d.png
+5.1 0.01 -0.11   0 0 0   1 1 1
 
-mesh wall_straight.mesh
-texture bricks_d.png
-position -2 0 -1
-rotation 0 0 0
-scale 1 1 1
+mesh ground.mesh 7 road_d.png
+10.1 0.01 -0.11   0 0 0   -1 1 1
 
-mesh wall_straight.mesh
-texture bricks_d.png
-position -2 0 7
-rotation 0 0 0
-scale 1 1 1
+mesh ground.mesh 7 road_d.png
+5.1 0.01 -15.11   0 0 0   1 1 1
 
-mesh wall_straight.mesh
-texture bricks_d.png
-position -2 0 3
-rotation 0 0 0
-scale 1 1 1
+mesh ground.mesh 7 road_d.png
+10.1 0.01 -15.11   0 0 0   -1 1 1
 
-mesh wall_straight.mesh
-texture bricks_d.png
-position -2 0 -5
-rotation 0 0 0
-scale 1 1 1
+mesh ground.mesh 7 road_d.png
+10.1 0.01 -30.11   0 0 0   -1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 4.139277 1 -4.154304
-rotation 0 0 0
-scale 1 1 1
+mesh ground.mesh 7 road_d.png
+5.1 0.01 -30.11   0 0 0   1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 4.51 0 -4.6
-rotation 0 355.4799 0
-scale 1 1 1
+mesh ground.mesh 7 road_d.png
+5.1 0.01 -45.11   0 0 0   1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 3.365955 0 -4.245518
-rotation 0 355.4799 0
-scale 1 1 1
+mesh ground.mesh 7 road_d.png
+10.1 0.01 -45.11   0 0 0   -1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 4.46873 0 -3.386392
-rotation 0 38.02773 0
-scale 1 1 1
+mesh wall_straight.mesh 7 bricks_d.png
+-2 0 7   0 0 0   1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 9.49 1 1.92
-rotation 0 305.2483 0
-scale 1 1 1
+mesh wall_straight.mesh 7 bricks_d.png
+-2 0 3   0 0 0   1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 3.78 1 4.71
-rotation 0 283.2556 0
-scale 1 1 1
+mesh wall_straight.mesh 7 bricks_d.png
+-2 0 -1   0 0 0   1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 4.298827 0 4.96865
-rotation 0 278.7355 0
-scale 1 1 1
+mesh wall_straight.mesh 7 bricks_d.png
+-2 0 -5   0 0 0   1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 14.20603 0.1191766 -1.795308
-rotation 0 0 0
-scale 1 1 1
+mesh wall_straight.mesh 15 fence_mesh_diffuse.png
+17.1 0 8.17   0 0 0   1.473322 1.473323 1.473323
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 7.92149 -1.16917E-15 5.155476
-rotation 0 0 0
-scale 1 1 1
+mesh wall_straight.mesh 15 fence_mesh_diffuse.png
+17.1 0 2.17   0 0 0   1.47332 1.47332 1.47332
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 5.501343 -1.878046E-16 0.7357966
-rotation 0 0 0
-scale 1 1 1
+mesh wall_straight.mesh 15 fence_mesh_diffuse.png
+1.1 0 2.17   0 0 0   1.47332 1.47332 1.47332
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 9.053013 0 2.632229
-rotation 0 343.2761 0
-scale 1 1 1
+mesh wall_straight.mesh 15 fence_mesh_diffuse.png
+1.1 0 8.17   0 0 0   1.47332 1.47332 1.47332
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 10.06793 0 1.965533
-rotation 0 300.7283 0
-scale 1 1 1
+mesh wall_straight.mesh 15 fence_mesh_diffuse.png
+1.1 0 -2.83   0 0 0   1.47332 1.47332 1.47332
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 9.118191 0 1.235818
-rotation 0 300.7283 0
-scale 1 1 1
+mesh wall_straight.mesh 15 fence_mesh_diffuse.png
+1.1 0 -8.83   0 0 0   1.47332 1.47332 1.47332
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 3.10809 0 5.206754
-rotation 0 321.2833 0
-scale 1 1 1
+mesh wood_box.mesh 7 wood_planks_d.png
+14.20603 0.1191766 -1.795308   0 0 0   1 1 1
 
-mesh wood_box.mesh
-texture wood_planks_d.png
-position 3.691465 0 3.936367
-rotation 0 278.7355 0
-scale 1 1 1
+mesh wood_box.mesh 7 wood_planks_d.png
+9.49 1 1.92   0 305.2483 0   1 1 1
 
+mesh wood_box.mesh 7 wood_planks_d.png
+10.06793 0 1.965533   0 300.7283 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+3.691465 0 3.936367   0 278.7355 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+4.51 0 -4.6   0 355.4799 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+3.78 1 4.71   0 283.2556 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+3.365955 0 -4.245518   0 355.4799 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+3.10809 0 5.206754   0 321.2833 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+4.298827 0 4.96865   0 278.7355 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+4.46873 0 -3.386392   0 38.02773 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+7.92149 -1.16917E-15 5.155476   0 0 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+9.053013 0 2.632229   0 343.2761 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+5.501343 -1.878046E-16 0.7357966   0 0 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+4.139277 1 -4.154304   0 0 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+9.118191 0 1.235818   0 300.7283 0   1 1 1

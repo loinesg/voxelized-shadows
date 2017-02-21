@@ -1,0 +1,151 @@
+#include "Shader.hpp"
+
+#include <QFile>
+#include <QTextStream>
+
+#include "UniformManager.hpp"
+
+Shader::Shader(ShaderFeatureList features, const string &vertSource, const string &fragSource)
+    : features_(features)
+{
+    // Compile vertex shader
+    if(!compileShader(GL_VERTEX_SHADER, vertSource.c_str(), vertexShader_))
+    {
+        printf("Failed to compile vertex shader \n");
+    }
+    
+    // Compile fragment shader
+    if(!compileShader(GL_FRAGMENT_SHADER, fragSource.c_str(), fragmentShader_))
+    {
+        printf("Failed to compile fragment shader \n");
+    }
+    
+    // Create program
+    program_ = glCreateProgram();
+    glAttachShader(program_, vertexShader_);
+    glAttachShader(program_, fragmentShader_);
+    glLinkProgram(program_);
+    
+    // Check for linking errors
+    if(!checkLinkerErrors(program_))
+    {
+        printf("Failed to create program \n");
+    }
+    
+    // Set uniform block binding
+    setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
+}
+
+Shader::~Shader()
+{
+    glDeleteProgram(program_);
+    glDeleteShader(vertexShader_);
+    glDeleteShader(fragmentShader_);
+}
+
+bool Shader::hasFeature(ShaderFeature feature) const
+{
+    return (features_ & feature) != 0;
+}
+
+void Shader::bind()
+{
+    glUseProgram(program_);
+}
+
+bool Shader::compileShader(GLenum type, const char* fileName, GLuint &id)
+{
+    QFile sourceFile(fileName);
+    if(!sourceFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        printf("Failed to open shader file %s \n", fileName);
+        return false;
+    }
+    
+    // Get file contents
+    QTextStream sourceStream(&sourceFile);
+    QByteArray sourceBytes = sourceStream.readAll().toLocal8Bit();
+    
+    // Add feature #defines to the text
+    string sourceText = (char*)sourceBytes.data();
+    sourceText.insert(sourceText.find("\n"), createFeatureDefines());
+    
+    // Create and compile shader
+    id = glCreateShader(type);
+    char* sourceChars = (char*)sourceText.c_str();
+    glShaderSource(id, 1, &sourceChars, NULL);
+    glCompileShader(id);
+    
+    // Check for errors
+    if(!checkShaderErrors(id))
+    {
+        printf("Shader error in %s \n", fileName);
+        return false;
+    }
+    
+    return true;
+}
+
+bool Shader::checkShaderErrors(GLuint shaderID)
+{
+    GLint ok;
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &ok);
+    
+    if(!ok)
+    {
+        GLint logLength;
+        glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
+        
+        // Print the error log
+        char* log = new char[logLength];
+        glGetShaderInfoLog(shaderID, logLength, NULL, log);
+        printf("Shader Error. Log: %s \n", log);
+        delete[] log;
+        
+        // Error
+        return false;
+    }
+    
+    // No error
+    return true;
+}
+
+bool Shader::checkLinkerErrors(GLuint programID)
+{
+    GLint linked = 0;
+    glGetProgramiv(programID, GL_LINK_STATUS, (int*)&linked);
+    
+    if(!linked)
+    {
+        GLint logLength;
+        glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &logLength);
+        
+        // Print the error log
+        char* log = new char[logLength];
+        glGetProgramInfoLog(programID, logLength, NULL, log);
+        printf("Program link error. Log: %s \n", log);
+        delete[] log;
+        
+        // Error
+        return false;
+    }
+    
+    // No error
+    return true;
+}
+
+void Shader::setUniformBlockBinding(const char *blockName, GLuint id)
+{
+    glUniformBlockBinding(program_, glGetUniformBlockIndex(program_, blockName), id);
+}
+
+string Shader::createFeatureDefines() const
+{
+    string defines = "";
+    if(hasFeature(SF_Texture)) defines += "\n #define TEXTURE_ON";
+    if(hasFeature(SF_NormalMap)) defines += "\n #define NORMAL_MAP_ON";
+    if(hasFeature(SF_Specular)) defines += "\n #define SPECULAR_ON";
+    if(hasFeature(SF_Cutout)) defines += "\n #define ALPHA_TEST_ON";
+    
+    return defines;
+}

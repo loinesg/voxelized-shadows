@@ -1,9 +1,9 @@
 #include "MainWindow.hpp"
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(const QGLFormat &format)
 {
     // Create widgets
-    rendererWidget_ = new RendererWidget();
+    rendererWidget_ = new RendererWidget(format);
 
     // Add widgets to layout
     layout_ = new QBoxLayout(QBoxLayout::TopToBottom, this);

@@ -14,6 +14,8 @@ struct Quaternion
     Quaternion();
     Quaternion(const Vector3 &v, float w);
     Quaternion(float x, float y, float z, float w);
+    
+    static Quaternion identity();
 
     float sqrNorm() const;
     float norm() const;
