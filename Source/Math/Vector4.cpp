@@ -14,6 +14,42 @@ Vector4::Vector4(float x, float y, float z, float w)
 
 }
 
+Vector4::Vector4(const Vector3 &v, float w)
+    : x(v.x), y(v.y), z(v.z), w(w)
+{
+    
+}
+
+Vector4 operator / (const Vector4 &v, float scalar)
+{
+    return Vector4(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);
+}
+
+Vector4 operator / (float scalar, const Vector4 &v)
+{
+    return Vector4(scalar / v.x, scalar / v.y, scalar / v.z, scalar / v.w);
+}
+
+Vector4 operator * (const Vector4 &v, float scalar)
+{
+    return Vector4(v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar);
+}
+
+Vector4 operator * (float scalar, const Vector4 &v)
+{
+    return v * scalar;
+}
+
+Vector4 operator + (const Vector4 &a, const Vector4 &b)
+{
+    return Vector4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+}
+
+Vector4 operator - (const Vector4 &a, const Vector4 &b)
+{
+    return Vector4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+}
+
 ostream& operator << (ostream &os, Vector4 &vec)
 {
     os << "( " << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << " )";
