@@ -106,7 +106,7 @@ Vector3 operator - (const Vector3 &a, const Vector3 &b)
 
 ostream& operator << (ostream &os, Vector3 &vec)
 {
-    os << "( " << vec.x << ", " << vec.y << ", " << vec.z << ", " << " )";
+    os << "( " << vec.x << ", " << vec.y << ", " << vec.z << " )";
     return os;
 }
 
