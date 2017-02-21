@@ -22,6 +22,9 @@ struct SceneUniformBuffer
 {
     static const int BlockID = 1;
     
+    // Ambient light
+    Vector4 ambientLightColor;
+    
     // Light settings
     Vector4 lightColor;
     Vector4 lightDirection; // To light. Normalized

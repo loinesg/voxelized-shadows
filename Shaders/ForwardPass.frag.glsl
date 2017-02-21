@@ -2,6 +2,7 @@
 
 layout(std140) uniform scene_data
 {
+    uniform vec3 _AmbientColor;
     uniform vec3 _LightColor;
     uniform vec3 _LightDirection;
 };
@@ -40,7 +41,7 @@ void main()
 #endif
     
     vec3 light = LambertLight(worldNormal);
-    light += vec3(0.2, 0.2, 0.25) * 2.0;
+    light += _AmbientColor;
     col.rgb *= light;
     
     fragColor = col;
