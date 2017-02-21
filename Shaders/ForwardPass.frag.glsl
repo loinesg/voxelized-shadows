@@ -1,10 +1,25 @@
 #version 330
 
+layout(std140) uniform scene_data
+{
+    uniform vec3 _LightColor;
+    uniform vec3 _LightDirection;
+};
+
 uniform sampler2D _MainTexture;
 
+in vec3 worldNormal;
 in vec2 texcoord;
 
 out vec4 fragColor;
+
+vec3 LambertLight(vec3 worldNormal)
+{
+    vec3 lightDir = normalize(vec3(1.0, 1.0, 0.2));
+    vec3 lightCol = vec3(0.95, 0.88, 0.88) * 2.5;
+    
+    return max(0.0, dot(worldNormal, _LightDirection)) * _LightColor;
+}
 
 void main()
 {
@@ -23,6 +38,10 @@ void main()
     
     if(opacity < 0.5) discard;
 #endif
+    
+    vec3 light = LambertLight(worldNormal);
+    light += vec3(0.2, 0.2, 0.25) * 2.0;
+    col.rgb *= light;
     
     fragColor = col;
 }

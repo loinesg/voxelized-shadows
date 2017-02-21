@@ -17,6 +17,9 @@ public:
     Matrix4x4 worldToLocal() const { return worldToLocal_; }
     Matrix4x4 localToWorld() const { return localToWorld_; }
     
+    // Object axis in world space
+    Vector4 forward() const;
+    
     void setPosition(const Vector3 &pos);
     void setRotation(const Quaternion &rot);
     void setScale(const Vector3 &scale);

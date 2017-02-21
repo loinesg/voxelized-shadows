@@ -40,6 +40,11 @@ void RendererWidget::resizeGL(int w, int h)
 
 void RendererWidget::paintGL()
 {
+    SceneUniformBuffer data;
+    data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
+    data.lightDirection = -1.0 * scene_->mainLight()->forward();
+    uniformManager_->updateSceneBuffer(data);
+    
     forwardPass_->submit(scene_->mainCamera(), scene_->meshInstances());
 }
 

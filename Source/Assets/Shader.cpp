@@ -34,6 +34,7 @@ Shader::Shader(ShaderFeatureList features, const string &vertSource, const strin
     
     // Set uniform block binding
     setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
+    setUniformBlockBinding("scene_data", SceneUniformBuffer::BlockID);
 }
 
 Shader::~Shader()
