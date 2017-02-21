@@ -1,6 +1,9 @@
 camera 60 0.3 150
 14.7 3.1 -9.62   18.15999 320.6 -4.492647E-07   1 1 1
 
+light 2.81 2.558642 2.169485 0.7569204 0.878848 0.9191176
+0 0 0   19.9 51.9 0   1 1 1
+
 mesh pCube1.mesh 7 bricks_d.png
 -0.73 5.168255E-16 9.94   0 158.2242 0   1.429937 1.429936 1.429937
 
@@ -35,10 +38,10 @@ mesh wall_straight.mesh 7 bricks_d.png
 -2 0 3   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_d.png
--2 0 -1   0 0 0   1 1 1
+-2 0 -5   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_d.png
--2 0 -5   0 0 0   1 1 1
+-2 0 -1   0 0 0   1 1 1
 
 mesh wall_straight.mesh 15 fence_mesh_diffuse.png
 17.1 0 8.17   0 0 0   1.473322 1.473323 1.473323
@@ -59,22 +62,22 @@ mesh wall_straight.mesh 15 fence_mesh_diffuse.png
 1.1 0 -8.83   0 0 0   1.47332 1.47332 1.47332
 
 mesh wood_box.mesh 7 wood_planks_d.png
-14.20603 0.1191766 -1.795308   0 0 0   1 1 1
+9.118191 0 1.235818   0 300.7283 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
-9.49 1 1.92   0 305.2483 0   1 1 1
-
-mesh wood_box.mesh 7 wood_planks_d.png
-10.06793 0 1.965533   0 300.7283 0   1 1 1
-
-mesh wood_box.mesh 7 wood_planks_d.png
-3.691465 0 3.936367   0 278.7355 0   1 1 1
+9.053013 0 2.632229   0 343.2761 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
 4.51 0 -4.6   0 355.4799 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
+10.06793 0 1.965533   0 300.7283 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
 3.78 1 4.71   0 283.2556 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_d.png
+3.691465 0 3.936367   0 278.7355 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
 3.365955 0 -4.245518   0 355.4799 0   1 1 1
@@ -92,13 +95,13 @@ mesh wood_box.mesh 7 wood_planks_d.png
 7.92149 -1.16917E-15 5.155476   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
-9.053013 0 2.632229   0 343.2761 0   1 1 1
+14.20603 0.1191766 -1.795308   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
-5.501343 -1.878046E-16 0.7357966   0 0 0   1 1 1
+9.49 1 1.92   0 305.2483 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
 4.139277 1 -4.154304   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_d.png
-9.118191 0 1.235818   0 300.7283 0   1 1 1
+5.501343 -1.878046E-16 0.7357966   0 0 0   1 1 1
