@@ -35,6 +35,10 @@ Shader::Shader(ShaderFeatureList features, const string &vertSource, const strin
     // Set uniform block binding
     setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
     setUniformBlockBinding("scene_data", SceneUniformBuffer::BlockID);
+    
+    // Set texture locations
+    glUniform1i(glGetUniformLocation(program_, "_MainTexture"), 0);
+    glUniform1i(glGetUniformLocation(program_, "_NormalMap"), 1);
 }
 
 Shader::~Shader()

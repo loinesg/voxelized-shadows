@@ -11,7 +11,7 @@ typedef unsigned short MeshElementIndex;
 class Mesh
 {
 public:
-    Mesh(int verticesCount, int elementsCount, GLuint vertexArray, GLuint vertexPositionsBuffer, GLuint vertexNormalsBuffer, GLuint vertexTexcoordsBuffer, GLuint elementsBuffer);
+    Mesh(int verticesCount, int elementsCount, GLuint vertexArray, GLuint vertexPositionsBuffer, GLuint vertexNormalsBuffer, GLuint vertexTangentsBuffer, GLuint vertexTexcoordsBuffer, GLuint elementsBuffer);
     ~Mesh();
     
     int verticesCount() const { return verticesCount_; }
@@ -29,6 +29,7 @@ private:
     GLuint vertexArray_;
     GLuint vertexPositionsBuffer_;
     GLuint vertexNormalsBuffer_;
+    GLuint vertexTangentsBuffer_;
     GLuint vertexTexcoordsBuffer_;
     GLuint elementsBuffer_;
 };

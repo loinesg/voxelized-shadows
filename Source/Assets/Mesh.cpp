@@ -10,12 +10,13 @@ using namespace std;
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 
-Mesh::Mesh(int verticesCount, int elementsCount, GLuint vertexArray, GLuint vertexPositionsBuffer, GLuint vertexNormalsBuffer, GLuint vertexTexcoordsBuffer, GLuint elementsBuffer)
+Mesh::Mesh(int verticesCount, int elementsCount, GLuint vertexArray, GLuint vertexPositionsBuffer, GLuint vertexNormalsBuffer, GLuint vertexTangentsBuffer, GLuint vertexTexcoordsBuffer, GLuint elementsBuffer)
     : verticesCount_(verticesCount),
     elementsCount_(elementsCount),
     vertexArray_(vertexArray),
     vertexPositionsBuffer_(vertexPositionsBuffer),
     vertexNormalsBuffer_(vertexNormalsBuffer),
+    vertexTangentsBuffer_(vertexTangentsBuffer),
     vertexTexcoordsBuffer_(vertexTexcoordsBuffer),
     elementsBuffer_(elementsBuffer)
 {
@@ -27,6 +28,7 @@ Mesh::~Mesh()
     glDeleteVertexArrays(1, &vertexArray_);
     glDeleteBuffers(1, &vertexPositionsBuffer_);
     glDeleteBuffers(1, &vertexNormalsBuffer_);
+    glDeleteBuffers(1, &vertexTangentsBuffer_);
     glDeleteBuffers(1, &vertexTexcoordsBuffer_);
     glDeleteBuffers(1, &elementsBuffer_);
 }
@@ -41,6 +43,7 @@ Mesh* Mesh::load(const char* fileName)
 {
     vector<Vector3> positions;
     vector<Vector3> normals;
+    vector<Vector4> tangents;
     vector<Vector2> texcoords;
     vector<MeshElementIndex> elements;
     
@@ -63,6 +66,12 @@ Mesh* Mesh::load(const char* fileName)
             Vector3 n;
             file >> n;
             normals.push_back(n);
+        }
+        else if(type == "tangent")
+        {
+            Vector4 t;
+            file >> t;
+            tangents.push_back(t);
         }
         else if(type == "texcoord")
         {
@@ -98,8 +107,8 @@ Mesh* Mesh::load(const char* fileName)
     glBindVertexArray(vertexArray);
     
     // Create vertex buffers
-    GLuint vertexBuffers[3];
-    glGenBuffers(3, vertexBuffers);
+    GLuint vertexBuffers[4];
+    glGenBuffers(4, vertexBuffers);
     
     // Positions buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[0]);
@@ -113,11 +122,17 @@ Mesh* Mesh::load(const char* fileName)
     glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, (void*)0);
     glEnableVertexAttribArray(1);
     
-    // Texcoords buffer
+    // Tangents buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector2) * texcoords.size(), &texcoords[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4) * tangents.size(), &tangents[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, (void*)0);
     glEnableVertexAttribArray(2);
+    
+    // Texcoords buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[3]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector2) * texcoords.size(), &texcoords[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(3, 2, GL_FLOAT, false, 0, (void*)0);
+    glEnableVertexAttribArray(3);
     
     // Elements buffer
     GLuint elementsBuffer;
@@ -133,5 +148,5 @@ Mesh* Mesh::load(const char* fileName)
     }
     
     // No error
-    return new Mesh((int)positions.size(), (int)elements.size(), vertexArray, vertexBuffers[0], vertexBuffers[1], vertexBuffers[2], elementsBuffer);
+    return new Mesh((int)positions.size(), (int)elements.size(), vertexArray, vertexBuffers[0], vertexBuffers[1], vertexBuffers[2], vertexBuffers[3], elementsBuffer);
 }

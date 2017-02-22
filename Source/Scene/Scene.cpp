@@ -114,14 +114,15 @@ bool Scene::loadLight(ifstream &file)
 
 bool Scene::loadMeshInstance(ifstream &file)
 {
-    // Mesh name, shader features and texture are stored sequentially.
-    string meshName, textureName;
+    // Mesh name, shader features and textures are stored sequentially.
+    string meshName, textureName, normalMapName;
     ShaderFeatureList shaderFeatures;
-    file >> meshName >> shaderFeatures >> textureName;
+    file >> meshName >> shaderFeatures >> textureName >> normalMapName;
     
     // Get or create the mesh and texture
     Mesh* mesh = getMesh(meshName);
     Texture* texture = getTexture(textureName);
+    Texture* normalMap = getTexture(normalMapName);
     
     // Check for errors
     if(mesh == NULL || texture == NULL)
@@ -131,7 +132,7 @@ bool Scene::loadMeshInstance(ifstream &file)
     }
     
     // Create the instance
-    MeshInstance instance(mesh, shaderFeatures, texture);
+    MeshInstance instance(mesh, shaderFeatures, texture, normalMap);
     loadObjectTransform(file, &instance);
     meshInstances_.push_back(instance);
     return true;

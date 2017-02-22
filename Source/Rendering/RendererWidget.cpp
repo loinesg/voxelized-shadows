@@ -41,6 +41,7 @@ void RendererWidget::resizeGL(int w, int h)
 void RendererWidget::paintGL()
 {
     SceneUniformBuffer data;
+    data.cameraPosition = Vector4(scene_->mainCamera()->position(), 1.0);
     data.ambientLightColor = Vector4(scene_->mainLight()->ambient(), 1.0);
     data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
@@ -55,7 +56,7 @@ void RendererWidget::createRenderPasses()
     string forwardPassName = "ForwardPass";
     
     forwardPass_ = new RenderPass(forwardPassName, shaderDirectory, uniformManager_);
-    forwardPass_->setSupportedFeatures(SF_Texture | SF_Cutout);
+    forwardPass_->setSupportedFeatures(SF_Texture | SF_Cutout | SF_NormalMap);
     forwardPass_->setClearColor(PassClearColor(0.6, 0.1, 0.1, 1.0));
 }
 
