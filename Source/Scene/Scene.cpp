@@ -4,6 +4,7 @@
 
 Scene::Scene()
     : cameras_(),
+    lights_(),
     meshInstances_(),
     meshes_(),
     textures_()
@@ -47,6 +48,10 @@ bool Scene::loadObject(ifstream &file)
     {
         return loadCamera(file);
     }
+    else if(objectType == "light")
+    {
+        return loadLight(file);
+    }
     else if(objectType == "mesh")
     {
         return loadMeshInstance(file);
@@ -77,8 +82,6 @@ bool Scene::loadCamera(ifstream &file)
     float fov, nearPlane, farPlane;
     file >> fov >> nearPlane >> farPlane;
     
-    printf("Loading camera");
-    
     // Create a new camera
     Camera camera;
     camera.setType(CameraType::Perspective);
@@ -93,16 +96,33 @@ bool Scene::loadCamera(ifstream &file)
     return true;
 }
 
+bool Scene::loadLight(ifstream &file)
+{
+    // Color and ambient color are stored sequentially
+    Vector3 color, ambient;
+    file >> color >> ambient;
+    
+    // Create a light
+    Light light(color, ambient);
+    loadObjectTransform(file, &light);
+    
+    // Add to the lights list
+    lights_.push_back(light);
+    
+    return true;
+}
+
 bool Scene::loadMeshInstance(ifstream &file)
 {
-    // Mesh name, shader features and texture are stored sequentially.
-    string meshName, textureName;
+    // Mesh name, shader features and textures are stored sequentially.
+    string meshName, textureName, normalMapName;
     ShaderFeatureList shaderFeatures;
-    file >> meshName >> shaderFeatures >> textureName;
+    file >> meshName >> shaderFeatures >> textureName >> normalMapName;
     
     // Get or create the mesh and texture
     Mesh* mesh = getMesh(meshName);
     Texture* texture = getTexture(textureName);
+    Texture* normalMap = getTexture(normalMapName);
     
     // Check for errors
     if(mesh == NULL || texture == NULL)
@@ -112,7 +132,7 @@ bool Scene::loadMeshInstance(ifstream &file)
     }
     
     // Create the instance
-    MeshInstance instance(mesh, shaderFeatures, texture);
+    MeshInstance instance(mesh, shaderFeatures, texture, normalMap);
     loadObjectTransform(file, &instance);
     meshInstances_.push_back(instance);
     return true;

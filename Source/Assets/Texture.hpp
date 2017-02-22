@@ -14,7 +14,7 @@ public:
     int width() const { return width_; }
     int height() const { return height_; }
     
-    void bind();
+    void bind(GLenum textureSlot);
     
     static Texture* load(const char* fileName);
     

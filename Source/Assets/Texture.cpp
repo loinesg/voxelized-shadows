@@ -16,9 +16,9 @@ Texture::~Texture()
     glDeleteTextures(1, &id_);
 }
 
-void Texture::bind()
+void Texture::bind(GLenum textureSlot)
 {
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(textureSlot);
     glBindTexture(GL_TEXTURE_2D, id_);
 }
 

@@ -10,6 +10,11 @@ Object::Object()
     
 }
 
+Vector4 Object::forward() const
+{
+    return Matrix4x4::rotation(rotation_) * Vector4(0.0, 0.0, 1.0, 0.0);
+}
+
 void Object::setPosition(const Vector3 &pos)
 {
     position_ = pos;

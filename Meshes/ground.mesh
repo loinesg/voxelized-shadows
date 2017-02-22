@@ -1,62 +1,82 @@
 vertex 2.5 -1.665335E-15 7.5
 normal 0 1 0
+tangent -1 0 0 -1
 texcoord -0.989899 -0.989899
 vertex 2.5 1.665335E-15 -7.5
 normal 0 1 0
+tangent -1 0 0 -1
 texcoord -0.989899 1.989899
 vertex -2.5 1.665335E-15 -7.5
 normal 0 1 0
+tangent -1 0 0 -1
 texcoord 0.003367037 1.989899
 vertex -2.5 -1.665335E-15 7.5
 normal 0 1 0
+tangent -1 0 0 -1
 texcoord 0.003367037 -0.989899
 vertex -2.5 1.665335E-15 -7.5
 normal 1 0 0
+tangent 0 0 1 -1
 texcoord -0.989899 -0.989899
 vertex -2.5 0.1387866 -7.5
 normal 1 0 0
+tangent 0 0 1 -1
 texcoord -0.989899 1.989899
 vertex -2.5 0.1387866 7.5
 normal 1 0 0
+tangent 0 0 1 -1
 texcoord 1.989899 1.989899
 vertex -2.5 -1.665335E-15 7.5
 normal 1 0 0
+tangent 0 0 1 -1
 texcoord 1.989899 -0.989899
 vertex -2.5 0.1387866 -7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord -0.989899 -0.989899
 vertex -2.631196 0.1387866 -7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord -0.989899 1.989899
 vertex -2.631196 0.1387866 7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord 1.989899 1.989899
 vertex -2.5 0.1387866 7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord 1.989899 -0.989899
 vertex -2.631196 0.1387866 -7.5
 normal -1 0 0
+tangent 0 0 1 -1
 texcoord -0.989899 -0.989899
 vertex -2.631196 0.1191766 -7.5
 normal -1 0 0
+tangent 0 0 1 -1
 texcoord -0.989899 1.989899
 vertex -2.631196 0.1191766 7.5
 normal -1 0 0
+tangent 0 0 1 -1
 texcoord 1.989899 1.989899
 vertex -2.631196 0.1387866 7.5
 normal -1 0 0
+tangent 0 0 1 -1
 texcoord 1.989899 -0.989899
 vertex -2.631196 0.1191766 -7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord -0.989899 -0.989899
 vertex -7.234143 0.1191766 -7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord -0.989899 1.989899
 vertex -7.234143 0.1191766 7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord 1.989899 1.989899
 vertex -2.631196 0.1191766 7.5
 normal 0 1 0
+tangent 0 0 1 -1
 texcoord 1.989899 -0.989899
 triangle 0 1 2
 triangle 0 2 3

@@ -50,12 +50,14 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
     // Used to skip needless state changes
     ShaderFeatureList prevShaderFeatures = ~0;
     Texture* prevTexture = NULL;
+    Texture* prevNormalMap = NULL;
     Mesh* prevMesh = NULL;
     
     for(auto instance = instances->begin(); instance != instances->end(); ++instance)
     {
         ShaderFeatureList shaderFeatures = instance->shaderFeatures();
         Texture* texture = instance->texture();
+        Texture* normalMap = instance->normalMap();
         Mesh* mesh = instance->mesh();
         Matrix4x4 transform = instance->localToWorld();
         
@@ -65,7 +67,11 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
         
         // Bind the correct main texture
         if(texture != prevTexture)
-            texture->bind();
+            texture->bind(GL_TEXTURE0);
+        
+        // Bind the correct normal map texture
+        if(normalMap != prevNormalMap)
+            normalMap->bind(GL_TEXTURE1);
             
         // Bind the correct mesh
         if(mesh != prevMesh)
@@ -82,6 +88,7 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
         
         prevShaderFeatures = shaderFeatures;
         prevTexture = texture;
+        prevNormalMap = normalMap;
         prevMesh = mesh;
     }
 }
