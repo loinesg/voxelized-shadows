@@ -18,6 +18,16 @@ RendererWidget::~RendererWidget()
     delete uniformManager_;
 }
 
+void RendererWidget::enableFeature(ShaderFeature feature)
+{
+    forwardPass_->enableFeature(feature);
+}
+
+void RendererWidget::disableFeature(ShaderFeature feature)
+{
+    forwardPass_->disableFeature(feature);
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));
@@ -36,6 +46,9 @@ void RendererWidget::initializeGL()
 void RendererWidget::resizeGL(int w, int h)
 {
     glViewport(0, 0, w, h);
+    
+    camera()->setPixelWidth(w);
+    camera()->setPixelHeight(h);
 }
 
 void RendererWidget::paintGL()
@@ -48,6 +61,9 @@ void RendererWidget::paintGL()
     uniformManager_->updateSceneBuffer(data);
     
     forwardPass_->submit(scene_->mainCamera(), scene_->meshInstances());
+    
+    // Redraw immediately
+    update();
 }
 
 void RendererWidget::createRenderPasses()
@@ -56,7 +72,7 @@ void RendererWidget::createRenderPasses()
     string forwardPassName = "ForwardPass";
     
     forwardPass_ = new RenderPass(forwardPassName, shaderDirectory, uniformManager_);
-    forwardPass_->setSupportedFeatures(SF_Texture | SF_Cutout | SF_NormalMap);
+    forwardPass_->setSupportedFeatures(SF_Texture | SF_Specular | SF_NormalMap | SF_Cutout);
     forwardPass_->setClearColor(PassClearColor(0.6, 0.1, 0.1, 1.0));
 }
 

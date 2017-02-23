@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 
     window->show();
     window->setWindowTitle("Shadow Rendering");
-    window->resize(800, 900);
+    window->resize(1200, 900);
 
     return app.exec();
 }
