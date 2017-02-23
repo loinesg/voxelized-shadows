@@ -19,11 +19,14 @@ layout(location = 1) in vec3 _normal;
 layout(location = 2) in vec4 _tangent;
 layout(location = 3) in vec2 _texcoord;
 
+#ifdef SPECULAR_ON
+    out vec3 viewDir;
+#endif
+
 #ifdef NORMAL_MAP_ON
     out vec3 tangentToWorldX;
     out vec3 tangentToWorldY;
     out vec3 tangentToWorldZ;
-    out vec3 viewDir;
 #else
     out vec3 worldNormal;
 #endif
@@ -34,15 +37,18 @@ void main()
 {
     gl_Position = _ModelViewProjection * _position;
     
-#ifdef NORMAL_MAP_ON
+#ifdef SPECULAR_ON
     vec4 worldPosition = _ModelToWorld * _position;
+    viewDir = normalize(_CameraPosition - worldPosition.xyz);
+#endif
+    
+#ifdef NORMAL_MAP_ON
     vec3 worldNormal = normalize(mat3(_ModelToWorld) * _normal);
     vec3 worldTangent = normalize(mat3(_ModelToWorld) * _tangent.xyz);
     vec3 worldBitangent = cross(worldNormal, worldTangent) * _tangent.w * -1.0;
     tangentToWorldX = vec3(worldTangent.x, worldBitangent.x, worldNormal.x);
     tangentToWorldY = vec3(worldTangent.y, worldBitangent.y, worldNormal.y);
     tangentToWorldZ = vec3(worldTangent.z, worldBitangent.z, worldNormal.z);
-    viewDir = normalize(_CameraPosition - worldPosition.xyz);
 #else
     worldNormal = normalize(mat3(_ModelToWorld) * _normal);
 #endif

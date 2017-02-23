@@ -10,12 +10,15 @@ layout(std140) uniform scene_data
 
 uniform sampler2D _MainTexture;
 
+#ifdef SPECULAR_ON
+    in vec3 viewDir;
+#endif
+
 #ifdef NORMAL_MAP_ON
     uniform sampler2D _NormalMap;
     in vec3 tangentToWorldX;
     in vec3 tangentToWorldY;
     in vec3 tangentToWorldZ;
-    in vec3 viewDir;
 #else
     in vec3 worldNormal;
 #endif
@@ -44,7 +47,7 @@ vec3 BlinnPhongLight(vec4 surface, vec3 worldNormal, vec3 viewDirection)
 {
     vec3 h = normalize(_LightDirection + viewDirection);
     float ndoth = max(0.0, dot(worldNormal, h));
-    float spec = pow(ndoth, 32.0);
+    float spec = pow(ndoth, 25.0) * 0.2;
     
     return LambertLight(surface, worldNormal) + spec * _LightColor;
 }
@@ -54,17 +57,11 @@ void main()
 #ifdef TEXTURE_ON
     vec4 col = texture(_MainTexture, texcoord);
 #else
-    vec4 col = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 col = vec4(0.4, 0.4, 0.4, 1.0);
 #endif
     
 #ifdef ALPHA_TEST_ON
-    #ifdef TEXTURE_ON
-        float opacity = col.a;
-    #else
-        float opacity = texture(_MainTexture, texcoord).a;
-    #endif
-    
-    if(opacity < 0.5) discard;
+    if(texture(_MainTexture, texcoord).a < 0.5) discard;
 #endif
     
 #ifdef NORMAL_MAP_ON
@@ -73,6 +70,10 @@ void main()
     worldNormal.x = dot(tangentNormal, tangentToWorldX);
     worldNormal.y = dot(tangentNormal, tangentToWorldY);
     worldNormal.z = dot(tangentNormal, tangentToWorldZ);
+    worldNormal = normalize(worldNormal);
+#endif
+    
+#ifdef SPECULAR_ON
     fragColor = vec4(BlinnPhongLight(col, worldNormal, viewDir), 0.0);
 #else
     fragColor = vec4(LambertLight(col, worldNormal), 0.0);

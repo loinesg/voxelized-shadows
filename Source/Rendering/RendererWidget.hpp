@@ -12,6 +12,9 @@ public:
     RendererWidget(const QGLFormat &format);
     ~RendererWidget();
     
+    void enableFeature(ShaderFeature feature);
+    void disableFeature(ShaderFeature feature);
+    
     Camera* camera() const { return scene_->mainCamera(); }
 
 private:

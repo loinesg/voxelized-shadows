@@ -8,6 +8,11 @@ MainWindowController::MainWindowController(MainWindow* window)
 {
     window_->rendererWidget()->setFocus();
     window_->rendererWidget()->installEventFilter(this);
+    
+    connect(window_->textureToggle(), SIGNAL(stateChanged(int)), this, SLOT(textureFeatureToggled(int)));
+    connect(window_->specularToggle(), SIGNAL(stateChanged(int)), this, SLOT(specularFeatureToggled(int)));
+    connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
+    connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
 }
 
 MainWindowController::~MainWindowController()
@@ -46,6 +51,27 @@ bool MainWindowController::eventFilter(QObject * obj, QEvent* event)
     
     return QObject::eventFilter(obj, event);
 }
+
+void MainWindowController::textureFeatureToggled(int state)
+{
+    updateShaderFeature(SF_Texture, state);
+}
+
+void MainWindowController::specularFeatureToggled(int state)
+{
+    updateShaderFeature(SF_Specular, state);
+}
+
+void MainWindowController::normalMapsFeatureToggled(int state)
+{
+    updateShaderFeature(SF_NormalMap, state);
+}
+
+void MainWindowController::cutoutFeatureToggled(int state)
+{
+    updateShaderFeature(SF_Cutout, state);
+}
+
 
 void MainWindowController::update(float deltaTime)
 {
@@ -140,4 +166,16 @@ void MainWindowController::keyReleaseEvent(QKeyEvent* event)
         inputManager_.keyReleased(IK_MoveDown);
     else if(event->key() == Qt::Key::Key_Shift)
         inputManager_.keyReleased(IK_MoveFast);
+}
+
+void MainWindowController::updateShaderFeature(ShaderFeature feature, int state)
+{
+    if(state == Qt::CheckState::Checked)
+    {
+        window_->rendererWidget()->enableFeature(feature);
+    }
+    else
+    {
+        window_->rendererWidget()->disableFeature(feature);
+    }
 }
