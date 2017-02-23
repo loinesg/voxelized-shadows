@@ -36,6 +36,9 @@ void RendererWidget::initializeGL()
 void RendererWidget::resizeGL(int w, int h)
 {
     glViewport(0, 0, w, h);
+    
+    camera()->setPixelWidth(w);
+    camera()->setPixelHeight(h);
 }
 
 void RendererWidget::paintGL()

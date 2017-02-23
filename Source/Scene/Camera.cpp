@@ -61,7 +61,7 @@ void Camera::setFov(float fov)
 
 void Camera::updateProjectionMatrix()
 {
-    float aspect = (float)pixelWidth_ / (float)pixelHeight_;
+    float aspect = (float)pixelHeight_ / (float)pixelWidth_;
     
     if(type_ == CameraType::Perspective)
     {
