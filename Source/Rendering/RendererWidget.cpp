@@ -34,6 +34,7 @@ void RendererWidget::initializeGL()
 
     // Configure OpenGL state
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     
     // Create managers
     uniformManager_ = new UniformManager();

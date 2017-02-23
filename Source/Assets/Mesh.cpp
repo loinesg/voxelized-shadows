@@ -83,9 +83,9 @@ Mesh* Mesh::load(const char* fileName)
         {
             MeshElementIndex a, b, c;
             file >> a >> b >> c;
-            elements.push_back(a);
-            elements.push_back(b);
             elements.push_back(c);
+            elements.push_back(b);
+            elements.push_back(a);
         }
         else
         {
