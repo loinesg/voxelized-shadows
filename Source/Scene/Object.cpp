@@ -15,10 +15,26 @@ Vector4 Object::forward() const
     return Matrix4x4::rotation(rotation_) * Vector4(0.0, 0.0, 1.0, 0.0);
 }
 
+Vector4 Object::up() const
+{
+    return Matrix4x4::rotation(rotation_) * Vector4(0.0, 1.0, 0.0, 0.0);
+}
+
+Vector3 Object::localToWorldVector(const Vector3 &v) const
+{
+    Vector4 worldV4 = localToWorld() * Vector4(v, 0.0);
+    return Vector3(worldV4.x, worldV4.y, worldV4.z);
+}
+
 void Object::setPosition(const Vector3 &pos)
 {
     position_ = pos;
     recreateTransformation();
+}
+
+void Object::translate(const Vector3 &translation)
+{
+    setPosition(position_ + translation);
 }
 
 void Object::setRotation(const Quaternion &rot)

@@ -11,6 +11,8 @@ class RendererWidget : public QGLWidget
 public:
     RendererWidget(const QGLFormat &format);
     ~RendererWidget();
+    
+    Camera* camera() const { return scene_->mainCamera(); }
 
 private:
     Scene* scene_;

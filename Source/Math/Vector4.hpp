@@ -16,6 +16,9 @@ struct Vector4
     Vector4();
     Vector4(float x, float y, float z, float w);
     Vector4(const Vector3 &v, float w);
+    
+    // Convert to Vector3
+    Vector3 vec3() const;
 };
 
 Vector4 operator / (const Vector4 &v, float scalar);

@@ -20,6 +20,11 @@ Vector4::Vector4(const Vector3 &v, float w)
     
 }
 
+Vector3 Vector4::vec3() const
+{
+    return Vector3(x, y, z);
+}
+
 Vector4 operator / (const Vector4 &v, float scalar)
 {
     return Vector4(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);

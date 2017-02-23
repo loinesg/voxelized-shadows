@@ -19,8 +19,13 @@ public:
     
     // Object axis in world space
     Vector4 forward() const;
+    Vector4 up() const;
+    
+    // Transform direction vector from local to world space
+    Vector3 localToWorldVector(const Vector3 &v) const;
     
     void setPosition(const Vector3 &pos);
+    void translate(const Vector3 &translation);
     void setRotation(const Quaternion &rot);
     void setScale(const Vector3 &scale);
 

@@ -48,6 +48,9 @@ void RendererWidget::paintGL()
     uniformManager_->updateSceneBuffer(data);
     
     forwardPass_->submit(scene_->mainCamera(), scene_->meshInstances());
+    
+    // Redraw immediately
+    update();
 }
 
 void RendererWidget::createRenderPasses()
