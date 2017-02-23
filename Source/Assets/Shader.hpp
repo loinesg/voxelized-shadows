@@ -50,6 +50,8 @@ private:
     GLuint program_;
     GLuint vertexShader_;
     GLuint fragmentShader_;
+    GLint mainTextureLoc_;
+    GLint normalMapTextureLoc_;
     
     // Shader compilation
     bool compileShader(GLenum type, const char* file, GLuint &id);

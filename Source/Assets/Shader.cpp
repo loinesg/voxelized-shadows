@@ -36,9 +36,9 @@ Shader::Shader(ShaderFeatureList features, const string &vertSource, const strin
     setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
     setUniformBlockBinding("scene_data", SceneUniformBuffer::BlockID);
     
-    // Set texture locations
-    glUniform1i(glGetUniformLocation(program_, "_MainTexture"), 0);
-    glUniform1i(glGetUniformLocation(program_, "_NormalMap"), 1);
+    // Store texture locations
+    mainTextureLoc_ = glGetUniformLocation(program_, "_MainTexture");
+    normalMapTextureLoc_ = glGetUniformLocation(program_, "_NormalMap");
 }
 
 Shader::~Shader()
@@ -56,6 +56,10 @@ bool Shader::hasFeature(ShaderFeature feature) const
 void Shader::bind()
 {
     glUseProgram(program_);
+    
+    // Set texture locations
+    glUniform1i(mainTextureLoc_, 0);
+    glUniform1i(normalMapTextureLoc_, 1);
 }
 
 bool Shader::compileShader(GLenum type, const char* fileName, GLuint &id)
