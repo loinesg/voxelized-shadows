@@ -16,9 +16,49 @@ Texture::~Texture()
     glDeleteTextures(1, &id_);
 }
 
-void Texture::bind(GLenum textureSlot)
+void Texture::setWrapMode(GLint horizontal, GLint vertical)
 {
-    glActiveTexture(textureSlot);
+    glBindTexture(GL_TEXTURE_2D, id_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, horizontal);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vertical);
+}
+
+void Texture::setMinFilter(GLint filter)
+{
+    glBindTexture(GL_TEXTURE_2D, id_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+}
+
+void Texture::setMagFilter(GLint filter)
+{
+    glBindTexture(GL_TEXTURE_2D, id_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+}
+
+void Texture::setBorder(float r, float g, float b, float a)
+{
+    GLfloat colors[] = { r, g, b, a };
+    
+    glBindTexture(GL_TEXTURE_2D, id_);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, colors);
+}
+
+void Texture::setCompareMode(GLenum mode, GLenum func)
+{
+    glBindTexture(GL_TEXTURE_2D, id_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, func);
+}
+
+void Texture::generateMipmaps()
+{
+    glBindTexture(GL_TEXTURE_2D, id_);
+    glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void Texture::bind(GLenum target)
+{
+    glActiveTexture(target);
     glBindTexture(GL_TEXTURE_2D, id_);
 }
 
@@ -45,11 +85,21 @@ Texture* Texture::load(const char* fileName)
                  GL_UNSIGNED_BYTE,
                  QGLWidget::convertToGLFormat(image).bits());
     
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    Texture* texture = new Texture(id, image.width(), image.height());
+    texture->setWrapMode(GL_REPEAT, GL_REPEAT);
+    texture->setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+    texture->setMagFilter(GL_LINEAR);
+    texture->generateMipmaps();
     
-    return new Texture(id, image.width(), image.height());
+    return texture;
+}
+
+Texture* Texture::depth(int width, int height)
+{
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    
+    return new Texture(texture, width, height);
 }

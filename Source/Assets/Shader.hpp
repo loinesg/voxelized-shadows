@@ -52,6 +52,7 @@ private:
     GLuint fragmentShader_;
     GLint mainTextureLoc_;
     GLint normalMapTextureLoc_;
+    GLint shadowMapTextureLoc_;
     
     // Shader compilation
     bool compileShader(GLenum type, const char* file, GLuint &id);

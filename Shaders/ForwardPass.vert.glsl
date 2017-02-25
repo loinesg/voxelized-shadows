@@ -8,6 +8,12 @@ layout(std140) uniform scene_data
     uniform vec3 _LightDirection;
 };
 
+layout(std140) uniform shadow_data
+{
+    uniform mat4x4 _WorldToShadow;
+    uniform vec4 _ShadowMapTexelSize;
+};
+
 layout(std140) uniform per_object_data
 {
     uniform mat4x4 _ModelToWorld;
@@ -32,6 +38,7 @@ layout(location = 3) in vec2 _texcoord;
 #endif
 
 out vec2 texcoord;
+out vec4 shadowCoord;
 
 void main()
 {
@@ -60,5 +67,9 @@ void main()
     worldNormal = normalize(mat3(_ModelToWorld) * _normal);
 #endif
     
+    // Texcoord does not need to be modified.
     texcoord = _texcoord;
+    
+    // Construct the shadow map coords from the world position
+    shadowCoord = _WorldToShadow * (_ModelToWorld * _position);
 }

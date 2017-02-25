@@ -23,7 +23,10 @@ uniform sampler2D _MainTexture;
     in vec3 worldNormal;
 #endif
 
+uniform sampler2DShadow _ShadowMapTexture;
+
 in vec2 texcoord;
+in vec4 shadowCoord;
 
 out vec4 fragColor;
 
@@ -104,6 +107,12 @@ void main()
     // No specular needed. Use Lambert lighting instead.
     vec3 directLight = LambertLight(col, worldNormal);
 #endif 
+    
+    // Sample the shadow map using hardware PCF
+    float shadow = textureProj(_ShadowMapTexture, shadowCoord);
+    
+    // Modify the direct light based on shadow sampling.
+    directLight *= shadow;
     
     // Use direct + ambient light for final colour
     vec3 ambientLight = col.rgb * _AmbientColor;

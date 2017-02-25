@@ -35,10 +35,12 @@ Shader::Shader(ShaderFeatureList features, const string &vertSource, const strin
     // Set uniform block binding
     setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
     setUniformBlockBinding("scene_data", SceneUniformBuffer::BlockID);
+    setUniformBlockBinding("shadow_data", ShadowUniformBuffer::BlockID);
     
     // Store texture locations
     mainTextureLoc_ = glGetUniformLocation(program_, "_MainTexture");
     normalMapTextureLoc_ = glGetUniformLocation(program_, "_NormalMap");
+    shadowMapTextureLoc_ = glGetUniformLocation(program_, "_ShadowMapTexture");
 }
 
 Shader::~Shader()
@@ -60,6 +62,7 @@ void Shader::bind()
     // Set texture locations
     glUniform1i(mainTextureLoc_, 0);
     glUniform1i(normalMapTextureLoc_, 1);
+    glUniform1i(shadowMapTextureLoc_, 2);
 }
 
 bool Shader::compileShader(GLenum type, const char* fileName, GLuint &id)

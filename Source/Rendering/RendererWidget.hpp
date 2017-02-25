@@ -4,6 +4,7 @@
 
 #include "Scene.hpp"
 #include "RenderPass.hpp"
+#include "ShadowMap.hpp"
 #include "UniformManager.hpp"
 
 class RendererWidget : public QGLWidget
@@ -23,6 +24,8 @@ public:
 private:
     Scene* scene_;
     UniformManager* uniformManager_;
+    ShadowMap* shadowMap_;
+    RenderPass* shadowCasterPass_;
     RenderPass* forwardPass_;
 
     // QGLWidget override methods
@@ -35,6 +38,7 @@ private:
     void createScene();
     
     // Render passes
+    void renderShadowMap();
     void renderForward();
     
     // Applies camera properties to the opengl state
