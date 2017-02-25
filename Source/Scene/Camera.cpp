@@ -1,7 +1,8 @@
 #include "Camera.hpp"
 
 Camera::Camera()
-    : type_(CameraType::Perspective),
+    : framebuffer_(0),
+    type_(CameraType::Perspective),
     pixelWidth_(100),
     pixelHeight_(100),
     nearPlane_(0.1),
@@ -15,6 +16,11 @@ Camera::Camera()
 Matrix4x4 Camera::worldToCameraMatrix() const
 {
     return projectionMatrix_ * worldToLocal();
+}
+
+void Camera::setFramebuffer(GLuint framebuffer)
+{
+    framebuffer_ = framebuffer;
 }
 
 void Camera::setType(CameraType type)
