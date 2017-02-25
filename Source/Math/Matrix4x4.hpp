@@ -20,7 +20,9 @@ public:
     
     void set(int row, int column, float value);
     void setRow(int row, float* values);
+    void setRow(int row, float a, float b, float c, float d);
     void setCol(int col, float* values);
+    void setCol(int col, float a, float b, float c, float d);
 
     static Matrix4x4 identity();
     static Matrix4x4 translation(const Vector3 &t);

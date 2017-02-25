@@ -20,18 +20,28 @@ void Matrix4x4::set(int row, int column, float value)
 
 void Matrix4x4::setRow(int row, float *values)
 {
-    elements[row] = values[0];
-    elements[row + 4] = values[1];
-    elements[row + 8] = values[2];
-    elements[row + 12] = values[3];
+    setRow(row, values[0], values[1], values[2], values[3]);
+}
+
+void Matrix4x4::setRow(int row, float a, float b, float c, float d)
+{
+    elements[row] = a;
+    elements[row + 4] = b;
+    elements[row + 8] = c;
+    elements[row + 12] = d;
 }
 
 void Matrix4x4::setCol(int col, float *values)
 {
-    elements[col*4] = values[0];
-    elements[col*4 + 1] = values[1];
-    elements[col*4 + 2] = values[2];
-    elements[col*4 + 3] = values[3];
+    setCol(col, values[0], values[1], values[2], values[3]);
+}
+
+void Matrix4x4::setCol(int col, float a, float b, float c, float d)
+{
+    elements[col*4] = a;
+    elements[col*4 + 1] = b;
+    elements[col*4 + 2] = c;
+    elements[col*4 + 3] = d;
 }
 
 Matrix4x4 Matrix4x4::identity()
