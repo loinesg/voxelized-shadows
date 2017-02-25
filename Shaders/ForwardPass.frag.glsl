@@ -33,10 +33,7 @@ out vec4 fragColor;
  */
 vec3 LambertLight(vec4 surface, vec3 worldNormal)
 {
-    vec3 diff = max(0.0, dot(worldNormal, _LightDirection)) * _LightColor;
-    vec3 ambient = _AmbientColor;
-    
-    return (diff + ambient) * surface.rgb;
+    return max(0.0, dot(worldNormal, _LightDirection)) * _LightColor * surface.rgb;
 }
 
 /*
@@ -47,35 +44,69 @@ vec3 BlinnPhongLight(vec4 surface, vec3 worldNormal, vec3 viewDirection)
 {
     vec3 h = normalize(_LightDirection + viewDirection);
     float ndoth = max(0.0, dot(worldNormal, h));
-    float spec = pow(ndoth, 25.0) * 0.2;
+    float spec = pow(ndoth, 45.0) * 0.35;
     
     return LambertLight(surface, worldNormal) + spec * _LightColor;
 }
 
-void main()
-{
-#ifdef TEXTURE_ON
-    vec4 col = texture(_MainTexture, texcoord);
-#else
-    vec4 col = vec4(0.4, 0.4, 0.4, 1.0);
-#endif
-    
-#ifdef ALPHA_TEST_ON
-    if(texture(_MainTexture, texcoord).a < 0.5) discard;
-#endif
-    
 #ifdef NORMAL_MAP_ON
-    vec3 tangentNormal = texture(_NormalMap, texcoord).rgb * 2.0 - 1.0;
+
+/*
+ * Unpacks a normal vector stored in a normal map.
+ * Returns the world space normal vector.
+ */
+vec3 UnpackNormalMap(vec4 packedNormal)
+{
+    // Normal map rgb contains tangent space normal
+    // encoded in [-1 - 1] range.
+    vec3 tangentNormal = packedNormal.rgb * 2.0 - 1.0;
+    
+    // Construct world space normal from the world space
+    // (tangent, normal, bitangent) basis sent from the vertex shader.
     vec3 worldNormal;
     worldNormal.x = dot(tangentNormal, tangentToWorldX);
     worldNormal.y = dot(tangentNormal, tangentToWorldY);
     worldNormal.z = dot(tangentNormal, tangentToWorldZ);
+    
+    // Ensure the normal is unit length
     worldNormal = normalize(worldNormal);
+    
+    return worldNormal;
+}
+
+#endif // NORMAL_MAP_ON
+
+void main()
+{
+#ifdef TEXTURE_ON
+    // Use the main texture for the surface color
+    vec4 col = texture(_MainTexture, texcoord);
+#else
+    // No main texture. Use a constant grey surface color.
+    vec4 col = vec4(0.4, 0.4, 0.4, 1.0);
+#endif
+    
+#ifdef ALPHA_TEST_ON
+    // Alpha testing on. Discard pixel if the main texture alpha is low.
+    if(texture(_MainTexture, texcoord).a < 0.5) discard;
+#endif
+    
+#ifdef NORMAL_MAP_ON
+    // Retrieve world space normal from normal map.
+    // NORMAL_MAP_OFF => worldNormal supplied by vertex shader
+    vec3 worldNormal = UnpackNormalMap(texture(_NormalMap, texcoord));
 #endif
     
 #ifdef SPECULAR_ON
-    fragColor = vec4(BlinnPhongLight(col, worldNormal, viewDir), 0.0);
+    // Specular needed. Calculate full BlinnPhong lighting.
+    vec3 directLight = BlinnPhongLight(col, worldNormal, viewDir);
 #else
-    fragColor = vec4(LambertLight(col, worldNormal), 0.0);
-#endif
+    // No specular needed. Use Lambert lighting instead.
+    vec3 directLight = LambertLight(col, worldNormal);
+#endif 
+    
+    // Use direct + ambient light for final colour
+    vec3 ambientLight = col.rgb * _AmbientColor;
+    vec3 finalColor = directLight + ambientLight;
+    fragColor = vec4(finalColor.rgb, 1.0);
 }
