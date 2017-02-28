@@ -34,6 +34,8 @@ public:
     
     // Sends draw commands to the graphics API.
     void submit(Camera* camera, const vector<MeshInstance>* instances);
+    
+    void renderFullScreen(ShaderFeatureList shaderFeatures, Mesh* fullScreenQuad);
                        
 private:
     string name_;

@@ -92,3 +92,11 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
         prevMesh = mesh;
     }
 }
+
+void RenderPass::renderFullScreen(ShaderFeatureList shaderFeatures, Mesh *fullScreenQuad)
+{
+    shaderCollection_->getVariant(shaderFeatures)->bind();
+    fullScreenQuad->bind();
+    
+    glDrawElements(GL_TRIANGLES, fullScreenQuad->elementsCount(), GL_UNSIGNED_SHORT, (void*)0);
+}

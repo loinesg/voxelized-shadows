@@ -1,14 +1,8 @@
 #include "Mesh.hpp"
 
 #include <string>
-#include <vector>
 #include <fstream>
 #include <cstdio>
-
-using namespace std;
-
-#include "Vector2.hpp"
-#include "Vector3.hpp"
 
 Mesh::Mesh(int verticesCount, int elementsCount, GLuint vertexArray, GLuint vertexPositionsBuffer, GLuint vertexNormalsBuffer, GLuint vertexTangentsBuffer, GLuint vertexTexcoordsBuffer, GLuint elementsBuffer)
     : verticesCount_(verticesCount),
@@ -37,6 +31,42 @@ void Mesh::bind()
 {
     glBindVertexArray(vertexArray_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsBuffer_);
+}
+
+Mesh* Mesh::fullScreenQuad()
+{
+    // Create attribute lists
+    vector<Vector3> positions;
+    vector<Vector3> normals;
+    vector<Vector4> tangents;
+    vector<Vector2> texcoords;
+    vector<MeshElementIndex> elements;
+    
+    // 4 vertices are needed
+    positions.push_back(Vector3(-1.0, -1.0, 1.0));
+    positions.push_back(Vector3(1.0, -1.0, 1.0));
+    positions.push_back(Vector3(1.0, 1.0, 1.0));
+    positions.push_back(Vector3(-1.0, 1.0, 1.0));
+    
+    for(int i = 0; i < 4; ++i)
+    {
+        normals.push_back(Vector3::zero());
+        tangents.push_back(Vector4(0.0, 0.0, 0.0, 0.0));
+        texcoords.push_back(Vector2(0.0, 0.0));
+    }
+    
+    // First triangle (lower right)
+    elements.push_back(0);
+    elements.push_back(1);
+    elements.push_back(2);
+    
+    // Second triangle (upper left)
+    elements.push_back(0);
+    elements.push_back(2);
+    elements.push_back(3);
+    
+    // Create mesh
+    return create(positions, normals, tangents, texcoords, elements);
 }
 
 Mesh* Mesh::load(const char* fileName)
@@ -101,6 +131,11 @@ Mesh* Mesh::load(const char* fileName)
         return NULL;
     }
     
+    return create(positions, normals, tangents, texcoords, elements);
+}
+
+Mesh* Mesh::create(vector<Vector3> positions, vector<Vector3> normals, vector<Vector4> tangents, vector<Vector2> texcoords, vector<MeshElementIndex> elements)
+{
     // Create vertex array
     GLuint vertexArray;
     glGenVertexArrays(1, &vertexArray);
