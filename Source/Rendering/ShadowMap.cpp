@@ -39,6 +39,16 @@ ShadowMap::ShadowMap(UniformManager* uniformManager, int width, int height)
     shadowCamera_.setPixelHeight(height);
 }
 
+ShadowMap::~ShadowMap()
+{
+    // Delete the framebuffer
+    GLuint framebuffer = shadowCamera_.framebuffer();
+    glDeleteFramebuffers(1, &framebuffer);
+    
+    // Delete the shadow map texture
+    delete shadowDepthTexture_;
+}
+
 void ShadowMap::updatePosition(Camera* viewCamera, Light* light)
 {
     // Ensure the shadow map is drawn from the light's view direction
@@ -48,13 +58,13 @@ void ShadowMap::updatePosition(Camera* viewCamera, Light* light)
     shadowCamera_.setPosition(viewCamera->position());
 }
 
-void ShadowMap::updateUniformBuffer() const
+void ShadowMap::updateUniformBuffer(Camera* cam) const
 {
     float w = shadowDepthTexture_->width();
     float h = shadowDepthTexture_->height();
     
     ShadowUniformBuffer shadowData;
-    shadowData.worldToShadow = worldToShadowMatrix();
+    shadowData.worldToShadow = worldToShadowMatrix() * cam->cameraToWorldMatrix();
     shadowData.shadowTexelSize = Vector4(w, h, 1.0 / w, 1.0 / h);
     uniformManager_->updateShadowBuffer(shadowData);
 }

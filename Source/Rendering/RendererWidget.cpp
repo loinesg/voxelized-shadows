@@ -8,27 +8,34 @@
 RendererWidget::RendererWidget(const QGLFormat &format)
     : QGLWidget(format)
 {
-    
+    sceneDepthTexture_ = NULL;
 }
 
 RendererWidget::~RendererWidget()
 {
     delete scene_;
     delete uniformManager_;
+    delete fullScreenQuad_;
     delete shadowMap_;
+    delete shadowMask_;
     delete shadowCasterPass_;
+    delete sceneDepthPass_;
     delete forwardPass_;
 }
 
 void RendererWidget::enableFeature(ShaderFeature feature)
 {
     shadowCasterPass_->enableFeature(feature);
+    sceneDepthPass_->enableFeature(feature);
+    shadowMaskPass_->enableFeature(feature);
     forwardPass_->enableFeature(feature);
 }
 
 void RendererWidget::disableFeature(ShaderFeature feature)
 {
     shadowCasterPass_->disableFeature(feature);
+    sceneDepthPass_->disableFeature(feature);
+    shadowMaskPass_->disableFeature(feature);
     forwardPass_->disableFeature(feature);
 }
 
@@ -40,13 +47,21 @@ void RendererWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     
-    // Create managers
+    // Create uniform buffers
     uniformManager_ = new UniformManager();
-    shadowMap_ = new ShadowMap(uniformManager_, 2048, 2048);
     
-    // Create required assets
+    // Create assets
+    fullScreenQuad_ = Mesh::fullScreenQuad();
+    shadowMap_ = new ShadowMap(uniformManager_, 4096, 4096);
+    shadowMask_ = new ShadowMask();
+    
+    // Create RenderPass instances
     createRenderPasses();
+    
+    // Load the scene
     createScene();
+    
+    glGenFramebuffers(1, &sceneDepthFBO_);
 }
 
 void RendererWidget::resizeGL(int w, int h)
@@ -54,15 +69,62 @@ void RendererWidget::resizeGL(int w, int h)
     // Update the main camera to match the new resolution
     camera()->setPixelWidth(w);
     camera()->setPixelHeight(h);
+    
+    // Make the shadow mask the same resolution
+    shadowMask_->setResolution(w, h);
+    
+    // Make the scene depth texture the same resolution
+    if(sceneDepthTexture_ == NULL ||
+       sceneDepthTexture_->width() != w || sceneDepthTexture_->height() != h)
+    {
+        if(sceneDepthTexture_ != NULL)
+        {
+            delete sceneDepthTexture_;
+        }
+        
+        sceneDepthTexture_ = Texture::depth(w, h);
+        sceneDepthTexture_->setWrapMode(GL_CLAMP, GL_CLAMP);
+        sceneDepthTexture_->setMagFilter(GL_NEAREST);
+        sceneDepthTexture_->setMinFilter(GL_NEAREST);
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, sceneDepthFBO_);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sceneDepthTexture_->id(), 0);
+    }
 }
 
 void RendererWidget::paintGL()
 {
+    // Update scene uniform buffer
+    SceneUniformBuffer data;
+    data.screenResolution = Vector4(camera()->pixelWidth(), camera()->pixelHeight(), 0.0, 0.0);
+    data.cameraPosition = Vector4(scene_->mainCamera()->position(), 1.0);
+    data.ambientLightColor = Vector4(scene_->mainLight()->ambient(), 1.0);
+    data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
+    data.lightDirection = -1.0 * scene_->mainLight()->forward();
+    uniformManager_->updateSceneBuffer(data);
+    
+    // Render shadow depth to the shadow map framebuffer.
     renderShadowMap();
+    
+    // Render scene depth to the main framebuffer.
+    renderSceneDepth();
+    
+    // Render the screen space shadow mask
+    // using the shadow map and scene depth.
+    renderShadowMask();
+    
+    // Final forward pass.
     renderForward();
     
     // Redraw immediately
     update();
+    
+    // Print errors
+    GLenum error;
+    while((error = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GLError %x \n", error);
+    }
 }
 
 void RendererWidget::createRenderPasses()
@@ -76,12 +138,24 @@ void RendererWidget::createRenderPasses()
     shadowCasterPass_->setSupportedFeatures(SF_Cutout);
     shadowCasterPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
     
+    // Pass for rendering depth from the main camera
+    // Depth only, so no features are needed except cutout.
+    string sceneDepthPassName = "SceneDepthPass";
+    sceneDepthPass_ = new RenderPass(sceneDepthPassName, shaderDirectory, uniformManager_);
+    sceneDepthPass_->setSupportedFeatures(SF_Cutout);
+    sceneDepthPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
+    
+    // Pass for sampling the shadow map into the screen space shadow mask.
+    string shadowSamplingPassName = "ShadowSamplingPass";
+    shadowMaskPass_ = new RenderPass(shadowSamplingPassName, shaderDirectory, uniformManager_);
+    shadowMaskPass_->setSupportedFeatures(~0);
+    
     // Pass for rendering the final image.
     // Uses all features.
     string forwardPassName = "ForwardPass";
     forwardPass_ = new RenderPass(forwardPassName, shaderDirectory, uniformManager_);
     forwardPass_->setSupportedFeatures(~0);
-    forwardPass_->setClearColor(PassClearColor(0.6, 0.1, 0.1, 1.0));
+    forwardPass_->setClearColor(PassClearColor(0.1, 0.4, 0.1, 1.0));
 }
 
 void RendererWidget::createScene()
@@ -96,11 +170,17 @@ void RendererWidget::renderShadowMap()
     shadowMap_->updatePosition(scene_->mainCamera(), scene_->mainLight());
     
     // Update the shadow uniform buffer
-    shadowMap_->updateUniformBuffer();
+    shadowMap_->updateUniformBuffer(scene_->mainCamera());
     
     // Enable depth biasing to prevent shadow acne
-    glPolygonOffset(4.5, 8.0);
+    glPolygonOffset(2.5, 10.0);
     glEnable(GL_POLYGON_OFFSET_FILL);
+    
+    // Write to the depth buffer only.
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    glColorMask(false, false, false, false);
     
     // Render the shadow map
     useCamera(shadowMap_->camera());
@@ -110,18 +190,61 @@ void RendererWidget::renderShadowMap()
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
+void RendererWidget::renderSceneDepth()
+{
+    // Use the main camera
+    useCamera(scene_->mainCamera());
+    
+    // Write to the depth framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, sceneDepthFBO_);
+    
+    // Write to the depth buffer only.
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(true);
+    glColorMask(false, false, false, false);
+    
+    // Render the scene depth map
+    sceneDepthPass_->submit(scene_->mainCamera(), scene_->meshInstances());
+}
+
+void RendererWidget::renderShadowMask()
+{
+    // Render in full screen
+    int screenWidth = camera()->pixelWidth();
+    int screenHeight = camera()->pixelHeight();
+    glViewport(0, 0, screenWidth, screenHeight);
+    
+    // Bind the shadow mask framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMask_->frameBuffer());
+    
+    // Dont depth test, and write to color only.
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(false);
+    glColorMask(true, true, true, true);
+    
+    // Bind the shadow map texture
+    shadowMap_->bindTexture(GL_TEXTURE2);
+    
+    // Bind the scene depth texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, sceneDepthTexture_->id());
+    
+    // Render the shadow mask
+    shadowMaskPass_->renderFullScreen(0, fullScreenQuad_);
+}
+
 void RendererWidget::renderForward()
 {
-    // Update scene uniform buffer
-    SceneUniformBuffer data;
-    data.cameraPosition = Vector4(scene_->mainCamera()->position(), 1.0);
-    data.ambientLightColor = Vector4(scene_->mainLight()->ambient(), 1.0);
-    data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
-    data.lightDirection = -1.0 * scene_->mainLight()->forward();
-    uniformManager_->updateSceneBuffer(data);
+    // Use the screen space shadow mask texture
+    shadowMask_->bindTexture(GL_TEXTURE3);
     
-    // Use the rendered shadow map texture
-    shadowMap_->bindTexture(GL_TEXTURE2);
+    // Only render fragments that passed the earlier depth prepass.
+    // Write to colour, but not depth.
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(true);
+    glColorMask(true, true, true, true);
     
     // Render the final image
     useCamera(scene_->mainCamera());

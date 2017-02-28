@@ -38,6 +38,9 @@ public:
     // Creates a depth texture.
     static Texture* depth(int width, int height);
     
+    // Creates a texture with a single colour channel.
+    static Texture* singleChannel(int width, int height);
+    
 private:
     GLuint id_;
     int width_;

@@ -136,27 +136,44 @@ Matrix4x4 Matrix4x4::perspective(float fov, float aspect, float n, float f)
 {
     // Compute the size of the image plane
     float halfFov = (fov / 2.0) * (M_PI / 180.0);
-    float halfW = n * tan(halfFov);
-    float halfH = halfW * aspect;
-    
-    // Determine the image plane corners
-    float l = -halfW;
-    float r = halfW;
-    float t = halfH;
-    float b = -halfH;
+    float w = 2.0 * n * tan(halfFov);
+    float h = w * aspect;
     
     // Create the perspective projection matrix
     Matrix4x4 mat = Matrix4x4::identity();
-    mat.set(0, 0, (2.0 * n) / (r - l));
-    mat.set(1, 1, (2.0 * n) / (t - b));
+    mat.set(0, 0, (2.0 * n) / w);
+    mat.set(1, 1, (2.0 * n) / h);
     mat.set(2, 2, (f + n) / (f - n));
     mat.set(3, 3, 0.0);
-    mat.set(0, 2, -(r + l) / (r - l));
-    mat.set(1, 2, -(t + b) / (t - b));
     mat.set(3, 2, 1.0);
     mat.set(2, 3, -(2.0 * f * n) / (f - n));
     
     return mat;
+}
+
+Matrix4x4 Matrix4x4::perspectiveInverse(float fov, float aspect, float n, float f)
+{
+    // Transforms x,y,z from [0 to 1] range to [-1 to 1]
+    Matrix4x4 toNDC;
+    toNDC.setRow(0, 2.0, 0.0, 0.0, -1.0);
+    toNDC.setRow(1, 0.0, 2.0, 0.0, -1.0);
+    toNDC.setRow(2, 0.0, 0.0, 2.0, -1.0);
+    toNDC.setRow(3, 0.0, 0.0, 0.0, 1.0);
+    
+    // Compute the size of the image plane
+    float halfFov = (fov / 2.0) * (M_PI / 180.0);
+    float w = 2.0 * n * tan(halfFov);
+    float h = w * aspect;
+    
+    // Create the inverse projection matrix
+    Matrix4x4 mat;
+    mat.setRow(0, w / (2.0 * n), 0.0, 0.0, 0.0);
+    mat.setRow(1, 0.0, h / (2.0 * n), 0.0, 0.0);
+    mat.setRow(2, 0.0, 0.0, 0.0, 1.0);
+    mat.setRow(3, 0.0, 0.0, -(f - n) / (2.0 * f * n), (f + n) / (2.0 * f * n));
+    
+    // Convert to ndc, then use inverse projection
+    return mat * toNDC;
 }
 
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar)

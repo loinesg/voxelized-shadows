@@ -1,25 +1,24 @@
 #version 330
 
+// Scene uniform buffer
+// Used for camera position.
 layout(std140) uniform scene_data
 {
+    uniform vec2 _ScreenResolution;
     uniform vec3 _CameraPosition;
     uniform vec3 _AmbientColor;
     uniform vec3 _LightColor;
     uniform vec3 _LightDirection;
 };
 
-layout(std140) uniform shadow_data
-{
-    uniform mat4x4 _WorldToShadow;
-    uniform vec4 _ShadowMapTexelSize;
-};
-
+// Per-object uniform buffer.
 layout(std140) uniform per_object_data
 {
     uniform mat4x4 _ModelToWorld;
     uniform mat4x4 _ModelViewProjection;
 };
 
+// Vertex attributes
 layout(location = 0) in vec4 _position;
 layout(location = 1) in vec3 _normal;
 layout(location = 2) in vec4 _tangent;
@@ -30,15 +29,17 @@ layout(location = 3) in vec2 _texcoord;
 #endif
 
 #ifdef NORMAL_MAP_ON
+    // Tangent to world space basis
+    // Contains (wTangent, wBiTangent, wNormal)
     out vec3 tangentToWorldX;
     out vec3 tangentToWorldY;
     out vec3 tangentToWorldZ;
 #else
+    // No normal mapping. Calculate the world normal directly
     out vec3 worldNormal;
 #endif
 
 out vec2 texcoord;
-out vec4 shadowCoord;
 
 void main()
 {
@@ -69,7 +70,4 @@ void main()
     
     // Texcoord does not need to be modified.
     texcoord = _texcoord;
-    
-    // Construct the shadow map coords from the world position
-    shadowCoord = _WorldToShadow * (_ModelToWorld * _position);
 }

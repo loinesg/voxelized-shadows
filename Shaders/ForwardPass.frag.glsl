@@ -2,6 +2,7 @@
 
 layout(std140) uniform scene_data
 {
+    uniform vec2 _ScreenResolution;
     uniform vec3 _CameraPosition;
     uniform vec3 _AmbientColor;
     uniform vec3 _LightColor;
@@ -23,11 +24,13 @@ uniform sampler2D _MainTexture;
     in vec3 worldNormal;
 #endif
 
-uniform sampler2DShadow _ShadowMapTexture;
+// Screen space shadow mask texture
+uniform sampler2D _ShadowMask;
 
+// Main / normal map texture coordinate
 in vec2 texcoord;
-in vec4 shadowCoord;
 
+// Final colour
 out vec4 fragColor;
 
 /*
@@ -79,6 +82,19 @@ vec3 UnpackNormalMap(vec4 packedNormal)
 
 #endif // NORMAL_MAP_ON
 
+/*
+ * Gets the shadow mask value for the given coordinate.
+ */
+float SampleShadow()
+{
+    // Derive the shadow coord from the screen position.
+    vec2 shadowCoord = gl_FragCoord.xy / _ScreenResolution;
+    
+    // Shadow map already filtered and stored in
+    // the shadow mask. Just use the value directly.
+    return texture(_ShadowMask, shadowCoord).r;
+}
+
 void main()
 {
 #ifdef TEXTURE_ON
@@ -108,8 +124,8 @@ void main()
     vec3 directLight = LambertLight(col, worldNormal);
 #endif 
     
-    // Sample the shadow map using hardware PCF
-    float shadow = textureProj(_ShadowMapTexture, shadowCoord);
+    // Sample the shadow map from the screen space shadow mask
+    float shadow = SampleShadow();
     
     // Modify the direct light based on shadow sampling.
     directLight *= shadow;

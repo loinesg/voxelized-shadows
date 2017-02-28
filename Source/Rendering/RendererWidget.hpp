@@ -5,6 +5,7 @@
 #include "Scene.hpp"
 #include "RenderPass.hpp"
 #include "ShadowMap.hpp"
+#include "ShadowMask.hpp"
 #include "UniformManager.hpp"
 
 class RendererWidget : public QGLWidget
@@ -24,9 +25,18 @@ public:
 private:
     Scene* scene_;
     UniformManager* uniformManager_;
+    
+    GLuint sceneDepthFBO_;
+    Texture* sceneDepthTexture_;
     ShadowMap* shadowMap_;
+    ShadowMask* shadowMask_;
+    
     RenderPass* shadowCasterPass_;
+    RenderPass* sceneDepthPass_;
+    RenderPass* shadowMaskPass_;
     RenderPass* forwardPass_;
+    
+    Mesh* fullScreenQuad_;
 
     // QGLWidget override methods
     void initializeGL();
@@ -39,6 +49,8 @@ private:
     
     // Render passes
     void renderShadowMap();
+    void renderSceneDepth();
+    void renderShadowMask();
     void renderForward();
     
     // Applies camera properties to the opengl state

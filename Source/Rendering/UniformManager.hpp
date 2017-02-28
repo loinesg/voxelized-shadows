@@ -21,6 +21,7 @@ struct SceneUniformBuffer
 {
     static const int BlockID = 1;
     
+    Vector4 screenResolution;
     Vector4 cameraPosition;
     Vector4 ambientLightColor;
     Vector4 lightColor;

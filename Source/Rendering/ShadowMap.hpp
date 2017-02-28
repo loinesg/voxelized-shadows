@@ -11,6 +11,7 @@ class ShadowMap
 {
 public:
     ShadowMap(UniformManager* uniformManager, int width, int height);
+    ~ShadowMap();
     
     Camera* camera () { return &shadowCamera_; }
     int width() const { return shadowDepthTexture_->width(); }
@@ -20,7 +21,7 @@ public:
     void updatePosition(Camera* viewCamera, Light* light);
     
     // Updates the shadows uniform buffer
-    void updateUniformBuffer() const;
+    void updateUniformBuffer(Camera* cam) const;
     
     // Binds the shadow map texture.
     void bindTexture(GLenum textureSlot) const;
@@ -28,6 +29,8 @@ public:
 private:
     UniformManager* uniformManager_;
     Camera shadowCamera_;
+    
+public:
     Texture* shadowDepthTexture_;
     
     // Computes the world to shadow transformation matrix

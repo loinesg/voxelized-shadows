@@ -40,6 +40,10 @@ public:
     
     // Constructs a perspective projection matrix
     static Matrix4x4 perspective(float fov, float aspect, float n, float f);
+    
+    // Constructs a matrix to transform from screen space
+    // (with x,y,z in [0-1] range) to world space.
+    static Matrix4x4 perspectiveInverse(float fov, float aspect, float n, float f);
 };
 
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar);

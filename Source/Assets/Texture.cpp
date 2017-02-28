@@ -103,3 +103,13 @@ Texture* Texture::depth(int width, int height)
     
     return new Texture(texture, width, height);
 }
+
+Texture* Texture::singleChannel(int width, int height)
+{
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+    
+    return new Texture(texture, width, height);
+}

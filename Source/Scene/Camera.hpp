@@ -28,6 +28,8 @@ public:
     Matrix4x4 worldToCameraMatrix() const;
     Matrix4x4 projectionMatrix() const { return projectionMatrix_; }
     
+    Matrix4x4 cameraToWorldMatrix() const;
+    
     void setFramebuffer(GLuint framebuffer);
     void setType(CameraType type);
     void setPixelWidth(int w);
@@ -47,6 +49,7 @@ private:
     float orthographicSize_;
     float fov_;
     Matrix4x4 projectionMatrix_;
+    Matrix4x4 invProjectionMatrix_;
     
     void updateProjectionMatrix();
 };

@@ -18,6 +18,11 @@ Matrix4x4 Camera::worldToCameraMatrix() const
     return projectionMatrix_ * worldToLocal();
 }
 
+Matrix4x4 Camera::cameraToWorldMatrix() const
+{
+    return localToWorld() * invProjectionMatrix_;
+}
+
 void Camera::setFramebuffer(GLuint framebuffer)
 {
     framebuffer_ = framebuffer;
@@ -72,6 +77,7 @@ void Camera::updateProjectionMatrix()
     if(type_ == CameraType::Perspective)
     {
         projectionMatrix_ = Matrix4x4::perspective(fov_, aspect, nearPlane_, farPlane_);
+        invProjectionMatrix_ = Matrix4x4::perspectiveInverse(fov_, aspect, nearPlane_, farPlane_);
     }
     else if(type_ == CameraType::Orthographic)
     {

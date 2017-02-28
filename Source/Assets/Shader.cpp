@@ -41,6 +41,7 @@ Shader::Shader(ShaderFeatureList features, const string &vertSource, const strin
     mainTextureLoc_ = glGetUniformLocation(program_, "_MainTexture");
     normalMapTextureLoc_ = glGetUniformLocation(program_, "_NormalMap");
     shadowMapTextureLoc_ = glGetUniformLocation(program_, "_ShadowMapTexture");
+    shadowMaskTextureLoc_ = glGetUniformLocation(program_, "_ShadowMask");
 }
 
 Shader::~Shader()
@@ -63,6 +64,7 @@ void Shader::bind()
     glUniform1i(mainTextureLoc_, 0);
     glUniform1i(normalMapTextureLoc_, 1);
     glUniform1i(shadowMapTextureLoc_, 2);
+    glUniform1i(shadowMaskTextureLoc_, 3);
 }
 
 bool Shader::compileShader(GLenum type, const char* fileName, GLuint &id)

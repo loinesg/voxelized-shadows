@@ -1,10 +1,15 @@
 #pragma once
 
 #include <QGLWidget>
+#include <vector>
+
+using namespace std;
 
 #include "Matrix4x4.hpp"
 #include "Texture.hpp"
 #include "Shader.hpp"
+#include "Vector2.hpp"
+#include "Vector3.hpp"
 
 typedef unsigned short MeshElementIndex;
 
@@ -19,9 +24,17 @@ public:
     GLuint vertexArray() const { return vertexArray_; }
     GLuint elementsBuffer() const { return elementsBuffer_; }
     
+    // Attaches the fbo and elements buffer for use.
     void bind();
     
+    // Creates a fullscreen quad
+    static Mesh* fullScreenQuad();
+    
+    // Loads a mesh from a file
     static Mesh* load(const char* fileName);
+    
+    // Creates a mesh from lists of vertices, normals, tangents, texcoords and elements.
+    static Mesh* create(vector<Vector3> positions, vector<Vector3> normals, vector<Vector4> tangents, vector<Vector2> texcoords, vector<MeshElementIndex> elements);
     
 private:
     int verticesCount_;
