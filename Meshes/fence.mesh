@@ -1,0 +1,72 @@
+vertex -0.04194895 3.36974 5.026789
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord -1.576136 1.852696
+vertex -0.04194895 3.36974 1.463037E-16
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord 2.576137 1.852696
+vertex -0.04194895 0.09456217 -6.019362E-16
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord 2.576137 -0.8526955
+vertex -0.04194895 0.09456217 5.026789
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord -1.576136 -0.8526955
+vertex -0.01427887 3.36974 5.026789
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord -1.576136 1.852696
+vertex -0.01427887 0.09456217 5.026789
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord -1.576136 -0.8526955
+vertex -0.01427887 0.09456217 -3.161963E-16
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord 2.576137 -0.8526955
+vertex -0.01427887 3.36974 4.320436E-16
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord 2.576137 1.852696
+vertex -0.04194895 3.36974 10.02679
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord -1.576136 1.852696
+vertex -0.04194895 3.36974 5
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord 2.576137 1.852696
+vertex -0.04194895 0.09456217 5
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord 2.576137 -0.8526955
+vertex -0.04194895 0.09456217 10.02679
+normal -1 0 0
+tangent 0 0 -1 -1
+texcoord -1.576136 -0.8526955
+vertex -0.01427887 3.36974 10.02679
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord -1.576136 1.852696
+vertex -0.01427887 0.09456217 10.02679
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord -1.576136 -0.8526955
+vertex -0.01427887 0.09456217 5
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord 2.576137 -0.8526955
+vertex -0.01427887 3.36974 5
+normal 1 0 0
+tangent 0 0 -1 1
+texcoord 2.576137 1.852696
+triangle 0 1 2
+triangle 0 2 3
+triangle 4 5 6
+triangle 4 6 7
+triangle 8 9 10
+triangle 8 10 11
+triangle 12 13 14
+triangle 12 14 15

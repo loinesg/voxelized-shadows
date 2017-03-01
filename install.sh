@@ -4,7 +4,9 @@ qmake -project \
     QT+=gui \
     "INCLUDEPATH += . Source/Rendering" \
     "INCLUDEPATH += . Source/Interface" \
-    "INCLUDEPATH += . Source/Math" 
+    "INCLUDEPATH += . Source/Math" \
+    "INCLUDEPATH += . Source/Assets" \
+    "INCLUDEPATH += . Source/Scene"
 
 qmake
 make

@@ -1,17 +1,44 @@
 #include "MainWindow.hpp"
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(const QGLFormat &format)
 {
-    // Create widgets
-    rendererWidget_ = new RendererWidget();
-
-    // Add widgets to layout
-    layout_ = new QBoxLayout(QBoxLayout::TopToBottom, this);
-    layout_->addWidget(rendererWidget_);
+    // Create main renderer
+    rendererWidget_ = new RendererWidget(format);
+    
+    // Create side panel widgets
+    featureToggles_ = new QGroupBox("Shader Features");
+    featureToggles_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    createFeatureToggles();
+    
+    // Add widgets to side panel
+    QBoxLayout* sidePanelLayout = new QBoxLayout(QBoxLayout::TopToBottom);
+    sidePanelLayout->addWidget(featureToggles_);
+    sidePanelLayout->addStretch();
+    
+    QWidget* sidePanel = new QWidget();
+    sidePanel->setMaximumWidth(200);
+    sidePanel->setLayout(sidePanelLayout);
+    
+    // Add widgets to main layout
+    QBoxLayout* mainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+    mainLayout->addWidget(rendererWidget_);
+    mainLayout->addWidget(sidePanel);
 }
 
-MainWindow::~MainWindow()
+void MainWindow::createFeatureToggles()
 {
-    delete rendererWidget_;
-    delete layout_;
+    textureToggle_ = createFeatureToggle(SF_Texture, "Diffuse Textures", true);
+    specularToggle_ = createFeatureToggle(SF_Specular, "Specular Highlights", true);
+    normalMapToggle_ = createFeatureToggle(SF_NormalMap, "Normal Mapping", true);
+    cutoutToggle_ = createFeatureToggle(SF_Cutout, "Cutout Transparency", true);
+}
+
+QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* label, bool on)
+{
+    QCheckBox* checkBox = new QCheckBox(label);
+    checkBox->setChecked(on);
+    
+    featureToggles_->layout()->addWidget(checkBox);
+    
+    return checkBox;
 }

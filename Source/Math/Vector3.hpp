@@ -12,6 +12,12 @@ struct Vector3
 
     Vector3();
     Vector3(float x, float y, float z);
+    
+    static Vector3 zero();
+    static Vector3 one();
+    static Vector3 up();
+    static Vector3 down();
+    static Vector3 forwards();
 
     float maxComponent() const;
     float sqrMagnitude() const;

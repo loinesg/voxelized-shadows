@@ -20,6 +20,11 @@ Quaternion::Quaternion(float x, float y, float z, float w)
 
 }
 
+Quaternion Quaternion::identity()
+{
+    return Quaternion(0.0, 0.0, 0.0, 1);
+}
+
 float Quaternion::sqrNorm() const
 {
     return Vector3::dot(v, v) + (w * w);
