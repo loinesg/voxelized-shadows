@@ -6,7 +6,8 @@
 #include <iostream>
 
 RendererWidget::RendererWidget(const QGLFormat &format)
-    : QGLWidget(format)
+    : QGLWidget(format),
+    overlayTexture_(NULL)
 {
     sceneDepthTexture_ = NULL;
 }
@@ -37,6 +38,11 @@ void RendererWidget::disableFeature(ShaderFeature feature)
     sceneDepthPass_->disableFeature(feature);
     shadowMaskPass_->disableFeature(feature);
     forwardPass_->disableFeature(feature);
+}
+
+void RendererWidget::setOverlayTexture(Texture* overlay)
+{
+    overlayTexture_ = overlay;
 }
 
 void RendererWidget::initializeGL()
@@ -83,7 +89,7 @@ void RendererWidget::resizeGL(int w, int h)
         }
         
         sceneDepthTexture_ = Texture::depth(w, h);
-        sceneDepthTexture_->setWrapMode(GL_CLAMP, GL_CLAMP);
+        sceneDepthTexture_->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         sceneDepthTexture_->setMagFilter(GL_NEAREST);
         sceneDepthTexture_->setMinFilter(GL_NEAREST);
         
@@ -115,6 +121,9 @@ void RendererWidget::paintGL()
     
     // Final forward pass.
     renderForward();
+    
+    // Draw debug overlay
+    drawOverlayTexture();
     
     // Redraw immediately
     update();
@@ -156,6 +165,11 @@ void RendererWidget::createRenderPasses()
     forwardPass_ = new RenderPass(forwardPassName, shaderDirectory, uniformManager_);
     forwardPass_->setSupportedFeatures(~0);
     forwardPass_->setClearColor(PassClearColor(0.1, 0.4, 0.1, 1.0));
+    
+    // Load the shader for the debug overlay.
+    string debugOverlayVert = shaderDirectory + "DebugOverlay.vert.glsl";
+    string debugOverlayFrag = shaderDirectory + "DebugOverlay.frag.glsl";
+    overlayShader_ = new Shader(0, debugOverlayVert, debugOverlayFrag);
 }
 
 void RendererWidget::createScene()
@@ -258,4 +272,41 @@ void RendererWidget::useCamera(Camera* camera)
     
     // Update the viewport to match the camera width/height
     glViewport(0, 0, camera->pixelWidth(), camera->pixelHeight());
+}
+
+void RendererWidget::drawOverlayTexture()
+{
+    // Check if there is a overlay to draw
+    if(overlayTexture_ == NULL)
+    {
+        return;
+    }
+    
+    // Write colour only to the default framebuffer.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDepthMask(false);
+    glColorMask(true, true, true, true);
+    
+    // Disable depth testing
+    glDisable(GL_DEPTH_TEST);
+    
+    // Determine texture width and height
+    const int padding = 20;
+    const int size = 600;
+    float aspect = overlayTexture_->width() / (float)overlayTexture_->height();
+    float height = size;
+    float width = height * aspect;
+    
+    // Draw to the overlay's section of the screen only
+    glViewport(camera()->pixelWidth() - width - padding,
+               camera()->pixelHeight() - height - padding,
+               width, height);
+    
+    // Use quad mesh, overlay shader and overlay texture
+    fullScreenQuad_->bind();
+    overlayShader_->bind();
+    overlayTexture_->bind(GL_TEXTURE0);
+    
+    // Draw the quad mesh
+    glDrawElements(GL_TRIANGLES, fullScreenQuad_->elementsCount(), GL_UNSIGNED_SHORT, (void*)0);
 }

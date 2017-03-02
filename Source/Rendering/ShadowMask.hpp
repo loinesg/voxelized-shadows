@@ -16,6 +16,9 @@ public:
     
     // The shadow mask framebuffer
     GLuint frameBuffer() const { return frameBuffer_; }
+    
+    // The shadow mask texture
+    Texture* texture() { return texture_; }
 
     // Shadow mask resolution.
     // Should match screen resolution.

@@ -9,15 +9,17 @@ MainWindowController::MainWindowController(MainWindow* window)
     window_->rendererWidget()->setFocus();
     window_->rendererWidget()->installEventFilter(this);
     
+    // Shader feature toggle signals
     connect(window_->textureToggle(), SIGNAL(stateChanged(int)), this, SLOT(textureFeatureToggled(int)));
     connect(window_->specularToggle(), SIGNAL(stateChanged(int)), this, SLOT(specularFeatureToggled(int)));
     connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
     connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
-}
-
-MainWindowController::~MainWindowController()
-{
     
+    // Debug texture toggle signals
+    connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled(int)));
+    connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled(bool)));
+    connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled(bool)));
+    connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled(bool)));
 }
 
 bool MainWindowController::eventFilter(QObject * obj, QEvent* event)
@@ -72,6 +74,46 @@ void MainWindowController::cutoutFeatureToggled(int state)
     updateShaderFeature(SF_Cutout, state);
 }
 
+void MainWindowController::noOverlayToggled(bool checked)
+{
+    if(checked)
+    {
+        window_->rendererWidget()->setOverlayTexture(NULL);
+    }
+}
+
+void MainWindowController::shadowMapOverlayToggled(bool checked)
+{
+    RendererWidget* renderer = window_->rendererWidget();
+    Texture* texture = renderer->shadowMap();
+    
+    if(checked)
+    {
+        renderer->setOverlayTexture(texture);
+    }
+}
+
+void MainWindowController::sceneDepthOverlayToggled(bool checked)
+{
+    RendererWidget* renderer = window_->rendererWidget();
+    Texture* texture = renderer->sceneDepthTexture();
+    
+    if(checked)
+    {
+        renderer->setOverlayTexture(texture);
+    }
+}
+
+void MainWindowController::shadowMaskOverlayToggled(bool checked)
+{
+    RendererWidget* renderer = window_->rendererWidget();
+    Texture* texture = renderer->shadowMask();
+    
+    if(checked)
+    {
+        renderer->setOverlayTexture(texture);
+    }
+}
 
 void MainWindowController::update(float deltaTime)
 {
