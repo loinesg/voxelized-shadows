@@ -150,7 +150,12 @@ bool Shader::checkLinkerErrors(GLuint programID)
 
 void Shader::setUniformBlockBinding(const char *blockName, GLuint id)
 {
-    glUniformBlockBinding(program_, glGetUniformBlockIndex(program_, blockName), id);
+    GLuint blockIndex = glGetUniformBlockIndex(program_, blockName);
+    
+    if(blockIndex != GL_INVALID_INDEX)
+    {
+        glUniformBlockBinding(program_, blockIndex, id);
+    }
 }
 
 string Shader::createFeatureDefines() const
