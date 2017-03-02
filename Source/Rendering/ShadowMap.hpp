@@ -13,6 +13,7 @@ public:
     ShadowMap(UniformManager* uniformManager, int width, int height);
     ~ShadowMap();
     
+    Texture* texture() { return shadowDepthTexture_; }
     Camera* camera () { return &shadowCamera_; }
     int width() const { return shadowDepthTexture_->width(); }
     int height() const { return shadowDepthTexture_->height(); }
@@ -29,8 +30,6 @@ public:
 private:
     UniformManager* uniformManager_;
     Camera shadowCamera_;
-    
-public:
     Texture* shadowDepthTexture_;
     
     // Computes the world to shadow transformation matrix

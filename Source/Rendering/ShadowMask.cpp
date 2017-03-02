@@ -41,7 +41,7 @@ void ShadowMask::setResolution(int width, int height)
     texture_ = Texture::singleChannel(width, height);
     
     // Wrap is not needed
-    texture_->setWrapMode(GL_CLAMP, GL_CLAMP);
+    texture_->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     
     // Texture resolution = screen resolution so disable filtering
     texture_->setMinFilter(GL_NEAREST);

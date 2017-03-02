@@ -13,18 +13,25 @@ class MainWindowController : public QObject
 
 public:
     MainWindowController(MainWindow* window);
-    ~MainWindowController();
-
+    
 protected:
     
     // Intercepts events for the renderer widget
     bool eventFilter(QObject* obj, QEvent* event);
     
 public slots:
+    
+    // Shader feature checkboxes
     void textureFeatureToggled(int state);
     void specularFeatureToggled(int state);
     void normalMapsFeatureToggled(int state);
     void cutoutFeatureToggled(int state);
+    
+    // Debug texture checkboxes
+    void noOverlayToggled(bool checked);
+    void shadowMapOverlayToggled(bool checked);
+    void sceneDepthOverlayToggled(bool checked);
+    void shadowMaskOverlayToggled(bool checked);
 
 private:
     MainWindow* window_;
