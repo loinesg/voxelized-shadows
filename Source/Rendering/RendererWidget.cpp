@@ -68,6 +68,14 @@ void RendererWidget::initializeGL()
     createScene();
     
     glGenFramebuffers(1, &sceneDepthFBO_);
+    
+    sceneDepthTexture_ = Texture::depth(1, 1);
+    sceneDepthTexture_->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    sceneDepthTexture_->setMagFilter(GL_NEAREST);
+    sceneDepthTexture_->setMinFilter(GL_NEAREST);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, sceneDepthFBO_);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sceneDepthTexture_->id(), 0);
 }
 
 void RendererWidget::resizeGL(int w, int h)
@@ -80,22 +88,7 @@ void RendererWidget::resizeGL(int w, int h)
     shadowMask_->setResolution(w, h);
     
     // Make the scene depth texture the same resolution
-    if(sceneDepthTexture_ == NULL ||
-       sceneDepthTexture_->width() != w || sceneDepthTexture_->height() != h)
-    {
-        if(sceneDepthTexture_ != NULL)
-        {
-            delete sceneDepthTexture_;
-        }
-        
-        sceneDepthTexture_ = Texture::depth(w, h);
-        sceneDepthTexture_->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-        sceneDepthTexture_->setMagFilter(GL_NEAREST);
-        sceneDepthTexture_->setMinFilter(GL_NEAREST);
-        
-        glBindFramebuffer(GL_FRAMEBUFFER, sceneDepthFBO_);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sceneDepthTexture_->id(), 0);
-    }
+    sceneDepthTexture_->setResolution(w, h);
 }
 
 void RendererWidget::paintGL()

@@ -7,7 +7,7 @@ using namespace std;
 class Texture
 {
 public:
-    Texture(GLuint id, int width, int height);
+    Texture(GLuint id, int width, int height, GLint internalFormat, GLenum format);
     ~Texture();
     
     GLuint id() const { return id_; }
@@ -18,6 +18,9 @@ public:
     void setWrapMode(GLint horizontal, GLint vertical);
     void setMinFilter(GLint filter);
     void setMagFilter(GLint filter);
+    
+    // Recreates the texture with a new resolution.
+    void setResolution(int width, int height);
     
     // Adds a colour border to the texture
     void setBorder(float r, float g, float b, float a);
@@ -45,4 +48,6 @@ private:
     GLuint id_;
     int width_;
     int height_;
+    GLint internalFormat_;
+    GLenum format_;
 };
