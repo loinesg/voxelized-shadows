@@ -15,11 +15,17 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
     connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
     
-    // Debug texture toggle signals
+    // Debug texture radio button signals
     connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled(bool)));
     connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled(bool)));
     connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled(bool)));
     connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled(bool)));
+    
+    // Shadow map resolution radio button signals
+    connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled(bool)));
+    connect(window_->shadowResolution1024Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution1024Toggled(bool)));
+    connect(window_->shadowResolution2048Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution2048Toggled(bool)));
+    connect(window_->shadowResolution4096Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution4096Toggled(bool)));
 }
 
 bool MainWindowController::eventFilter(QObject * obj, QEvent* event)
@@ -113,6 +119,26 @@ void MainWindowController::shadowMaskOverlayToggled(bool checked)
     {
         renderer->setOverlayTexture(texture);
     }
+}
+
+void MainWindowController::shadowResolution512Toggled(bool checked)
+{
+    window_->rendererWidget()->setShadowMapResolution(512);
+}
+
+void MainWindowController::shadowResolution1024Toggled(bool checked)
+{
+    window_->rendererWidget()->setShadowMapResolution(1024);
+}
+
+void MainWindowController::shadowResolution2048Toggled(bool checked)
+{
+    window_->rendererWidget()->setShadowMapResolution(2048);
+}
+
+void MainWindowController::shadowResolution4096Toggled(bool checked)
+{
+    window_->rendererWidget()->setShadowMapResolution(4096);
 }
 
 void MainWindowController::update(float deltaTime)

@@ -49,6 +49,16 @@ ShadowMap::~ShadowMap()
     delete shadowDepthTexture_;
 }
 
+void ShadowMap::setResolution(int resolution)
+{
+    // Use square shadow map textures
+    shadowDepthTexture_->setResolution(resolution, resolution);
+    
+    // Adjust the camera viewport to match
+    shadowCamera_.setPixelWidth(resolution);
+    shadowCamera_.setPixelHeight(resolution);
+}
+
 void ShadowMap::updatePosition(Camera* viewCamera, Light* light)
 {
     // Ensure the shadow map is drawn from the light's view direction

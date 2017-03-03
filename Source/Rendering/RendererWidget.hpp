@@ -32,6 +32,9 @@ public:
     // Changes the overlay texture. Setting to NULL = no overlay.
     void setOverlayTexture(Texture* overlay);
     
+    // Changes the shadow map resolution.
+    void setShadowMapResolution(int resolution);
+    
 private:
     Scene* scene_;
     UniformManager* uniformManager_;

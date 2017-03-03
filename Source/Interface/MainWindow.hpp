@@ -31,6 +31,12 @@ public:
     QRadioButton* sceneDepthOverlayRadio() const { return sceneDepthOverlayRadio_; }
     QRadioButton* shadowMaskOverlayRadio() const { return shadowMaskOverlayRadio_; }
     
+    // Shadow map resolution radio buttons
+    QRadioButton* shadowResolution512Radio() const { return shadowResolution512Radio_; }
+    QRadioButton* shadowResolution1024Radio() const { return shadowResolution1024Radio_; }
+    QRadioButton* shadowResolution2048Radio() const { return shadowResolution2048Radio_; }
+    QRadioButton* shadowResolution4096Radio() const { return shadowResolution4096Radio_; }
+    
 private:
     // Main renderer widget
     RendererWidget* rendererWidget_;
@@ -49,9 +55,18 @@ private:
     QRadioButton* sceneDepthOverlayRadio_;
     QRadioButton* shadowMaskOverlayRadio_;
     
+    // Shadow resolution radio buttons
+    QGroupBox* shadowResolutionRadios_;
+    QRadioButton* shadowResolution512Radio_;
+    QRadioButton* shadowResolution1024Radio_;
+    QRadioButton* shadowResolution2048Radio_;
+    QRadioButton* shadowResolution4096Radio_;
+    
     void createFeatureToggles();
     void createOverlayRadios();
+    void createShadowResolutionRadios();
     
     QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label, bool on);
     QRadioButton* createOverlayRadio(const char* label);
+    QRadioButton* createShadowResolutionRadio(const char* label);
 };

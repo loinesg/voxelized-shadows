@@ -18,6 +18,9 @@ public:
     int width() const { return shadowDepthTexture_->width(); }
     int height() const { return shadowDepthTexture_->height(); }
     
+    // Sets the shadow map resolution
+    void setResolution(int resolution);
+    
     // Fits the shadow map to the current view frustum
     void updatePosition(Camera* viewCamera, Light* light);
     

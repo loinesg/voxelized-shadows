@@ -45,6 +45,11 @@ void RendererWidget::setOverlayTexture(Texture* overlay)
     overlayTexture_ = overlay;
 }
 
+void RendererWidget::setShadowMapResolution(int resolution)
+{
+    shadowMap_->setResolution(resolution);
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));
