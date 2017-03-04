@@ -37,6 +37,12 @@ public:
     QRadioButton* shadowResolution2048Radio() const { return shadowResolution2048Radio_; }
     QRadioButton* shadowResolution4096Radio() const { return shadowResolution4096Radio_; }
     
+    // Shadow cascade count radio buttons
+    QRadioButton* shadowCascades1() const { return shadowCascades1_; }
+    QRadioButton* shadowCascades2() const { return shadowCascades2_; }
+    QRadioButton* shadowCascades3() const { return shadowCascades3_; }
+    QRadioButton* shadowCascades4() const { return shadowCascades4_; }
+    
 private:
     // Main renderer widget
     RendererWidget* rendererWidget_;
@@ -62,11 +68,20 @@ private:
     QRadioButton* shadowResolution2048Radio_;
     QRadioButton* shadowResolution4096Radio_;
     
+    // Shadow cascades count radio buttons
+    QGroupBox* shadowCascadesRadios_;
+    QRadioButton* shadowCascades1_;
+    QRadioButton* shadowCascades2_;
+    QRadioButton* shadowCascades3_;
+    QRadioButton* shadowCascades4_;
+    
     void createFeatureToggles();
     void createOverlayRadios();
     void createShadowResolutionRadios();
+    void createShadowCascadesRadios();
     
     QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label, bool on);
     QRadioButton* createOverlayRadio(const char* label);
     QRadioButton* createShadowResolutionRadio(const char* label);
+    QRadioButton* createShadowCascadesRadio(const char* label);
 };

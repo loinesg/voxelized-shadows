@@ -16,16 +16,22 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
     
     // Debug texture radio button signals
-    connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled(bool)));
-    connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled(bool)));
-    connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled(bool)));
-    connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled(bool)));
+    connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled()));
+    connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled()));
+    connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled()));
+    connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled()));
     
     // Shadow map resolution radio button signals
-    connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled(bool)));
-    connect(window_->shadowResolution1024Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution1024Toggled(bool)));
-    connect(window_->shadowResolution2048Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution2048Toggled(bool)));
-    connect(window_->shadowResolution4096Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution4096Toggled(bool)));
+    connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled()));
+    connect(window_->shadowResolution1024Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution1024Toggled()));
+    connect(window_->shadowResolution2048Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution2048Toggled()));
+    connect(window_->shadowResolution4096Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution4096Toggled()));
+    
+    // Shadow map cascades radio button signals
+    connect(window_->shadowCascades1(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades1Toggled()));
+    connect(window_->shadowCascades2(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades2Toggled()));
+    connect(window_->shadowCascades3(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades3Toggled()));
+    connect(window_->shadowCascades4(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades4Toggled()));
 }
 
 bool MainWindowController::eventFilter(QObject * obj, QEvent* event)
@@ -80,65 +86,73 @@ void MainWindowController::cutoutFeatureToggled(int state)
     updateShaderFeature(SF_Cutout, state);
 }
 
-void MainWindowController::noOverlayToggled(bool checked)
+void MainWindowController::noOverlayToggled()
 {
-    if(checked)
-    {
-        window_->rendererWidget()->setOverlayTexture(NULL);
-    }
+    window_->rendererWidget()->setOverlayTexture(NULL);
 }
 
-void MainWindowController::shadowMapOverlayToggled(bool checked)
+void MainWindowController::shadowMapOverlayToggled()
 {
     RendererWidget* renderer = window_->rendererWidget();
     Texture* texture = renderer->shadowMap();
     
-    if(checked)
-    {
-        renderer->setOverlayTexture(texture);
-    }
+    renderer->setOverlayTexture(texture);
 }
 
-void MainWindowController::sceneDepthOverlayToggled(bool checked)
+void MainWindowController::sceneDepthOverlayToggled()
 {
     RendererWidget* renderer = window_->rendererWidget();
     Texture* texture = renderer->sceneDepthTexture();
     
-    if(checked)
-    {
-        renderer->setOverlayTexture(texture);
-    }
+    renderer->setOverlayTexture(texture);
 }
 
-void MainWindowController::shadowMaskOverlayToggled(bool checked)
+void MainWindowController::shadowMaskOverlayToggled()
 {
     RendererWidget* renderer = window_->rendererWidget();
     Texture* texture = renderer->shadowMask();
     
-    if(checked)
-    {
-        renderer->setOverlayTexture(texture);
-    }
+    renderer->setOverlayTexture(texture);
 }
 
-void MainWindowController::shadowResolution512Toggled(bool checked)
+void MainWindowController::shadowResolution512Toggled()
 {
     window_->rendererWidget()->setShadowMapResolution(512);
 }
 
-void MainWindowController::shadowResolution1024Toggled(bool checked)
+void MainWindowController::shadowResolution1024Toggled()
 {
     window_->rendererWidget()->setShadowMapResolution(1024);
 }
 
-void MainWindowController::shadowResolution2048Toggled(bool checked)
+void MainWindowController::shadowResolution2048Toggled()
 {
     window_->rendererWidget()->setShadowMapResolution(2048);
 }
 
-void MainWindowController::shadowResolution4096Toggled(bool checked)
+void MainWindowController::shadowResolution4096Toggled()
 {
     window_->rendererWidget()->setShadowMapResolution(4096);
+}
+
+void MainWindowController::shadowCascades1Toggled()
+{
+    window_->rendererWidget()->setShadowMapCascades(1);
+}
+
+void MainWindowController::shadowCascades2Toggled()
+{
+    window_->rendererWidget()->setShadowMapCascades(2);
+}
+
+void MainWindowController::shadowCascades3Toggled()
+{
+    window_->rendererWidget()->setShadowMapCascades(3);
+}
+
+void MainWindowController::shadowCascades4Toggled()
+{
+    window_->rendererWidget()->setShadowMapCascades(4);
 }
 
 void MainWindowController::update(float deltaTime)

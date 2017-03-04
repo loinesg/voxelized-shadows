@@ -20,6 +20,11 @@ MainWindow::MainWindow(const QGLFormat &format)
     shadowResolutionRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     createShadowResolutionRadios();
     
+    // Create shadow cascades radio buttons
+    shadowCascadesRadios_ = new QGroupBox("Shadow Cascades");
+    shadowCascadesRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    createShadowCascadesRadios();
+    
     // Add widgets to side panel
     QBoxLayout* sidePanelLayout = new QBoxLayout(QBoxLayout::TopToBottom);
     sidePanelLayout->addWidget(featureToggles_);
@@ -27,6 +32,8 @@ MainWindow::MainWindow(const QGLFormat &format)
     sidePanelLayout->addWidget(overlayRadios_);
     sidePanelLayout->addSpacing(20);
     sidePanelLayout->addWidget(shadowResolutionRadios_);
+    sidePanelLayout->addSpacing(20);
+    sidePanelLayout->addWidget(shadowCascadesRadios_);
     sidePanelLayout->addStretch();
     
     QWidget* sidePanel = new QWidget();
@@ -69,6 +76,17 @@ void MainWindow::createShadowResolutionRadios()
     shadowResolution4096Radio_->setChecked(true);
 }
 
+void MainWindow::createShadowCascadesRadios()
+{
+    shadowCascades1_ = createShadowCascadesRadio("No Cascades");
+    shadowCascades2_ = createShadowCascadesRadio("2 Cascades");
+    shadowCascades3_ = createShadowCascadesRadio("3 Cascades");
+    shadowCascades4_ = createShadowCascadesRadio("4 Cascades");
+    
+    // Default = 2
+    shadowCascades2_->setChecked(true);
+}
+
 QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* label, bool on)
 {
     QCheckBox* checkBox = new QCheckBox(label);
@@ -91,6 +109,14 @@ QRadioButton* MainWindow::createShadowResolutionRadio(const char* label)
 {
     QRadioButton* radio = new QRadioButton(label);
     shadowResolutionRadios_->layout()->addWidget(radio);
+    
+    return radio;
+}
+
+QRadioButton* MainWindow::createShadowCascadesRadio(const char* label)
+{
+    QRadioButton* radio = new QRadioButton(label);
+    shadowCascadesRadios_->layout()->addWidget(radio);
     
     return radio;
 }

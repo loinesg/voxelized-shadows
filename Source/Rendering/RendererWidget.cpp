@@ -50,6 +50,11 @@ void RendererWidget::setShadowMapResolution(int resolution)
     shadowMap_->setResolution(resolution);
 }
 
+void RendererWidget::setShadowMapCascades(int cascades)
+{
+    shadowMap_->setCascadesCount(cascades);
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));
