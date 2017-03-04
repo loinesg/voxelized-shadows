@@ -23,6 +23,7 @@ struct SceneUniformBuffer
     
     Vector4 screenResolution;
     Vector4 cameraPosition;
+    Matrix4x4 clipToWorld;
     Vector4 ambientLightColor;
     Vector4 lightColor;
     Vector4 lightDirection; // To light. Normalized
@@ -34,8 +35,8 @@ struct ShadowUniformBuffer
 {
     static const int BlockID = 2;
     
-    Matrix4x4 worldToShadow;
-    Vector4 shadowTexelSize; // w, h, 1/w, 1/h
+    float cascadeDistancesSqr[4];
+    Matrix4x4 worldToShadow[4];
 };
 
 

@@ -63,7 +63,7 @@ void RendererWidget::initializeGL()
     
     // Create assets
     fullScreenQuad_ = Mesh::fullScreenQuad();
-    shadowMap_ = new ShadowMap(uniformManager_, 4096, 4096);
+    shadowMap_ = new ShadowMap(uniformManager_, 4096, 2);
     shadowMask_ = new ShadowMask();
     
     // Create RenderPass instances
@@ -102,6 +102,7 @@ void RendererWidget::paintGL()
     SceneUniformBuffer data;
     data.screenResolution = Vector4(camera()->pixelWidth(), camera()->pixelHeight(), 0.0, 0.0);
     data.cameraPosition = Vector4(scene_->mainCamera()->position(), 1.0);
+    data.clipToWorld = camera()->cameraToWorldMatrix();
     data.ambientLightColor = Vector4(scene_->mainLight()->ambient(), 1.0);
     data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
@@ -182,7 +183,7 @@ void RendererWidget::renderShadowMap()
     shadowMap_->updatePosition(scene_->mainCamera(), scene_->mainLight());
     
     // Update the shadow uniform buffer
-    shadowMap_->updateUniformBuffer(scene_->mainCamera());
+    shadowMap_->updateUniformBuffer();
     
     // Enable depth biasing to prevent shadow acne
     glPolygonOffset(2.5, 10.0);
@@ -194,9 +195,18 @@ void RendererWidget::renderShadowMap()
     glDepthFunc(GL_LESS);
     glColorMask(false, false, false, false);
     
-    // Render the shadow map
-    useCamera(shadowMap_->camera());
-    shadowCasterPass_->submit(shadowMap_->camera(), scene_->meshInstances());
+    // Render each shadow cascade
+    for(int c = 0; c < shadowMap_->cascadesCount(); ++c)
+    {
+        // Use the camera for the cascade
+        useCamera(shadowMap_->getCamera(c));
+        
+        // Only clear the shadow map if this is the first cascade being rendered
+        shadowCasterPass_->setClearFlags(c == 0 ? GL_DEPTH_BUFFER_BIT : GL_NONE);
+        
+        // Render the scene using the camera.
+        shadowCasterPass_->submit(shadowMap_->getCamera(c), scene_->meshInstances());
+    }
     
     // Disable depth biasing
     glDisable(GL_POLYGON_OFFSET_FILL);

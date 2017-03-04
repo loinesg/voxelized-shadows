@@ -54,14 +54,6 @@ void Texture::setResolution(int width, int height)
     height_ = height;
 }
 
-void Texture::setBorder(float r, float g, float b, float a)
-{
-    GLfloat colors[] = { r, g, b, a };
-    
-    glBindTexture(GL_TEXTURE_2D, id_);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, colors);
-}
-
 void Texture::setCompareMode(GLenum mode, GLenum func)
 {
     glBindTexture(GL_TEXTURE_2D, id_);
