@@ -22,9 +22,6 @@ public:
     // Recreates the texture with a new resolution.
     void setResolution(int width, int height);
     
-    // Adds a colour border to the texture
-    void setBorder(float r, float g, float b, float a);
-    
     // For depth textures.
     // Sets the texture comparison mode and function
     void setCompareMode(GLenum mode, GLenum func);

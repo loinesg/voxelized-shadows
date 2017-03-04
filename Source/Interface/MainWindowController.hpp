@@ -27,11 +27,23 @@ public slots:
     void normalMapsFeatureToggled(int state);
     void cutoutFeatureToggled(int state);
     
-    // Debug texture checkboxes
-    void noOverlayToggled(bool checked);
-    void shadowMapOverlayToggled(bool checked);
-    void sceneDepthOverlayToggled(bool checked);
-    void shadowMaskOverlayToggled(bool checked);
+    // Debug texture radio buttons
+    void noOverlayToggled();
+    void shadowMapOverlayToggled();
+    void sceneDepthOverlayToggled();
+    void shadowMaskOverlayToggled();
+    
+    // Shadow map resoluton radio buttons
+    void shadowResolution512Toggled();
+    void shadowResolution1024Toggled();
+    void shadowResolution2048Toggled();
+    void shadowResolution4096Toggled();
+    
+    // Shadow map cascades radio buttons
+    void shadowCascades1Toggled();
+    void shadowCascades2Toggled();
+    void shadowCascades3Toggled();
+    void shadowCascades4Toggled();
 
 private:
     MainWindow* window_;
