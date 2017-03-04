@@ -1,5 +1,8 @@
 #include "Camera.hpp"
 
+#include <assert.h>
+#include <math.h>
+
 Camera::Camera()
     : framebuffer_(0),
     type_(CameraType::Perspective),
@@ -23,6 +26,27 @@ Matrix4x4 Camera::worldToCameraMatrix() const
 Matrix4x4 Camera::cameraToWorldMatrix() const
 {
     return localToWorld() * invProjectionMatrix_;
+}
+
+void Camera::getFrustumCorners(float distance, Vector4* corners) const
+{
+    // Currently supports perspective mode only
+    assert(type_ == CameraType::Perspective);
+    
+    // Calculate aspect ratio
+    float aspect = (float)pixelWidth_ / (float)pixelHeight_;
+    
+    // Calculate the frustum width and height at the specified distance
+    float halfFov = (fov_ / 2.0) * (M_PI / 180.0);
+    float halfHeight = distance * tan(halfFov);
+    float halfWidth = halfHeight * aspect;
+    
+    // Get the 4 corners in local space
+    // Looking down positive z
+    corners[0] = Vector4(halfWidth, halfHeight, distance, 1.0);
+    corners[1] = Vector4(halfWidth, -halfHeight, distance, 1.0);
+    corners[2] = Vector4(-halfWidth, halfHeight, distance, 1.0);
+    corners[3] = Vector4(-halfWidth, -halfHeight, distance, 1.0);
 }
 
 void Camera::setFramebuffer(GLuint framebuffer)

@@ -41,6 +41,10 @@ public:
     Matrix4x4 projectionMatrix() const { return projectionMatrix_; }
     Matrix4x4 cameraToWorldMatrix() const;
     
+    // Gets the 4 corners of the view frustum at the specified distance.
+    // Perspective mode only. The points returned are in local space.
+    void getFrustumCorners(float distance, Vector4* corners) const;
+    
     void setFramebuffer(GLuint framebuffer);
     void setType(CameraType type);
     void setPixelOffsetX(int offset);
