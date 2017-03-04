@@ -46,13 +46,16 @@ public:
     static Matrix4x4 perspectiveInverse(float fov, float aspect, float n, float f);
 };
 
+// Matrix * scalar operations
 Matrix4x4 operator * (const Matrix4x4 &mat, float scalar);
 Matrix4x4 operator * (float scalar, const Matrix4x4 &mat);
 
+// Matrix +- Matrix operations
 Matrix4x4 operator * (const Matrix4x4 &a, const Matrix4x4 &b);
 Matrix4x4 operator + (const Matrix4x4 &a, const Matrix4x4 &b);
 Matrix4x4 operator - (const Matrix4x4 &a, const Matrix4x4 &b);
 
+// Matrix * Vector4 operation
 Vector4 operator * (const Matrix4x4 &mat, const Vector4 &v);
 
 ostream& operator << (ostream &os, Matrix4x4 &mat);

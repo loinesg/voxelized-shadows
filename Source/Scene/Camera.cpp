@@ -92,7 +92,7 @@ void Camera::setFov(float fov)
 
 void Camera::updateProjectionMatrix()
 {
-    float aspect = (float)pixelHeight_ / (float)pixelWidth_;
+    float aspect = (float)pixelWidth_ / (float)pixelHeight_;
     
     if(type_ == CameraType::Perspective)
     {
@@ -102,10 +102,10 @@ void Camera::updateProjectionMatrix()
     else if(type_ == CameraType::Orthographic)
     {
         float halfSize = orthographicSize_ / 2.0;
-        float l = -halfSize;
-        float r = halfSize;
-        float t = (halfSize * aspect);
-        float b = -(halfSize * aspect);
+        float l = -(halfSize * aspect);
+        float r = (halfSize * aspect);
+        float t = halfSize;
+        float b = -halfSize;
         
         projectionMatrix_ = Matrix4x4::orthographic(l, r, b, t, nearPlane_, farPlane_);
     }

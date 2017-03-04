@@ -136,8 +136,8 @@ Matrix4x4 Matrix4x4::perspective(float fov, float aspect, float n, float f)
 {
     // Compute the size of the image plane
     float halfFov = (fov / 2.0) * (M_PI / 180.0);
-    float w = 2.0 * n * tan(halfFov);
-    float h = w * aspect;
+    float h = 2.0 * n * tan(halfFov);
+    float w = h * aspect;
     
     // Create the perspective projection matrix
     Matrix4x4 mat = Matrix4x4::identity();
@@ -162,8 +162,8 @@ Matrix4x4 Matrix4x4::perspectiveInverse(float fov, float aspect, float n, float 
     
     // Compute the size of the image plane
     float halfFov = (fov / 2.0) * (M_PI / 180.0);
-    float w = 2.0 * n * tan(halfFov);
-    float h = w * aspect;
+    float h = 2.0 * n * tan(halfFov);
+    float w = h * aspect;
     
     // Create the inverse projection matrix
     Matrix4x4 mat;
