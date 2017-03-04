@@ -310,6 +310,15 @@ void RendererWidget::drawOverlayTexture()
     float height = size;
     float width = height * aspect;
     
+    // Scale the image if too wide.
+    if(width > 1000)
+    {
+        // Scale down the height and width
+        float scale = (1000.0 / width);
+        height *= scale;
+        width *= scale;
+    }
+    
     // Draw to the overlay's section of the screen only
     glViewport(camera()->pixelWidth() - width - padding,
                camera()->pixelHeight() - height - padding,
