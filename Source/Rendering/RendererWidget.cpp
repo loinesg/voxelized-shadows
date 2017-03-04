@@ -269,7 +269,7 @@ void RendererWidget::useCamera(Camera* camera)
     glBindFramebuffer(GL_FRAMEBUFFER, camera->framebuffer());
     
     // Update the viewport to match the camera width/height
-    glViewport(0, 0, camera->pixelWidth(), camera->pixelHeight());
+    glViewport(camera->pixelOffsetX(), camera->pixelOffsetY(), camera->pixelWidth(), camera->pixelHeight());
 }
 
 void RendererWidget::drawOverlayTexture()

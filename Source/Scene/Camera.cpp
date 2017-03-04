@@ -3,6 +3,8 @@
 Camera::Camera()
     : framebuffer_(0),
     type_(CameraType::Perspective),
+    pixelOffsetX_(0),
+    pixelOffsetY_(0),
     pixelWidth_(100),
     pixelHeight_(100),
     nearPlane_(0.1),
@@ -34,27 +36,45 @@ void Camera::setType(CameraType type)
     updateProjectionMatrix();
 }
 
+void Camera::setPixelOffsetX(int offset)
+{
+    pixelOffsetX_ = offset;
+}
+
+void Camera::setPixelOffsetY(int offset)
+{
+    pixelOffsetY_ = offset;
+}
+
 void Camera::setPixelWidth(int w)
 {
     pixelWidth_ = w;
+    
+    // Aspect ratio changed. Recompute projection matrix.
     updateProjectionMatrix();
 }
 
 void Camera::setPixelHeight(int h)
 {
     pixelHeight_ = h;
+    
+    // Aspect ratio changed. Recompute projection matrix.
     updateProjectionMatrix();
 }
 
 void Camera::setNearPlane(float nearPlane)
 {
     nearPlane_ = nearPlane;
+    
+    // Clipping planes changed. Recompute projection matrix.
     updateProjectionMatrix();
 }
 
 void Camera::setFarPlane(float farPlane)
 {
     farPlane_ = farPlane;
+    
+    // Clipping planes changed. Recompute projection matrix.
     updateProjectionMatrix();
 }
 
