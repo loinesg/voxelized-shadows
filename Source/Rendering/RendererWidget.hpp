@@ -16,12 +16,26 @@ public:
     
     Scene* scene() { return scene_; }
     UniformManager* uniformManager() { return uniformManager_; }
+
+    // Main scene camera
+    Camera* camera() const { return scene_->mainCamera(); }
     
+    // Renderer textures
+    Texture* shadowMap() { return shadowMap_->texture(); }
+    Texture* sceneDepthTexture() { return sceneDepthTexture_; }
+    Texture* shadowMask() { return shadowMask_->texture(); }
+    
+    // Shader feature toggling
     void enableFeature(ShaderFeature feature);
     void disableFeature(ShaderFeature feature);
     
-    Camera* camera() const { return scene_->mainCamera(); }
-
+    // Changes the overlay texture. Setting to NULL = no overlay.
+    void setOverlayTexture(Texture* overlay);
+    
+    // Changes the shadow map settings.
+    void setShadowMapResolution(int resolution);
+    void setShadowMapCascades(int cascades);
+    
 private:
     Scene* scene_;
     UniformManager* uniformManager_;
@@ -37,6 +51,8 @@ private:
     RenderPass* forwardPass_;
     
     Mesh* fullScreenQuad_;
+    Shader* overlayShader_;
+    Texture* overlayTexture_;
 
     // QGLWidget override methods
     void initializeGL();
@@ -55,4 +71,7 @@ private:
     
     // Applies camera properties to the opengl state
     void useCamera(Camera* camera);
+    
+    // Draws the overlay texture in the corner of the screen
+    void drawOverlayTexture();
 };

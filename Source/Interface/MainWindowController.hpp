@@ -13,18 +13,37 @@ class MainWindowController : public QObject
 
 public:
     MainWindowController(MainWindow* window);
-    ~MainWindowController();
-
+    
 protected:
     
     // Intercepts events for the renderer widget
     bool eventFilter(QObject* obj, QEvent* event);
     
 public slots:
+    
+    // Shader feature checkboxes
     void textureFeatureToggled(int state);
     void specularFeatureToggled(int state);
     void normalMapsFeatureToggled(int state);
     void cutoutFeatureToggled(int state);
+    
+    // Debug texture radio buttons
+    void noOverlayToggled();
+    void shadowMapOverlayToggled();
+    void sceneDepthOverlayToggled();
+    void shadowMaskOverlayToggled();
+    
+    // Shadow map resoluton radio buttons
+    void shadowResolution512Toggled();
+    void shadowResolution1024Toggled();
+    void shadowResolution2048Toggled();
+    void shadowResolution4096Toggled();
+    
+    // Shadow map cascades radio buttons
+    void shadowCascades1Toggled();
+    void shadowCascades2Toggled();
+    void shadowCascades3Toggled();
+    void shadowCascades4Toggled();
 
 private:
     MainWindow* window_;

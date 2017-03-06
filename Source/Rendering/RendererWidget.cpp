@@ -6,7 +6,8 @@
 #include <iostream>
 
 RendererWidget::RendererWidget(const QGLFormat &format)
-    : QGLWidget(format)
+    : QGLWidget(format),
+    overlayTexture_(NULL)
 {
     sceneDepthTexture_ = NULL;
 }
@@ -39,6 +40,21 @@ void RendererWidget::disableFeature(ShaderFeature feature)
     forwardPass_->disableFeature(feature);
 }
 
+void RendererWidget::setOverlayTexture(Texture* overlay)
+{
+    overlayTexture_ = overlay;
+}
+
+void RendererWidget::setShadowMapResolution(int resolution)
+{
+    shadowMap_->setResolution(resolution);
+}
+
+void RendererWidget::setShadowMapCascades(int cascades)
+{
+    shadowMap_->setCascadesCount(cascades);
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));
@@ -52,7 +68,7 @@ void RendererWidget::initializeGL()
     
     // Create assets
     fullScreenQuad_ = Mesh::fullScreenQuad();
-    shadowMap_ = new ShadowMap(uniformManager_, 4096, 4096);
+    shadowMap_ = new ShadowMap(uniformManager_, 4096, 2);
     shadowMask_ = new ShadowMask();
     
     // Create RenderPass instances
@@ -62,6 +78,14 @@ void RendererWidget::initializeGL()
     createScene();
     
     glGenFramebuffers(1, &sceneDepthFBO_);
+    
+    sceneDepthTexture_ = Texture::depth(1, 1);
+    sceneDepthTexture_->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    sceneDepthTexture_->setMagFilter(GL_NEAREST);
+    sceneDepthTexture_->setMinFilter(GL_NEAREST);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, sceneDepthFBO_);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sceneDepthTexture_->id(), 0);
 }
 
 void RendererWidget::resizeGL(int w, int h)
@@ -74,22 +98,7 @@ void RendererWidget::resizeGL(int w, int h)
     shadowMask_->setResolution(w, h);
     
     // Make the scene depth texture the same resolution
-    if(sceneDepthTexture_ == NULL ||
-       sceneDepthTexture_->width() != w || sceneDepthTexture_->height() != h)
-    {
-        if(sceneDepthTexture_ != NULL)
-        {
-            delete sceneDepthTexture_;
-        }
-        
-        sceneDepthTexture_ = Texture::depth(w, h);
-        sceneDepthTexture_->setWrapMode(GL_CLAMP, GL_CLAMP);
-        sceneDepthTexture_->setMagFilter(GL_NEAREST);
-        sceneDepthTexture_->setMinFilter(GL_NEAREST);
-        
-        glBindFramebuffer(GL_FRAMEBUFFER, sceneDepthFBO_);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sceneDepthTexture_->id(), 0);
-    }
+    sceneDepthTexture_->setResolution(w, h);
 }
 
 void RendererWidget::paintGL()
@@ -98,6 +107,7 @@ void RendererWidget::paintGL()
     SceneUniformBuffer data;
     data.screenResolution = Vector4(camera()->pixelWidth(), camera()->pixelHeight(), 0.0, 0.0);
     data.cameraPosition = Vector4(scene_->mainCamera()->position(), 1.0);
+    data.clipToWorld = camera()->cameraToWorldMatrix();
     data.ambientLightColor = Vector4(scene_->mainLight()->ambient(), 1.0);
     data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
@@ -115,6 +125,9 @@ void RendererWidget::paintGL()
     
     // Final forward pass.
     renderForward();
+    
+    // Draw debug overlay
+    drawOverlayTexture();
     
     // Redraw immediately
     update();
@@ -156,6 +169,11 @@ void RendererWidget::createRenderPasses()
     forwardPass_ = new RenderPass(forwardPassName, shaderDirectory, uniformManager_);
     forwardPass_->setSupportedFeatures(~0);
     forwardPass_->setClearColor(PassClearColor(0.1, 0.4, 0.1, 1.0));
+    
+    // Load the shader for the debug overlay.
+    string debugOverlayVert = shaderDirectory + "DebugOverlay.vert.glsl";
+    string debugOverlayFrag = shaderDirectory + "DebugOverlay.frag.glsl";
+    overlayShader_ = new Shader(0, debugOverlayVert, debugOverlayFrag);
 }
 
 void RendererWidget::createScene()
@@ -170,7 +188,7 @@ void RendererWidget::renderShadowMap()
     shadowMap_->updatePosition(scene_->mainCamera(), scene_->mainLight());
     
     // Update the shadow uniform buffer
-    shadowMap_->updateUniformBuffer(scene_->mainCamera());
+    shadowMap_->updateUniformBuffer();
     
     // Enable depth biasing to prevent shadow acne
     glPolygonOffset(2.5, 10.0);
@@ -182,9 +200,18 @@ void RendererWidget::renderShadowMap()
     glDepthFunc(GL_LESS);
     glColorMask(false, false, false, false);
     
-    // Render the shadow map
-    useCamera(shadowMap_->camera());
-    shadowCasterPass_->submit(shadowMap_->camera(), scene_->meshInstances());
+    // Render each shadow cascade
+    for(int c = 0; c < shadowMap_->cascadesCount(); ++c)
+    {
+        // Use the camera for the cascade
+        useCamera(shadowMap_->getCamera(c));
+        
+        // Only clear the shadow map if this is the first cascade being rendered
+        shadowCasterPass_->setClearFlags(c == 0 ? GL_DEPTH_BUFFER_BIT : GL_NONE);
+        
+        // Render the scene using the camera.
+        shadowCasterPass_->submit(shadowMap_->getCamera(c), scene_->meshInstances());
+    }
     
     // Disable depth biasing
     glDisable(GL_POLYGON_OFFSET_FILL);
@@ -257,5 +284,51 @@ void RendererWidget::useCamera(Camera* camera)
     glBindFramebuffer(GL_FRAMEBUFFER, camera->framebuffer());
     
     // Update the viewport to match the camera width/height
-    glViewport(0, 0, camera->pixelWidth(), camera->pixelHeight());
+    glViewport(camera->pixelOffsetX(), camera->pixelOffsetY(), camera->pixelWidth(), camera->pixelHeight());
+}
+
+void RendererWidget::drawOverlayTexture()
+{
+    // Check if there is a overlay to draw
+    if(overlayTexture_ == NULL)
+    {
+        return;
+    }
+    
+    // Write colour only to the default framebuffer.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDepthMask(false);
+    glColorMask(true, true, true, true);
+    
+    // Disable depth testing
+    glDisable(GL_DEPTH_TEST);
+    
+    // Determine texture width and height
+    const int padding = 20;
+    const int size = 600;
+    float aspect = overlayTexture_->width() / (float)overlayTexture_->height();
+    float height = size;
+    float width = height * aspect;
+    
+    // Scale the image if too wide.
+    if(width > 1000)
+    {
+        // Scale down the height and width
+        float scale = (1000.0 / width);
+        height *= scale;
+        width *= scale;
+    }
+    
+    // Draw to the overlay's section of the screen only
+    glViewport(camera()->pixelWidth() - width - padding,
+               camera()->pixelHeight() - height - padding,
+               width, height);
+    
+    // Use quad mesh, overlay shader and overlay texture
+    fullScreenQuad_->bind();
+    overlayShader_->bind();
+    overlayTexture_->bind(GL_TEXTURE0);
+    
+    // Draw the quad mesh
+    glDrawElements(GL_TRIANGLES, fullScreenQuad_->elementsCount(), GL_UNSIGNED_SHORT, (void*)0);
 }
