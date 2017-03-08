@@ -31,21 +31,21 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->shadowCascades4(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades4Toggled()));
 }
 
-bool MainWindowController::eventFilter(QObject * obj, QEvent* event)
+bool MainWindowController::eventFilter(QObject* obj, QEvent* event)
 {
     if(event->type() == QEvent::Paint)
     {
         update((1.0 / 60.0));
     }
-    else if(event->type() == QEvent::MouseButtonPress)
+    else if(event->type() == QEvent::MouseButtonPress && obj == window_->rendererWidget())
     {
         mousePressEvent(static_cast<QMouseEvent*>(event));
     }
-    else if(event->type() == QEvent::MouseButtonRelease)
+    else if(event->type() == QEvent::MouseButtonRelease && obj == window_->rendererWidget())
     {
         mouseReleaseEvent(static_cast<QMouseEvent*>(event));
     }
-    else if(event->type() == QEvent::MouseMove)
+    else if(event->type() == QEvent::MouseMove && obj == window_->rendererWidget())
     {
         mouseMoveEvent(static_cast<QMouseEvent*>(event));
     }
