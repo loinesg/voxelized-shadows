@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QGLWidget>
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
 
 #include "Scene.hpp"
 #include "RenderPass.hpp"

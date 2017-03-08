@@ -1,7 +1,9 @@
 #pragma once
 
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
+
 #include <vector>
-#include <QGLWidget>
 
 using namespace std;
 
