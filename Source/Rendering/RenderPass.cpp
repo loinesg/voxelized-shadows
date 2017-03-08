@@ -1,10 +1,10 @@
 #include "RenderPass.hpp"
 
-RenderPass::RenderPass(const string &name, const string &shadersDirectory, UniformManager* uniformManager)
+RenderPass::RenderPass(const string &name, UniformManager* uniformManager)
     : name_(name),
     clearFlags_(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT),
     clearColor_(PassClearColor(0.0, 0.0, 0.0, 1.0)),
-    shaderCollection_(new ShaderCollection(name, shadersDirectory)),
+    shaderCollection_(new ShaderCollection(name)),
     uniformManager_(uniformManager)
 {
     

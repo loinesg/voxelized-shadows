@@ -19,11 +19,17 @@ public:
     Scene();
     ~Scene();
     
+    // The viewers camera
     Camera* mainCamera() { return &cameras_[0]; }
+    
+    // The shadow casting light
     Light* mainLight() { return &lights_[0]; }
+    
+    // The mesh instances to be rendered
     vector<MeshInstance>* meshInstances() { return &meshInstances_; }
     
-    bool loadFromFile(const char* fileName);
+    // Loads scene objects from the given .scene file
+    bool loadFromFile(const string &fileName);
     
 private:
     vector<Camera> cameras_;

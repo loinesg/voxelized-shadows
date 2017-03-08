@@ -1,6 +1,8 @@
 #pragma once
 
-#include <QGLWidget>
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
+
 #include <string>
 #include <vector>
 
@@ -31,7 +33,7 @@ typedef unsigned int ShaderFeatureList;
 class Shader
 {
 public:
-    Shader(ShaderFeatureList features, const string &vertSource, const string &fragSource);
+    Shader(const string &name, ShaderFeatureList features);
     ~Shader();
     
     // Feature management

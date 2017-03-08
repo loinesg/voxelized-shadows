@@ -1,12 +1,12 @@
 #include "ShaderCollection.hpp"
 
-ShaderCollection::ShaderCollection(const string &name, const string &directory)
-: supportedFeatures_(~0),
-enabledFeatures_(~0),
-shaderVariants_()
+ShaderCollection::ShaderCollection(const string &name)
+    : shaderName_(name),
+    supportedFeatures_(~0),
+    enabledFeatures_(~0),
+    shaderVariants_()
 {
-    vertexShader_ = directory + name + ".vert.glsl";
-    fragmentShader_ = directory + name + ".frag.glsl";
+    
 }
 
 ShaderCollection::~ShaderCollection()
@@ -66,7 +66,7 @@ Shader* ShaderCollection::findShader(ShaderFeatureList features) const
 
 Shader* ShaderCollection::createShader(ShaderFeatureList features)
 {
-    Shader* shader = new Shader(features, vertexShader_, fragmentShader_);
+    Shader* shader = new Shader(shaderName_, features);
     shaderVariants_.push_back(shader);
     
     return shader;

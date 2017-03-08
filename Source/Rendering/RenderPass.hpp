@@ -1,7 +1,9 @@
 #pragma once
 
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
+
 #include <vector>
-#include <QGLWidget>
 
 using namespace std;
 
@@ -16,7 +18,7 @@ typedef Vector4 PassClearColor;
 class RenderPass
 {
 public:
-    RenderPass(const string &name, const string &shadersDirectory, UniformManager* uniformManager);
+    RenderPass(const string &name, UniformManager* uniformManager);
     ~RenderPass();
     
     string name() const { return name_; }
