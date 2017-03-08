@@ -3,11 +3,16 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "Platform.hpp"
 #include "UniformManager.hpp"
 
-Shader::Shader(ShaderFeatureList features, const string &vertSource, const string &fragSource)
+Shader::Shader(const string &name, ShaderFeatureList features)
     : features_(features)
 {
+    // Get the fragment and vertex files
+    string vertSource = SHADERS_DIRECTORY + name + ".vert.glsl";
+    string fragSource = SHADERS_DIRECTORY + name + ".frag.glsl";
+    
     // Compile vertex shader
     if(!compileShader(GL_VERTEX_SHADER, vertSource.c_str(), vertexShader_))
     {

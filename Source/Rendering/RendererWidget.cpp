@@ -142,44 +142,40 @@ void RendererWidget::paintGL()
 
 void RendererWidget::createRenderPasses()
 {
-    string shaderDirectory = "voxelized-shadows.app/Contents/Resources/Shaders/";
-    
     // Pass for rendering the shadow map.
     // Depth only, so no features are needed except cutout.
     string shadowCasterPassName = "ShadowCasterPass";
-    shadowCasterPass_ = new RenderPass(shadowCasterPassName, shaderDirectory, uniformManager_);
+    shadowCasterPass_ = new RenderPass(shadowCasterPassName, uniformManager_);
     shadowCasterPass_->setSupportedFeatures(SF_Cutout);
     shadowCasterPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
     
     // Pass for rendering depth from the main camera
     // Depth only, so no features are needed except cutout.
     string sceneDepthPassName = "SceneDepthPass";
-    sceneDepthPass_ = new RenderPass(sceneDepthPassName, shaderDirectory, uniformManager_);
+    sceneDepthPass_ = new RenderPass(sceneDepthPassName, uniformManager_);
     sceneDepthPass_->setSupportedFeatures(SF_Cutout);
     sceneDepthPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
     
     // Pass for sampling the shadow map into the screen space shadow mask.
     string shadowSamplingPassName = "ShadowSamplingPass";
-    shadowMaskPass_ = new RenderPass(shadowSamplingPassName, shaderDirectory, uniformManager_);
+    shadowMaskPass_ = new RenderPass(shadowSamplingPassName, uniformManager_);
     shadowMaskPass_->setSupportedFeatures(~0);
     
     // Pass for rendering the final image.
     // Uses all features.
     string forwardPassName = "ForwardPass";
-    forwardPass_ = new RenderPass(forwardPassName, shaderDirectory, uniformManager_);
+    forwardPass_ = new RenderPass(forwardPassName, uniformManager_);
     forwardPass_->setSupportedFeatures(~0);
     forwardPass_->setClearColor(PassClearColor(0.1, 0.4, 0.1, 1.0));
     
     // Load the shader for the debug overlay.
-    string debugOverlayVert = shaderDirectory + "DebugOverlay.vert.glsl";
-    string debugOverlayFrag = shaderDirectory + "DebugOverlay.frag.glsl";
-    overlayShader_ = new Shader(0, debugOverlayVert, debugOverlayFrag);
+    overlayShader_ = new Shader("DebugOverlay", 0);
 }
 
 void RendererWidget::createScene()
 {
     scene_ = new Scene();
-    scene_->loadFromFile("voxelized-shadows.app/Contents/Resources/Scenes/scene.scene");
+    scene_->loadFromFile("scene.scene");
 }
 
 void RendererWidget::renderShadowMap()

@@ -14,7 +14,7 @@ using namespace std;
 class ShaderCollection
 {
 public:
-    ShaderCollection(const string &name, const string &directory);
+    ShaderCollection(const string &name);
     ~ShaderCollection();
     
     // Feature toggling
@@ -26,8 +26,7 @@ public:
     Shader* getVariant(ShaderFeatureList features);
     
 private:
-    string vertexShader_;
-    string fragmentShader_;
+    string shaderName_;
     ShaderFeatureList supportedFeatures_;
     ShaderFeatureList enabledFeatures_;
     vector<Shader*> shaderVariants_;

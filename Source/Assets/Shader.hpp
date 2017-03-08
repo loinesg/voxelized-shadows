@@ -33,7 +33,7 @@ typedef unsigned int ShaderFeatureList;
 class Shader
 {
 public:
-    Shader(ShaderFeatureList features, const string &vertSource, const string &fragSource);
+    Shader(const string &name, ShaderFeatureList features);
     ~Shader();
     
     // Feature management

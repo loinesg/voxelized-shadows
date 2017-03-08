@@ -2,6 +2,8 @@
 
 #include <cstdio>
 
+#include "Platform.hpp"
+
 Scene::Scene()
     : cameras_(),
     lights_(),
@@ -17,25 +19,27 @@ Scene::~Scene()
     
 }
 
-bool Scene::loadFromFile(const char* fileName)
+bool Scene::loadFromFile(const string &fileName)
 {
-    ifstream file(fileName);
+    string fullPath = SCENES_DIRECTORY + fileName;
+    
+    ifstream file(fullPath.c_str());
     while(file.is_open() && !file.fail() && !file.eof())
     {
         if(!loadObject(file))
         {
-            printf("Failed to load object from scene %s \n", fileName);
+            printf("Failed to load object from scene %s \n", fileName.c_str());
             return false;
         }
     }
     
     if(file.fail())
     {
-        printf("Failed to read scene file %s \n", fileName);
+        printf("Failed to read scene file %s \n", fileName.c_str());
         return false;
     }
     
-    printf("Loaded scene %s successfully \n", fileName);
+    printf("Loaded scene %s successfully \n", fileName.c_str());
     return true;
 }
 
@@ -148,7 +152,7 @@ Mesh* Scene::getMesh(const string &name)
     }
     
     // Load the mesh.
-    string fullPath = "voxelized-shadows.app/Contents/Resources/Meshes/" + name;
+    string fullPath = MESHES_DIRECTORY + name;
     Mesh* mesh = Mesh::load(fullPath.c_str());
     meshes_.insert(pair<string, Mesh*>(name, mesh));
     return mesh;
@@ -163,7 +167,7 @@ Texture* Scene::getTexture(const string &name)
         return existing->second;
     }
     
-    string fullPath = "voxelized-shadows.app/Contents/Resources/Textures/" + name;
+    string fullPath = TEXTURES_DIRECTORY + name;
     Texture* texture = Texture::load(fullPath.c_str());
     textures_.insert(pair<string, Texture*>(name, texture));
     return texture;
