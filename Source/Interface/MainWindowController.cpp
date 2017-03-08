@@ -6,9 +6,6 @@ MainWindowController::MainWindowController(MainWindow* window)
     mouseDragging_(false),
     mousePosition_(Vector2(0, 0))
 {
-    window_->rendererWidget()->setFocus();
-    window_->rendererWidget()->installEventFilter(this);
-    
     // Shader feature toggle signals
     connect(window_->textureToggle(), SIGNAL(stateChanged(int)), this, SLOT(textureFeatureToggled(int)));
     connect(window_->specularToggle(), SIGNAL(stateChanged(int)), this, SLOT(specularFeatureToggled(int)));
