@@ -21,7 +21,16 @@ enum ShaderFeature
     SF_Specular = 4,
     
     // Enables AlphaTest cutout transparency
-    SF_Cutout = 8
+    SF_Cutout = 8,
+    
+    // Used for debug visualization of shadow maps
+    SF_Debug_ShadowMapTexture = 16,
+    
+    // Used for debug visualization of depth textures
+    SF_Debug_DepthTexture = 32,
+    
+    // Used for debug visualization of cascade split distances
+    SF_Debug_ShowCascadeSplits = 64,
 };
 
 

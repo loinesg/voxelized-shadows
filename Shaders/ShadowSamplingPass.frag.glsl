@@ -54,6 +54,30 @@ void main()
     // Weights will have one component set to 1 and all others set to 0.
     vec4 weights = vec4(lessThan(_CascadeDistancesSqr, vec4(sqrDistance)));
     weights.xyz -= weights.yzw;
+
+#ifdef DEBUG_SHOW_CASCADE_SPLITS
+
+    // Discard samples that are at maximum depth (sky)
+    if(depth == 1.0) discard;
+    
+    // Discard overlay samples on the left half of the screen
+    if(texcoord.x < 0.5) discard;
+
+    // Per-Cascade colours
+    vec3 color0 = vec3(106.0, 8.0, 8.0) / 256.0;
+    vec3 color1 = vec3(239.0, 225.0, 67.0) / 256.0;
+    vec3 color2 = vec3(37.0, 67.0, 107.0) / 256.0;
+    vec3 color3 = vec3(4.0, 91.0, 22.0) / 256.0;
+    
+    // Blend based on the cascade weight
+    // This ensures the colours exactly match the shadow coords
+    vec3 finalColor = color0 * weights.x + color1 * weights.y
+                    + color2 * weights.z + color3 * weights.w;
+    
+    // Return the cascade colour and blend %
+    fragColor = vec4(finalColor, 0.7);
+    
+#else
     
     // Compute the final shadow coord
     vec4 shadowCoord = (coord0 * weights.x) + (coord1 * weights.y)
@@ -64,4 +88,6 @@ void main()
 
     // Return the shadow
     fragColor = vec4(shadow, 0.0, 0.0, 0.0);
+    
+#endif
 }

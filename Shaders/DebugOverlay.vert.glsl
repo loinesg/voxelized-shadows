@@ -6,9 +6,9 @@ out vec2 texcoord;
 
 void main()
 {
-    // Using a full screen quad. No need for transformations.
+    // Fullscreen quad. No need to modify position
     gl_Position = _position;
     
-    // Derive the texcoord from the screen position.
+    // Transform the position from [-1,1] to [0,1] for texcoord
     texcoord = _position.xy / 2.0 + 0.5;
 }

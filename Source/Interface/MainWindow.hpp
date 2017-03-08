@@ -30,6 +30,7 @@ public:
     QRadioButton* shadowMapOverlayRadio() const { return shadowMapOverlayRadio_; }
     QRadioButton* sceneDepthOverlayRadio() const { return sceneDepthOverlayRadio_; }
     QRadioButton* shadowMaskOverlayRadio() const { return shadowMaskOverlayRadio_; }
+    QRadioButton* cascadeSplitsOverlayRadio() const { return cascadeSplitsOverlayRadio_; }
     
     // Shadow map resolution radio buttons
     QRadioButton* shadowResolution512Radio() const { return shadowResolution512Radio_; }
@@ -60,6 +61,7 @@ private:
     QRadioButton* shadowMapOverlayRadio_;
     QRadioButton* sceneDepthOverlayRadio_;
     QRadioButton* shadowMaskOverlayRadio_;
+    QRadioButton* cascadeSplitsOverlayRadio_;
     
     // Shadow resolution radio buttons
     QGroupBox* shadowResolutionRadios_;
