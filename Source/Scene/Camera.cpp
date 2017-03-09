@@ -49,6 +49,15 @@ void Camera::getFrustumCorners(float distance, Vector4* corners) const
     corners[3] = Vector4(-halfWidth, -halfHeight, distance, 1.0);
 }
 
+void Camera::bind()
+{
+    // Bind the correct framebuffer
+   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+   
+   // Update the viewport to match the camera width/height
+   glViewport(pixelOffsetX_, pixelOffsetY_, pixelWidth_, pixelHeight_);
+}
+
 void Camera::setFramebuffer(GLuint framebuffer)
 {
     framebuffer_ = framebuffer;
@@ -134,4 +143,3 @@ void Camera::updateProjectionMatrix()
         projectionMatrix_ = Matrix4x4::orthographic(l, r, b, t, nearPlane_, farPlane_);
     }
 }
-

@@ -7,12 +7,13 @@ RenderPass::RenderPass(const string &name, UniformManager* uniformManager)
     shaderCollection_(new ShaderCollection(name)),
     uniformManager_(uniformManager)
 {
-    
+    fullScreenQuad_ = Mesh::fullScreenQuad();
 }
 
 RenderPass::~RenderPass()
 {
     delete shaderCollection_;
+    delete fullScreenQuad_;
 }
 
 void RenderPass::setClearFlags(PassClearFlags clearFlags)
@@ -93,10 +94,14 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
     }
 }
 
-void RenderPass::renderFullScreen(ShaderFeatureList shaderFeatures, Mesh *fullScreenQuad)
+void RenderPass::renderFullScreen()
 {
-    shaderCollection_->getVariant(shaderFeatures)->bind();
-    fullScreenQuad->bind();
+    // Use all supported shader features
+    shaderCollection_->getVariant(~0)->bind();
     
-    glDrawElements(GL_TRIANGLES, fullScreenQuad->elementsCount(), GL_UNSIGNED_SHORT, (void*)0);
+    // Use the quad mesh
+    fullScreenQuad_->bind();
+
+    // Draw the quad
+    glDrawElements(GL_TRIANGLES, fullScreenQuad_->elementsCount(), GL_UNSIGNED_SHORT, (void*)0);
 }

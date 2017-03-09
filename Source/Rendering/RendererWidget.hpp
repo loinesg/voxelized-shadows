@@ -42,12 +42,9 @@ private:
     ShadowMap* shadowMap_;
     ShadowMask* shadowMask_;
     
-    RenderPass* shadowCasterPass_;
     RenderPass* sceneDepthPass_;
-    RenderPass* shadowMaskPass_;
     RenderPass* forwardPass_;
     
-    Mesh* fullScreenQuad_;
     vector<Overlay*> overlays_;
     int currentOverlay_;
 
@@ -66,7 +63,4 @@ private:
     void renderSceneDepth();
     void renderShadowMask();
     void renderForward();
-    
-    // Applies camera properties to the opengl state
-    void useCamera(Camera* camera);
 };

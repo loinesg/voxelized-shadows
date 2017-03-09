@@ -3,16 +3,15 @@
 #define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
 #include <QGLWidget> // Links OpenGL Headers
 
+#include "RenderPass.hpp"
 #include "Mesh.hpp"
 #include "Camera.hpp"
-#include "Light.hpp"
 #include "Texture.hpp"
-#include "UniformManager.hpp"
 
 class ShadowMask
 {
 public:
-    ShadowMask();
+    ShadowMask(UniformManager* uniformManager);
     ~ShadowMask();
     
     // The shadow mask framebuffer
@@ -29,10 +28,22 @@ public:
     // Changes the shadow mask resolution to match the screen.
     void setResolution(int width, int height);
     
-    // Binds the shadow mask texture.
-    void bindTexture(GLenum textureSlot) const;
+    // Sets input tetxures
+    void setShadowMapTexture(Texture* shadowMapTexture);
+    void setSceneDepthTexture(Texture* sceneDepthTexture);
+    
+    // Renders the shadow mask
+    void render();
     
 private:
+    // Framebuffer and shadow mask texture
     GLuint frameBuffer_;
     Texture* texture_;
+    
+    // Render pass
+    RenderPass* shadowMaskPass_;
+    
+    // Input texture
+    Texture* shadowMapTexture_;
+    Texture* sceneDepthTexture_;
 };
