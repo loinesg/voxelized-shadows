@@ -17,12 +17,12 @@ vec4 SampleShadowMap(vec2 texcoord)
 {
     // Sample at multiple depths and add the results
     float sum = 0.0;
-    for(float depth = 0.0; depth < 1.0; depth += 0.05)
+    for(float depth = 0.0; depth < 1.0; depth += 0.005)
     {
         sum += textureProj(_MainTexture, vec4(texcoord.xy, depth, 1.0));
     }
     
-    float shadow = sum * 0.05;
+    float shadow = sum * 0.005;
     return vec4(shadow, shadow, shadow, 1.0);
 }
 #endif
