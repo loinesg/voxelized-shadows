@@ -1,5 +1,7 @@
 #include "MainWindow.hpp"
 
+#include <cstdio>
+
 MainWindow::MainWindow(const QGLFormat &format)
 {
     // Create main renderer
@@ -11,8 +13,6 @@ MainWindow::MainWindow(const QGLFormat &format)
     createFeatureToggles();
     
     // Create debug overlay radio buttons
-    overlayRadios_ = new QGroupBox("Debug Overlay");
-    overlayRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     createOverlayRadios();
     
     // Create shadow map resolution radio buttons
@@ -56,10 +56,17 @@ void MainWindow::createFeatureToggles()
 
 void MainWindow::createOverlayRadios()
 {
+    // Create group box
+    overlayRadios_ = new QGroupBox("Debug Overlay");
+    overlayRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    
+    // One radio per overlay
+    // Must match RendererWidget::createOverlays()
     noOverlayRadio_ = createOverlayRadio("No Overlay");
     shadowMapOverlayRadio_ = createOverlayRadio("Shadow Map");
     sceneDepthOverlayRadio_ = createOverlayRadio("Scene Depth");
     shadowMaskOverlayRadio_ = createOverlayRadio("Shadow Mask");
+    cascadeSplitsOverlayRadio_ = createOverlayRadio("Cascade Splits");
     
     // Default = No Overlay
     noOverlayRadio_->setChecked(true);

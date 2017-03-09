@@ -8,6 +8,7 @@
 #include "ShadowMap.hpp"
 #include "ShadowMask.hpp"
 #include "UniformManager.hpp"
+#include "Overlay.hpp"
 
 class RendererWidget : public QGLWidget
 {
@@ -21,17 +22,12 @@ public:
     // Main scene camera
     Camera* camera() const { return scene_->mainCamera(); }
     
-    // Renderer textures
-    Texture* shadowMap() { return shadowMap_->texture(); }
-    Texture* sceneDepthTexture() { return sceneDepthTexture_; }
-    Texture* shadowMask() { return shadowMask_->texture(); }
-    
     // Shader feature toggling
     void enableFeature(ShaderFeature feature);
     void disableFeature(ShaderFeature feature);
     
-    // Changes the overlay texture. Setting to NULL = no overlay.
-    void setOverlayTexture(Texture* overlay);
+    // Changes the overlay index. -1 means no overlay.
+    void setOverlay(int overlayIndex);
     
     // Changes the shadow map settings.
     void setShadowMapResolution(int resolution);
@@ -52,8 +48,8 @@ private:
     RenderPass* forwardPass_;
     
     Mesh* fullScreenQuad_;
-    Shader* overlayShader_;
-    Texture* overlayTexture_;
+    vector<Overlay*> overlays_;
+    int currentOverlay_;
 
     // QGLWidget override methods
     void initializeGL();
@@ -63,6 +59,7 @@ private:
     // Setup
     void createRenderPasses();
     void createScene();
+    void createOverlays();
     
     // Render passes
     void renderShadowMap();
@@ -72,7 +69,4 @@ private:
     
     // Applies camera properties to the opengl state
     void useCamera(Camera* camera);
-    
-    // Draws the overlay texture in the corner of the screen
-    void drawOverlayTexture();
 };

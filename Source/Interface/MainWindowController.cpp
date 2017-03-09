@@ -12,11 +12,12 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
     connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
     
-    // Debug texture radio button signals
+    // Debug overlay radio button signals
     connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled()));
     connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled()));
     connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled()));
     connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled()));
+    connect(window_->cascadeSplitsOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(cascadeSplitsOverlayToggled()));
     
     // Shadow map resolution radio button signals
     connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled()));
@@ -85,31 +86,27 @@ void MainWindowController::cutoutFeatureToggled(int state)
 
 void MainWindowController::noOverlayToggled()
 {
-    window_->rendererWidget()->setOverlayTexture(NULL);
+    window_->rendererWidget()->setOverlay(-1);
 }
 
 void MainWindowController::shadowMapOverlayToggled()
 {
-    RendererWidget* renderer = window_->rendererWidget();
-    Texture* texture = renderer->shadowMap();
-    
-    renderer->setOverlayTexture(texture);
+    window_->rendererWidget()->setOverlay(0);
 }
 
 void MainWindowController::sceneDepthOverlayToggled()
 {
-    RendererWidget* renderer = window_->rendererWidget();
-    Texture* texture = renderer->sceneDepthTexture();
-    
-    renderer->setOverlayTexture(texture);
+    window_->rendererWidget()->setOverlay(1);
 }
 
 void MainWindowController::shadowMaskOverlayToggled()
 {
-    RendererWidget* renderer = window_->rendererWidget();
-    Texture* texture = renderer->shadowMask();
-    
-    renderer->setOverlayTexture(texture);
+    window_->rendererWidget()->setOverlay(2);
+}
+
+void MainWindowController::cascadeSplitsOverlayToggled()
+{
+    window_->rendererWidget()->setOverlay(3);
 }
 
 void MainWindowController::shadowResolution512Toggled()

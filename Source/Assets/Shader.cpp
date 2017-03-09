@@ -166,10 +166,17 @@ void Shader::setUniformBlockBinding(const char *blockName, GLuint id)
 string Shader::createFeatureDefines() const
 {
     string defines = "";
+    
+    // Shader feature defines
     if(hasFeature(SF_Texture)) defines += "\n #define TEXTURE_ON";
     if(hasFeature(SF_NormalMap)) defines += "\n #define NORMAL_MAP_ON";
     if(hasFeature(SF_Specular)) defines += "\n #define SPECULAR_ON";
     if(hasFeature(SF_Cutout)) defines += "\n #define ALPHA_TEST_ON";
+    
+    // Debug feature defines
+    if(hasFeature(SF_Debug_ShadowMapTexture)) defines += "\n #define DEBUG_SHADOW_MAP_TEXTURE";
+    if(hasFeature(SF_Debug_DepthTexture)) defines += "\n #define DEBUG_DEPTH_TEXTURE";
+    if(hasFeature(SF_Debug_ShowCascadeSplits)) defines += "\n #define DEBUG_SHOW_CASCADE_SPLITS";
     
     return defines;
 }
