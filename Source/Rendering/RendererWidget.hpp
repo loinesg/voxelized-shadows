@@ -23,6 +23,9 @@ public:
     // Main scene camera
     Camera* camera() const { return scene_->mainCamera(); }
     
+    // Gets the current shadow method
+    ShadowMaskMethod shadowMethod() const { return shadowMask_->method(); }
+    
     // Shader feature toggling
     void enableFeature(ShaderFeature feature);
     void disableFeature(ShaderFeature feature);
@@ -30,7 +33,8 @@ public:
     // Changes the overlay index. -1 means no overlay.
     void setOverlay(int overlayIndex);
     
-    // Changes the shadow map settings.
+    // Changes shadow rendering settings.
+    void setShadowRenderMethod(ShadowMaskMethod method);
     void setShadowMapResolution(int resolution);
     void setShadowMapCascades(int cascades);
     

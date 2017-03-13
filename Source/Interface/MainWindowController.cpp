@@ -12,6 +12,10 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
     connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
     
+    // Shadow method radio button signals
+    connect(window_->shadowMapMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMappingMethodToggled()));
+    connect(window_->voxelTreeMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeMethodToggled()));
+    
     // Debug overlay radio button signals
     connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled()));
     connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled()));
@@ -82,6 +86,16 @@ void MainWindowController::normalMapsFeatureToggled(int state)
 void MainWindowController::cutoutFeatureToggled(int state)
 {
     updateShaderFeature(SF_Cutout, state);
+}
+
+void MainWindowController::shadowMappingMethodToggled()
+{
+    window_->rendererWidget()->setShadowRenderMethod(SMM_ShadowMap);
+}
+
+void MainWindowController::voxelTreeMethodToggled()
+{
+    window_->rendererWidget()->setShadowRenderMethod(SMM_VoxelTree);
 }
 
 void MainWindowController::noOverlayToggled()

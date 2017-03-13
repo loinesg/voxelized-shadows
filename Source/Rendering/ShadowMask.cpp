@@ -2,8 +2,10 @@
 
 #include "UniformManager.hpp"
 
-ShadowMask::ShadowMask(UniformManager* uniformManager)
-    : texture_(NULL)
+ShadowMask::ShadowMask(UniformManager* uniformManager, ShadowMaskMethod method)
+    : method_(method),
+    texture_(NULL),
+    voxelTree_(NULL)
 {
     // Create a single channel texture for the shadow mask
     texture_ = Texture::singleChannel(1, 1);
@@ -17,10 +19,13 @@ ShadowMask::ShadowMask(UniformManager* uniformManager)
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer_);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_->id(), 0);
     
-    // Create the shadow mask pass. No features needed.
-    string shadowMaskPassName = "ShadowSamplingPass";
-    shadowMaskPass_ = new RenderPass(shadowMaskPassName, uniformManager);
-    shadowMaskPass_->setSupportedFeatures(0);
+    // RenderPass for the ShadowMap method
+    shadowMapPass_ = new RenderPass("ShadowSamplingPass", uniformManager);
+    shadowMapPass_->setSupportedFeatures(0);
+    
+    // RenderPass for the VoxelTree method
+    voxelTreePass_ = new RenderPass("ShadowSamplingPass-Voxel", uniformManager);
+    voxelTreePass_->setSupportedFeatures(0);
 }
 
 ShadowMask::~ShadowMask()
@@ -31,8 +36,14 @@ ShadowMask::~ShadowMask()
     // Delete the texture
     delete texture_;
     
-    // Delete the render
-    delete shadowMaskPass_;
+    // Delete the render passes
+    delete shadowMapPass_;
+    delete voxelTreePass_;
+}
+
+void ShadowMask::setMethod(ShadowMaskMethod method)
+{
+    method_ = method;
 }
 
 void ShadowMask::setResolution(int width, int height)
@@ -50,6 +61,11 @@ void ShadowMask::setSceneDepthTexture(Texture* sceneDepthTexture)
     sceneDepthTexture_ = sceneDepthTexture;
 }
 
+void ShadowMask::setVoxelTree(const VoxelTree* voxelTree)
+{
+    voxelTree_ = voxelTree;
+}
+
 void ShadowMask::render()
 {
     // Bind the shadow mask framebuffer
@@ -60,13 +76,27 @@ void ShadowMask::render()
     glDepthMask(false);
     glColorMask(true, true, true, true);
     
-    // Bind the input textures
+    // Bind the input depth texture
     sceneDepthTexture_->bind(GL_TEXTURE0);
-    shadowMapTexture_->bind(GL_TEXTURE2);
     
     // Draw in full screen
     glViewport(0, 0, texture_->width(), texture_->height());
     
-    // Render the shadow mask
-    shadowMaskPass_->renderFullScreen();
+    if(method_ == SMM_ShadowMap)
+    {
+        // Bind the input shadow map texture
+        shadowMapTexture_->bind(GL_TEXTURE2);
+        
+        // Render using the shadow map pass
+        shadowMapPass_->renderFullScreen();
+    }
+    else // method == SMM_VoxelTree
+    {
+        // Bind the input shadow tree
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_BUFFER, voxelTree_->treeBufferTexture());
+        
+        // Render using the voxel tree pass
+        voxelTreePass_->renderFullScreen();
+    }
 }

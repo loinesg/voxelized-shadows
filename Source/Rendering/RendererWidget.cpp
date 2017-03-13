@@ -42,6 +42,11 @@ void RendererWidget::setOverlay(int overlayIndex)
     currentOverlay_ = overlayIndex;
 }
 
+void RendererWidget::setShadowRenderMethod(ShadowMaskMethod method)
+{
+    shadowMask_->setMethod(method);
+}
+
 void RendererWidget::setShadowMapResolution(int resolution)
 {
     shadowMap_->setCascades(shadowMap_->cascadesCount(), resolution);
@@ -68,9 +73,12 @@ void RendererWidget::initializeGL()
     
     // Create assets
     shadowMap_ = new ShadowMap(scene_, uniformManager_, 2, 4096);
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 4096);
+    shadowMask_ = new ShadowMask(uniformManager_, SMM_ShadowMap);
+    
+    // Create and build the voxel tree
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, 2048*2);
     voxelTree_->build();
-    shadowMask_ = new ShadowMask(uniformManager_);
+    shadowMask_->setVoxelTree(voxelTree_);
     
     // Create RenderPass instances
     createRenderPasses();
@@ -115,8 +123,11 @@ void RendererWidget::paintGL()
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
     uniformManager_->updateSceneBuffer(data);
     
-    // Render shadow depth to the shadow map framebuffer.
-    renderShadowMap();
+    if(shadowMask_->method() == SMM_ShadowMap)
+    {
+        // Render shadow depth to the shadow map framebuffer.
+        renderShadowMap();
+    }
     
     // Render scene depth to the main framebuffer.
     renderSceneDepth();
@@ -231,13 +242,10 @@ void RendererWidget::renderSceneDepth()
 
 void RendererWidget::renderShadowMask()
 {
-    // Assign the input textures
-    shadowMask_->setShadowMapTexture(shadowMap_->texture());
+    // Assign the current textures to the shadow mask
     shadowMask_->setSceneDepthTexture(sceneDepthTexture_);
-    
-    // Assign the voxel tree buffer
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_BUFFER, voxelTree_->treeBufferTexture());
+    shadowMask_->setShadowMapTexture(shadowMap_->texture());
+    shadowMask_->setVoxelTree(voxelTree_);
     
     // Render the shadow mask
     shadowMask_->render();

@@ -25,6 +25,10 @@ public:
     QCheckBox* normalMapToggle() const { return normalMapToggle_; }
     QCheckBox* cutoutToggle() const { return cutoutToggle_; }
     
+    // Shadow render method radio buttons
+    QRadioButton* shadowMapMethodRadio() const { return shadowMapMethodRadio_; }
+    QRadioButton* voxelTreeMethodRadio() const { return voxelTreeMethodRadio_; }
+    
     // Debug overlay radio buttons
     QRadioButton* noOverlayRadio() const { return noOverlayRadio_; }
     QRadioButton* shadowMapOverlayRadio() const { return shadowMapOverlayRadio_; }
@@ -55,6 +59,11 @@ private:
     QCheckBox* normalMapToggle_;
     QCheckBox* cutoutToggle_;
     
+    // Shadow method radio buttons
+    QGroupBox* shadowMethodRadios_;
+    QRadioButton* shadowMapMethodRadio_;
+    QRadioButton* voxelTreeMethodRadio_;
+    
     // Debug texture radio buttons
     QGroupBox* overlayRadios_;
     QRadioButton* noOverlayRadio_;
@@ -78,11 +87,13 @@ private:
     QRadioButton* shadowCascades4_;
     
     void createFeatureToggles();
+    void createShadowMethodRadios();
     void createOverlayRadios();
     void createShadowResolutionRadios();
     void createShadowCascadesRadios();
     
     QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label, bool on);
+    QRadioButton* createShadowMethodRadio(const char* label);
     QRadioButton* createOverlayRadio(const char* label);
     QRadioButton* createShadowResolutionRadio(const char* label);
     QRadioButton* createShadowCascadesRadio(const char* label);
