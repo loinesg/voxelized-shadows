@@ -7,6 +7,7 @@ qmake -project \
     "INCLUDEPATH += . Source/Interface" \
     "INCLUDEPATH += . Source/Math" \
     "INCLUDEPATH += . Source/Assets" \
+    "INCLUDEPATH += . Source/Voxels" \
     "INCLUDEPATH += . Source/Scene"
 
 qmake

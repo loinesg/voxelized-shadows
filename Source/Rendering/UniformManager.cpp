@@ -10,6 +10,7 @@ UniformManager::~UniformManager()
     glDeleteBuffers(1, &perObjectBlockID_);
     glDeleteBuffers(1, &sceneBlockID_);
     glDeleteBuffers(1, &shadowBlockID_);
+    glDeleteBuffers(1, &voxelBlockID_);
 }
 
 void UniformManager::updatePerObjectBuffer(const PerObjectUniformBuffer &buffer)
@@ -36,6 +37,14 @@ void UniformManager::updateShadowBuffer(const ShadowUniformBuffer &buffer)
     glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
+void UniformManager::updateVoxelBuffer(const void* data, int sizeBytes)
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, voxelBlockID_);
+    GLvoid* map = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    memcpy(map, data, sizeBytes);
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+}
+
 void UniformManager::createBuffers()
 {
     // Per object buffer
@@ -55,6 +64,12 @@ void UniformManager::createBuffers()
     glBindBuffer(GL_UNIFORM_BUFFER, shadowBlockID_);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(ShadowUniformBuffer), NULL, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, ShadowUniformBuffer::BlockID, shadowBlockID_);
+    
+    // Voxel buffer
+    glGenBuffers(1, &voxelBlockID_);
+    glBindBuffer(GL_UNIFORM_BUFFER, voxelBlockID_);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(VoxelsUniformBuffer), NULL, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, VoxelsUniformBuffer::BlockID, voxelBlockID_);
     
     // Unbind
     glBindBuffer(GL_UNIFORM_BUFFER, 0);

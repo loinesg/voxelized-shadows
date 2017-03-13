@@ -9,6 +9,7 @@
 #include "ShadowMask.hpp"
 #include "UniformManager.hpp"
 #include "Overlay.hpp"
+#include "VoxelTree.hpp"
 
 class RendererWidget : public QGLWidget
 {
@@ -40,6 +41,7 @@ private:
     GLuint sceneDepthFBO_;
     Texture* sceneDepthTexture_;
     ShadowMap* shadowMap_;
+    VoxelTree* voxelTree_;
     ShadowMask* shadowMask_;
     
     RenderPass* sceneDepthPass_;

@@ -65,6 +65,7 @@ private:
     GLint normalMapTextureLoc_;
     GLint shadowMapTextureLoc_;
     GLint shadowMaskTextureLoc_;
+    GLint voxelDataTextureLoc_;
     
     // Shader compilation
     bool compileShader(GLenum type, const char* file, GLuint &id);

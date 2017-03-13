@@ -68,6 +68,8 @@ void RendererWidget::initializeGL()
     
     // Create assets
     shadowMap_ = new ShadowMap(scene_, uniformManager_, 2, 4096);
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, 4096);
+    voxelTree_->build();
     shadowMask_ = new ShadowMask(uniformManager_);
     
     // Create RenderPass instances
@@ -232,6 +234,10 @@ void RendererWidget::renderShadowMask()
     // Assign the input textures
     shadowMask_->setShadowMapTexture(shadowMap_->texture());
     shadowMask_->setSceneDepthTexture(sceneDepthTexture_);
+    
+    // Assign the voxel tree buffer
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_BUFFER, voxelTree_->treeBufferTexture());
     
     // Render the shadow mask
     shadowMask_->render();
