@@ -200,7 +200,7 @@ void RendererWidget::createOverlays()
 void RendererWidget::renderShadowMap()
 {
     // Update shadow map position
-    shadowMap_->updatePosition(scene_->mainCamera(), scene_->mainLight());
+    shadowMap_->updatePosition(scene_->mainCamera());
     
     // Update the shadow uniform buffer
     shadowMap_->updateUniformBuffer();

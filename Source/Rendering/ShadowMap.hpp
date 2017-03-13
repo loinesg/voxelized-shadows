@@ -9,6 +9,7 @@
 #include "Light.hpp"
 #include "Texture.hpp"
 #include "UniformManager.hpp"
+#include "Bounds.hpp"
 
 struct ShadowCascade
 {
@@ -27,7 +28,7 @@ class ShadowMap
     static const int MaxCascades = 4;
     
 public:
-    ShadowMap(Scene* scene, UniformManager* uniformManager, int cascadesCount, int resolution);
+    ShadowMap(const Scene* scene, UniformManager* uniformManager, int cascadesCount, int resolution);
     ~ShadowMap();
     
     // The shadow map depth texture.
@@ -38,11 +39,17 @@ public:
     int resolution() const { return resolution_; }
     int cascadesCount() const { return cascadesCount_; }
     
+    // Computes the world to shadow transformation matrix for the given cascade
+    Matrix4x4 worldToShadowMatrix(int cascade) const;
+    
     // Sets the resolution of each cascade
     void setCascades(int cascadesCount, int resolution);
     
-    // Moves the shadow map to fit the current view and light direction
-    void updatePosition(Camera* viewCamera, Light* light);
+    // Moves the shadow map to fit the current view
+    void updatePosition(Camera* viewCamera);
+    
+    // Directly sets the shadow map bounds in light space.
+    void setLightSpaceBounds(Bounds lightSpaceBounds);
     
     // Updates the shadows uniform buffer
     void updateUniformBuffer() const;
@@ -51,7 +58,7 @@ public:
     void renderCascades();
     
 private:
-    Scene* scene_;
+    const Scene* scene_;
     UniformManager* uniformManager_;
     Texture* texture_;
     GLuint framebuffer_;
@@ -68,7 +75,4 @@ private:
     
     // Computes the end distance of a shadow cascade
     float getCascadeMax(int cascade, float farPlane) const;
-    
-    // Computes the world to shadow transformation matrix for the given cascade
-    Matrix4x4 worldToShadowMatrix(int cascade) const;
 };

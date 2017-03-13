@@ -3,10 +3,7 @@
 #include <math.h>
 #include <assert.h>
 
-#include "UniformManager.hpp"
-#include "Bounds.hpp"
-
-ShadowMap::ShadowMap(Scene* scene, UniformManager* uniformManager, int cascadesCount, int resolution)
+ShadowMap::ShadowMap(const Scene* scene, UniformManager* uniformManager, int cascadesCount, int resolution)
     : scene_(scene),
     uniformManager_(uniformManager),
     cascades_()
@@ -94,12 +91,12 @@ void ShadowMap::setCascades(int cascadesCount, int resolution)
     }
 }
 
-void ShadowMap::updatePosition(Camera* viewCamera, Light* light)
+void ShadowMap::updatePosition(Camera* viewCamera)
 {
     // Ensure each cascade is drawn from the correct direction
     for(int i = 0; i < cascadesCount_; ++i)
     {
-        cascades_[i].camera.setRotation(light->rotation());
+        cascades_[i].camera.setRotation(scene_->mainLight()->rotation());
     }
     
     // Get the world to light space transformation matrix (without translation)
@@ -147,6 +144,36 @@ void ShadowMap::updatePosition(Camera* viewCamera, Light* light)
         // the centre of the cascade will render the full cascade.
         cascades_[i].camera.setPosition(centre.vec3());
     }
+}
+
+void ShadowMap::setLightSpaceBounds(Bounds lightSpaceBounds)
+{
+    // Only used for shadow maps with a single cascade
+    assert(cascadesCount_ == 1);
+    
+    // Rotate the camera correctly.
+    cascades_[0].camera.setRotation(scene_->mainLight()->rotation());
+    
+    // Get the light to world transformation matrix (without translation)
+    Matrix4x4 lightToWorld = cascades_[0].camera.localToWorld();
+    lightToWorld.set(0, 3, 0.0);
+    lightToWorld.set(1, 3, 0.0);
+    lightToWorld.set(2, 3, 0.0);
+    
+    // Compute the cascade centre in world space
+    Vector4 centre = lightToWorld * Vector4(lightSpaceBounds.centre(), 1.0);
+    
+    // The camera has a -ve near clip plane, so placing the camera in
+    // the centre of the bounds will render the full bounds.
+    cascades_[0].camera.setPosition(centre.vec3());
+
+    // Size the cascade camera to cover the bounds.
+    Vector3 size = lightSpaceBounds.size();
+    cascades_[0].camera.setOrthographicSize(max(size.x, size.y));
+    
+    // Set the near and far planes to cover the bounds
+    cascades_[0].camera.setNearPlane(-size.z / 2.0);
+    cascades_[0].camera.setFarPlane(size.z / 2.0);
 }
 
 void ShadowMap::updateUniformBuffer() const
