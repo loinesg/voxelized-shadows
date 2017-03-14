@@ -3,11 +3,16 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "Platform.hpp"
 #include "UniformManager.hpp"
 
-Shader::Shader(ShaderFeatureList features, const string &vertSource, const string &fragSource)
+Shader::Shader(const string &name, ShaderFeatureList features)
     : features_(features)
 {
+    // Get the fragment and vertex files
+    string vertSource = SHADERS_DIRECTORY + name + ".vert.glsl";
+    string fragSource = SHADERS_DIRECTORY + name + ".frag.glsl";
+    
     // Compile vertex shader
     if(!compileShader(GL_VERTEX_SHADER, vertSource.c_str(), vertexShader_))
     {
@@ -36,12 +41,14 @@ Shader::Shader(ShaderFeatureList features, const string &vertSource, const strin
     setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
     setUniformBlockBinding("scene_data", SceneUniformBuffer::BlockID);
     setUniformBlockBinding("shadow_data", ShadowUniformBuffer::BlockID);
+    setUniformBlockBinding("voxel_data", VoxelsUniformBuffer::BlockID);
     
     // Store texture locations
     mainTextureLoc_ = glGetUniformLocation(program_, "_MainTexture");
     normalMapTextureLoc_ = glGetUniformLocation(program_, "_NormalMap");
     shadowMapTextureLoc_ = glGetUniformLocation(program_, "_ShadowMapTexture");
     shadowMaskTextureLoc_ = glGetUniformLocation(program_, "_ShadowMask");
+    voxelDataTextureLoc_ = glGetUniformLocation(program_, "_VoxelData");
 }
 
 Shader::~Shader()
@@ -65,6 +72,7 @@ void Shader::bind()
     glUniform1i(normalMapTextureLoc_, 1);
     glUniform1i(shadowMapTextureLoc_, 2);
     glUniform1i(shadowMaskTextureLoc_, 3);
+    glUniform1i(voxelDataTextureLoc_, 4);
 }
 
 bool Shader::compileShader(GLenum type, const char* fileName, GLuint &id)
@@ -161,10 +169,18 @@ void Shader::setUniformBlockBinding(const char *blockName, GLuint id)
 string Shader::createFeatureDefines() const
 {
     string defines = "";
+    
+    // Shader feature defines
     if(hasFeature(SF_Texture)) defines += "\n #define TEXTURE_ON";
     if(hasFeature(SF_NormalMap)) defines += "\n #define NORMAL_MAP_ON";
     if(hasFeature(SF_Specular)) defines += "\n #define SPECULAR_ON";
     if(hasFeature(SF_Cutout)) defines += "\n #define ALPHA_TEST_ON";
+    
+    // Debug feature defines
+    if(hasFeature(SF_Debug_ShadowMapTexture)) defines += "\n #define DEBUG_SHADOW_MAP_TEXTURE";
+    if(hasFeature(SF_Debug_DepthTexture)) defines += "\n #define DEBUG_DEPTH_TEXTURE";
+    if(hasFeature(SF_Debug_ShowCascadeSplits)) defines += "\n #define DEBUG_SHOW_CASCADE_SPLITS";
+    if(hasFeature(SF_Debug_ShowVoxelTreeDepth)) defines += "\n #define DEBUG_SHOW_VOXEL_TREE_DEPTH";
     
     return defines;
 }

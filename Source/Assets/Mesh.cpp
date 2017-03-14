@@ -4,26 +4,52 @@
 #include <fstream>
 #include <cstdio>
 
-Mesh::Mesh(int verticesCount, int elementsCount, GLuint vertexArray, GLuint vertexPositionsBuffer, GLuint vertexNormalsBuffer, GLuint vertexTangentsBuffer, GLuint vertexTexcoordsBuffer, GLuint elementsBuffer)
-    : verticesCount_(verticesCount),
-    elementsCount_(elementsCount),
-    vertexArray_(vertexArray),
-    vertexPositionsBuffer_(vertexPositionsBuffer),
-    vertexNormalsBuffer_(vertexNormalsBuffer),
-    vertexTangentsBuffer_(vertexTangentsBuffer),
-    vertexTexcoordsBuffer_(vertexTexcoordsBuffer),
-    elementsBuffer_(elementsBuffer)
+Mesh::Mesh(vector<Vector3> positions, vector<Vector3> normals, vector<Vector4> tangents, vector<Vector2> texcoords, vector<MeshElementIndex> elements)
+    : positions_(positions),
+    verticesCount_(positions.size()),
+    elementsCount_(elements.size())
 {
+    // Create vertex array
+    glGenVertexArrays(1, &vertexArray_);
+    glBindVertexArray(vertexArray_);
     
+    // Create vertex buffers
+    glGenBuffers(4, vertexBuffers_);
+    
+    // Positions buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers_[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector3) * positions.size(), &positions[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Normals buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers_[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector3) * normals.size(), &normals[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, (void*)0);
+    glEnableVertexAttribArray(1);
+    
+    // Tangents buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers_[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4) * tangents.size(), &tangents[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, (void*)0);
+    glEnableVertexAttribArray(2);
+    
+    // Texcoords buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers_[3]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector2) * texcoords.size(), &texcoords[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(3, 2, GL_FLOAT, false, 0, (void*)0);
+    glEnableVertexAttribArray(3);
+    
+    // Elements buffer
+    glGenBuffers(1, &elementsBuffer_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsBuffer_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshElementIndex) * elements.size(), &elements[0], GL_STATIC_DRAW);
 }
 
 Mesh::~Mesh()
 {
     glDeleteVertexArrays(1, &vertexArray_);
-    glDeleteBuffers(1, &vertexPositionsBuffer_);
-    glDeleteBuffers(1, &vertexNormalsBuffer_);
-    glDeleteBuffers(1, &vertexTangentsBuffer_);
-    glDeleteBuffers(1, &vertexTexcoordsBuffer_);
+    glDeleteBuffers(4, vertexBuffers_);
     glDeleteBuffers(1, &elementsBuffer_);
 }
 
@@ -66,7 +92,7 @@ Mesh* Mesh::fullScreenQuad()
     elements.push_back(3);
     
     // Create mesh
-    return create(positions, normals, tangents, texcoords, elements);
+    return new Mesh(positions, normals, tangents, texcoords, elements);
 }
 
 Mesh* Mesh::load(const char* fileName)
@@ -131,57 +157,5 @@ Mesh* Mesh::load(const char* fileName)
         return NULL;
     }
     
-    return create(positions, normals, tangents, texcoords, elements);
-}
-
-Mesh* Mesh::create(vector<Vector3> positions, vector<Vector3> normals, vector<Vector4> tangents, vector<Vector2> texcoords, vector<MeshElementIndex> elements)
-{
-    // Create vertex array
-    GLuint vertexArray;
-    glGenVertexArrays(1, &vertexArray);
-    glBindVertexArray(vertexArray);
-    
-    // Create vertex buffers
-    GLuint vertexBuffers[4];
-    glGenBuffers(4, vertexBuffers);
-    
-    // Positions buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector3) * positions.size(), &positions[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (void*)0);
-    glEnableVertexAttribArray(0);
-    
-    // Normals buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector3) * normals.size(), &normals[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, (void*)0);
-    glEnableVertexAttribArray(1);
-    
-    // Tangents buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector4) * tangents.size(), &tangents[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, (void*)0);
-    glEnableVertexAttribArray(2);
-    
-    // Texcoords buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[3]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vector2) * texcoords.size(), &texcoords[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(3, 2, GL_FLOAT, false, 0, (void*)0);
-    glEnableVertexAttribArray(3);
-    
-    // Elements buffer
-    GLuint elementsBuffer;
-    glGenBuffers(1, &elementsBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshElementIndex) * elements.size(), &elements[0], GL_STATIC_DRAW);
-    
-    // Check for errors
-    if(glGetError() != GL_NO_ERROR)
-    {
-        printf("Error creating mesh buffers \n");
-        return NULL;
-    }
-    
-    // No error
-    return new Mesh((int)positions.size(), (int)elements.size(), vertexArray, vertexBuffers[0], vertexBuffers[1], vertexBuffers[2], vertexBuffers[3], elementsBuffer);
+    return new Mesh(positions, normals, tangents, texcoords, elements);
 }

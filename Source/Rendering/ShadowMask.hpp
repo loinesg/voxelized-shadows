@@ -1,18 +1,32 @@
 #pragma once
 
-#include <QGLWidget>
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
 
+#include "RenderPass.hpp"
 #include "Mesh.hpp"
 #include "Camera.hpp"
-#include "Light.hpp"
 #include "Texture.hpp"
-#include "UniformManager.hpp"
+#include "VoxelTree.hpp"
+
+// The method to use for shadowing
+enum ShadowMaskMethod
+{
+    // Traditional shadow mapping
+    SMM_ShadowMap,
+  
+    // Sampling the voxelized shadow tree
+    SMM_VoxelTree
+};
 
 class ShadowMask
 {
 public:
-    ShadowMask();
+    ShadowMask(UniformManager* uniformManager, ShadowMaskMethod method);
     ~ShadowMask();
+    
+    // The currently active method
+    ShadowMaskMethod method() const { return method_; }
     
     // The shadow mask framebuffer
     GLuint frameBuffer() const { return frameBuffer_; }
@@ -25,13 +39,37 @@ public:
     int width() const { return texture_->width(); }
     int height() const { return texture_->height(); }
     
+    // Changes the method being used
+    void setMethod(ShadowMaskMethod method);
+    
     // Changes the shadow mask resolution to match the screen.
     void setResolution(int width, int height);
     
-    // Binds the shadow mask texture.
-    void bindTexture(GLenum textureSlot) const;
+    // Sets input tetxures
+    void setShadowMapTexture(Texture* shadowMapTexture);
+    void setSceneDepthTexture(Texture* sceneDepthTexture);
+    
+    // Sets the input voxel tree
+    void setVoxelTree(const VoxelTree* voxelTree);
+    
+    // Renders the shadow mask
+    void render();
     
 private:
+    ShadowMaskMethod method_;
+    
+    // Framebuffer and shadow mask texture
     GLuint frameBuffer_;
     Texture* texture_;
+    
+    // Render passes
+    RenderPass* shadowMapPass_;
+    RenderPass* voxelTreePass_;
+    
+    // Input texture
+    Texture* shadowMapTexture_;
+    Texture* sceneDepthTexture_;
+    
+    // Input voxelised shadow tree
+    const VoxelTree* voxelTree_;
 };

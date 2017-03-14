@@ -27,11 +27,17 @@ public slots:
     void normalMapsFeatureToggled(int state);
     void cutoutFeatureToggled(int state);
     
-    // Debug texture radio buttons
+    // Shadow method radio buttons
+    void shadowMappingMethodToggled();
+    void voxelTreeMethodToggled();
+    
+    // Debug overlay radio buttons
     void noOverlayToggled();
     void shadowMapOverlayToggled();
     void sceneDepthOverlayToggled();
     void shadowMaskOverlayToggled();
+    void cascadeSplitsOverlayToggled();
+    void voxelTreeDepthOverlayToggled();
     
     // Shadow map resoluton radio buttons
     void shadowResolution512Toggled();

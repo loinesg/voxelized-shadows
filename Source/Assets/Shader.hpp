@@ -1,6 +1,8 @@
 #pragma once
 
-#include <QGLWidget>
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
+
 #include <string>
 #include <vector>
 
@@ -19,7 +21,19 @@ enum ShaderFeature
     SF_Specular = 4,
     
     // Enables AlphaTest cutout transparency
-    SF_Cutout = 8
+    SF_Cutout = 8,
+    
+    // Used for debug visualization of shadow maps
+    SF_Debug_ShadowMapTexture = 16,
+    
+    // Used for debug visualization of depth textures
+    SF_Debug_DepthTexture = 32,
+    
+    // Used for debug visualization of cascade split distances
+    SF_Debug_ShowCascadeSplits = 64,
+    
+    // Used for debug visualization of the voxel tree traversal depth
+    SF_Debug_ShowVoxelTreeDepth = 128,
 };
 
 
@@ -31,7 +45,7 @@ typedef unsigned int ShaderFeatureList;
 class Shader
 {
 public:
-    Shader(ShaderFeatureList features, const string &vertSource, const string &fragSource);
+    Shader(const string &name, ShaderFeatureList features);
     ~Shader();
     
     // Feature management
@@ -54,6 +68,7 @@ private:
     GLint normalMapTextureLoc_;
     GLint shadowMapTextureLoc_;
     GLint shadowMaskTextureLoc_;
+    GLint voxelDataTextureLoc_;
     
     // Shader compilation
     bool compileShader(GLenum type, const char* file, GLuint &id);

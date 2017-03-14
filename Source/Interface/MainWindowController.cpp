@@ -6,20 +6,23 @@ MainWindowController::MainWindowController(MainWindow* window)
     mouseDragging_(false),
     mousePosition_(Vector2(0, 0))
 {
-    window_->rendererWidget()->setFocus();
-    window_->rendererWidget()->installEventFilter(this);
-    
     // Shader feature toggle signals
     connect(window_->textureToggle(), SIGNAL(stateChanged(int)), this, SLOT(textureFeatureToggled(int)));
     connect(window_->specularToggle(), SIGNAL(stateChanged(int)), this, SLOT(specularFeatureToggled(int)));
     connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
     connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
     
-    // Debug texture radio button signals
+    // Shadow method radio button signals
+    connect(window_->shadowMapMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMappingMethodToggled()));
+    connect(window_->voxelTreeMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeMethodToggled()));
+    
+    // Debug overlay radio button signals
     connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled()));
     connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled()));
     connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled()));
     connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled()));
+    connect(window_->cascadeSplitsOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(cascadeSplitsOverlayToggled()));
+    connect(window_->voxelTreeDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeDepthOverlayToggled()));
     
     // Shadow map resolution radio button signals
     connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled()));
@@ -34,21 +37,21 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->shadowCascades4(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades4Toggled()));
 }
 
-bool MainWindowController::eventFilter(QObject * obj, QEvent* event)
+bool MainWindowController::eventFilter(QObject* obj, QEvent* event)
 {
     if(event->type() == QEvent::Paint)
     {
         update((1.0 / 60.0));
     }
-    else if(event->type() == QEvent::MouseButtonPress)
+    else if(event->type() == QEvent::MouseButtonPress && obj == window_->rendererWidget())
     {
         mousePressEvent(static_cast<QMouseEvent*>(event));
     }
-    else if(event->type() == QEvent::MouseButtonRelease)
+    else if(event->type() == QEvent::MouseButtonRelease && obj == window_->rendererWidget())
     {
         mouseReleaseEvent(static_cast<QMouseEvent*>(event));
     }
-    else if(event->type() == QEvent::MouseMove)
+    else if(event->type() == QEvent::MouseMove && obj == window_->rendererWidget())
     {
         mouseMoveEvent(static_cast<QMouseEvent*>(event));
     }
@@ -86,33 +89,44 @@ void MainWindowController::cutoutFeatureToggled(int state)
     updateShaderFeature(SF_Cutout, state);
 }
 
+void MainWindowController::shadowMappingMethodToggled()
+{
+    window_->rendererWidget()->setShadowRenderMethod(SMM_ShadowMap);
+}
+
+void MainWindowController::voxelTreeMethodToggled()
+{
+    window_->rendererWidget()->setShadowRenderMethod(SMM_VoxelTree);
+}
+
 void MainWindowController::noOverlayToggled()
 {
-    window_->rendererWidget()->setOverlayTexture(NULL);
+    window_->rendererWidget()->setOverlay(-1);
 }
 
 void MainWindowController::shadowMapOverlayToggled()
 {
-    RendererWidget* renderer = window_->rendererWidget();
-    Texture* texture = renderer->shadowMap();
-    
-    renderer->setOverlayTexture(texture);
+    window_->rendererWidget()->setOverlay(0);
 }
 
 void MainWindowController::sceneDepthOverlayToggled()
 {
-    RendererWidget* renderer = window_->rendererWidget();
-    Texture* texture = renderer->sceneDepthTexture();
-    
-    renderer->setOverlayTexture(texture);
+    window_->rendererWidget()->setOverlay(1);
 }
 
 void MainWindowController::shadowMaskOverlayToggled()
 {
-    RendererWidget* renderer = window_->rendererWidget();
-    Texture* texture = renderer->shadowMask();
-    
-    renderer->setOverlayTexture(texture);
+    window_->rendererWidget()->setOverlay(2);
+}
+
+void MainWindowController::cascadeSplitsOverlayToggled()
+{
+    window_->rendererWidget()->setOverlay(3);
+}
+
+void MainWindowController::voxelTreeDepthOverlayToggled()
+{
+    window_->rendererWidget()->setOverlay(4);
 }
 
 void MainWindowController::shadowResolution512Toggled()
