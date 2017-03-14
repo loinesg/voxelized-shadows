@@ -17,27 +17,23 @@ RendererWidget::~RendererWidget()
 {
     delete scene_;
     delete uniformManager_;
-    delete fullScreenQuad_;
     delete shadowMap_;
     delete shadowMask_;
-    delete shadowCasterPass_;
+    
+    // Delete render passes
     delete sceneDepthPass_;
     delete forwardPass_;
 }
 
 void RendererWidget::enableFeature(ShaderFeature feature)
 {
-    shadowCasterPass_->enableFeature(feature);
     sceneDepthPass_->enableFeature(feature);
-    shadowMaskPass_->enableFeature(feature);
     forwardPass_->enableFeature(feature);
 }
 
 void RendererWidget::disableFeature(ShaderFeature feature)
 {
-    shadowCasterPass_->disableFeature(feature);
     sceneDepthPass_->disableFeature(feature);
-    shadowMaskPass_->disableFeature(feature);
     forwardPass_->disableFeature(feature);
 }
 
@@ -46,14 +42,19 @@ void RendererWidget::setOverlay(int overlayIndex)
     currentOverlay_ = overlayIndex;
 }
 
+void RendererWidget::setShadowRenderMethod(ShadowMaskMethod method)
+{
+    shadowMask_->setMethod(method);
+}
+
 void RendererWidget::setShadowMapResolution(int resolution)
 {
-    shadowMap_->setResolution(resolution);
+    shadowMap_->setCascades(shadowMap_->cascadesCount(), resolution);
 }
 
 void RendererWidget::setShadowMapCascades(int cascades)
 {
-    shadowMap_->setCascadesCount(cascades);
+    shadowMap_->setCascades(cascades, shadowMap_->resolution());
 }
 
 void RendererWidget::initializeGL()
@@ -64,19 +65,23 @@ void RendererWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     
+    // Load the scene
+    createScene();
+    
     // Create uniform buffers
     uniformManager_ = new UniformManager();
     
     // Create assets
-    fullScreenQuad_ = Mesh::fullScreenQuad();
-    shadowMap_ = new ShadowMap(uniformManager_, 4096, 2);
-    shadowMask_ = new ShadowMask();
+    shadowMap_ = new ShadowMap(scene_, uniformManager_, 2, 4096);
+    shadowMask_ = new ShadowMask(uniformManager_, SMM_ShadowMap);
+    
+    // Create and build the voxel tree
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, 2048*2);
+    voxelTree_->build();
+    shadowMask_->setVoxelTree(voxelTree_);
     
     // Create RenderPass instances
     createRenderPasses();
-    
-    // Load the scene
-    createScene();
     
     glGenFramebuffers(1, &sceneDepthFBO_);
     
@@ -118,8 +123,11 @@ void RendererWidget::paintGL()
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
     uniformManager_->updateSceneBuffer(data);
     
-    // Render shadow depth to the shadow map framebuffer.
-    renderShadowMap();
+    if(shadowMask_->method() == SMM_ShadowMap)
+    {
+        // Render shadow depth to the shadow map framebuffer.
+        renderShadowMap();
+    }
     
     // Render scene depth to the main framebuffer.
     renderSceneDepth();
@@ -150,24 +158,12 @@ void RendererWidget::paintGL()
 
 void RendererWidget::createRenderPasses()
 {
-    // Pass for rendering the shadow map.
-    // Depth only, so no features are needed except cutout.
-    string shadowCasterPassName = "ShadowCasterPass";
-    shadowCasterPass_ = new RenderPass(shadowCasterPassName, uniformManager_);
-    shadowCasterPass_->setSupportedFeatures(SF_Cutout);
-    shadowCasterPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
-    
     // Pass for rendering depth from the main camera
     // Depth only, so no features are needed except cutout.
     string sceneDepthPassName = "SceneDepthPass";
     sceneDepthPass_ = new RenderPass(sceneDepthPassName, uniformManager_);
     sceneDepthPass_->setSupportedFeatures(SF_Cutout);
     sceneDepthPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
-    
-    // Pass for sampling the shadow map into the screen space shadow mask.
-    string shadowSamplingPassName = "ShadowSamplingPass";
-    shadowMaskPass_ = new RenderPass(shadowSamplingPassName, uniformManager_);
-    shadowMaskPass_->setSupportedFeatures(~0);
     
     // Pass for rendering the final image.
     // Uses all features.
@@ -212,47 +208,31 @@ void RendererWidget::createOverlays()
     cascadeSplitsOverlay->setUseBlending(true);
     cascadeSplitsOverlay->setTexture(sceneDepthTexture_);
     overlays_.push_back(cascadeSplitsOverlay);
+    
+    // Voxel traversal depth overlay
+    Overlay* voxelTraverselDepthOverlay = new Overlay("Voxel Traversal Depth", "ShadowSamplingPass-Voxel", SF_Debug_ShowVoxelTreeDepth);
+    voxelTraverselDepthOverlay->setFullScreen(true);
+    voxelTraverselDepthOverlay->setUseBlending(true);
+    voxelTraverselDepthOverlay->setTexture(sceneDepthTexture_);
+    overlays_.push_back(voxelTraverselDepthOverlay);
 }
 
 void RendererWidget::renderShadowMap()
 {
     // Update shadow map position
-    shadowMap_->updatePosition(scene_->mainCamera(), scene_->mainLight());
+    shadowMap_->updatePosition(scene_->mainCamera());
     
     // Update the shadow uniform buffer
     shadowMap_->updateUniformBuffer();
     
-    // Enable depth biasing to prevent shadow acne
-    glPolygonOffset(2.5, 10.0);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    
-    // Write to the depth buffer only.
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glDepthFunc(GL_LESS);
-    glColorMask(false, false, false, false);
-    
-    // Render each shadow cascade
-    for(int c = 0; c < shadowMap_->cascadesCount(); ++c)
-    {
-        // Use the camera for the cascade
-        useCamera(shadowMap_->getCamera(c));
-        
-        // Only clear the shadow map if this is the first cascade being rendered
-        shadowCasterPass_->setClearFlags(c == 0 ? GL_DEPTH_BUFFER_BIT : GL_NONE);
-        
-        // Render the scene using the camera.
-        shadowCasterPass_->submit(shadowMap_->getCamera(c), scene_->meshInstances());
-    }
-    
-    // Disable depth biasing
-    glDisable(GL_POLYGON_OFFSET_FILL);
+    // Render all cascades
+    shadowMap_->renderCascades();
 }
 
 void RendererWidget::renderSceneDepth()
 {
     // Use the main camera
-    useCamera(scene_->mainCamera());
+    scene_->mainCamera()->bind();
     
     // Write to the depth framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, sceneDepthFBO_);
@@ -269,34 +249,19 @@ void RendererWidget::renderSceneDepth()
 
 void RendererWidget::renderShadowMask()
 {
-    // Render in full screen
-    int screenWidth = camera()->pixelWidth();
-    int screenHeight = camera()->pixelHeight();
-    glViewport(0, 0, screenWidth, screenHeight);
-    
-    // Bind the shadow mask framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowMask_->frameBuffer());
-    
-    // Dont depth test, and write to color only.
-    glDisable(GL_DEPTH_TEST);
-    glDepthMask(false);
-    glColorMask(true, true, true, true);
-    
-    // Bind the shadow map texture
-    shadowMap_->bindTexture(GL_TEXTURE2);
-    
-    // Bind the scene depth texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sceneDepthTexture_->id());
+    // Assign the current textures to the shadow mask
+    shadowMask_->setSceneDepthTexture(sceneDepthTexture_);
+    shadowMask_->setShadowMapTexture(shadowMap_->texture());
+    shadowMask_->setVoxelTree(voxelTree_);
     
     // Render the shadow mask
-    shadowMaskPass_->renderFullScreen(0, fullScreenQuad_);
+    shadowMask_->render();
 }
 
 void RendererWidget::renderForward()
 {
     // Use the screen space shadow mask texture
-    shadowMask_->bindTexture(GL_TEXTURE3);
+    shadowMask_->texture()->bind(GL_TEXTURE3);
     
     // Only render fragments that passed the earlier depth prepass.
     // Write to colour, but not depth.
@@ -305,16 +270,9 @@ void RendererWidget::renderForward()
     glDepthMask(true);
     glColorMask(true, true, true, true);
     
+    // Use the main camera
+    scene_->mainCamera()->bind();
+        
     // Render the final image
-    useCamera(scene_->mainCamera());
     forwardPass_->submit(scene_->mainCamera(), scene_->meshInstances());
-}
-
-void RendererWidget::useCamera(Camera* camera)
-{
-    // Bind the correct framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, camera->framebuffer());
-    
-    // Update the viewport to match the camera width/height
-    glViewport(camera->pixelOffsetX(), camera->pixelOffsetY(), camera->pixelWidth(), camera->pixelHeight());
 }

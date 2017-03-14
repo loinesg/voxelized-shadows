@@ -25,12 +25,17 @@ public:
     QCheckBox* normalMapToggle() const { return normalMapToggle_; }
     QCheckBox* cutoutToggle() const { return cutoutToggle_; }
     
+    // Shadow render method radio buttons
+    QRadioButton* shadowMapMethodRadio() const { return shadowMapMethodRadio_; }
+    QRadioButton* voxelTreeMethodRadio() const { return voxelTreeMethodRadio_; }
+    
     // Debug overlay radio buttons
     QRadioButton* noOverlayRadio() const { return noOverlayRadio_; }
     QRadioButton* shadowMapOverlayRadio() const { return shadowMapOverlayRadio_; }
     QRadioButton* sceneDepthOverlayRadio() const { return sceneDepthOverlayRadio_; }
     QRadioButton* shadowMaskOverlayRadio() const { return shadowMaskOverlayRadio_; }
     QRadioButton* cascadeSplitsOverlayRadio() const { return cascadeSplitsOverlayRadio_; }
+    QRadioButton* voxelTreeDepthOverlayRadio() const { return voxelTreeDepthOverlayRadio_; }
     
     // Shadow map resolution radio buttons
     QRadioButton* shadowResolution512Radio() const { return shadowResolution512Radio_; }
@@ -55,6 +60,11 @@ private:
     QCheckBox* normalMapToggle_;
     QCheckBox* cutoutToggle_;
     
+    // Shadow method radio buttons
+    QGroupBox* shadowMethodRadios_;
+    QRadioButton* shadowMapMethodRadio_;
+    QRadioButton* voxelTreeMethodRadio_;
+    
     // Debug texture radio buttons
     QGroupBox* overlayRadios_;
     QRadioButton* noOverlayRadio_;
@@ -62,6 +72,7 @@ private:
     QRadioButton* sceneDepthOverlayRadio_;
     QRadioButton* shadowMaskOverlayRadio_;
     QRadioButton* cascadeSplitsOverlayRadio_;
+    QRadioButton* voxelTreeDepthOverlayRadio_;
     
     // Shadow resolution radio buttons
     QGroupBox* shadowResolutionRadios_;
@@ -78,11 +89,13 @@ private:
     QRadioButton* shadowCascades4_;
     
     void createFeatureToggles();
+    void createShadowMethodRadios();
     void createOverlayRadios();
     void createShadowResolutionRadios();
     void createShadowCascadesRadios();
     
     QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label, bool on);
+    QRadioButton* createShadowMethodRadio(const char* label);
     QRadioButton* createOverlayRadio(const char* label);
     QRadioButton* createShadowResolutionRadio(const char* label);
     QRadioButton* createShadowCascadesRadio(const char* label);

@@ -1,33 +1,36 @@
 #include "ShadowMap.hpp"
 
 #include <math.h>
+#include <assert.h>
 
-#include "UniformManager.hpp"
-#include "Bounds.hpp"
-
-ShadowMap::ShadowMap(UniformManager* uniformManager, int resolution, int cascadesCount)
-    : uniformManager_(uniformManager),
+ShadowMap::ShadowMap(const Scene* scene, UniformManager* uniformManager, int cascadesCount, int resolution)
+    : scene_(scene),
+    uniformManager_(uniformManager),
     cascades_()
 {
-    // Create a framebuffer for the shadow map camera
-    glGenFramebuffers(1, &framebuffer_);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+    assert(cascadesCount > 0 && cascadesCount <= 4);
+    assert(resolution > 0);
     
-    // Create a depth texture for the shadow map
+    // Create a pass for rendering the shadow map.
+    // Depth only, so no features are needed except cutout.
+    string shadowCasterPassName = "ShadowCasterPass";
+    shadowCasterPass_ = new RenderPass(shadowCasterPassName, uniformManager_);
+    shadowCasterPass_->setSupportedFeatures(SF_Cutout);
+    shadowCasterPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
+    
+    // Create a depth texture for the shadow map with hardware bilinear PCF.
     texture_ = Texture::depth(resolution * cascadesCount, resolution);
-    
-    // Use hardware bilinear PCF.
     texture_->setCompareMode(GL_COMPARE_REF_TO_TEXTURE, GL_LEQUAL);
     texture_->setMinFilter(GL_LINEAR);
     texture_->setMagFilter(GL_LINEAR);
     
-    // Add the depth texture to the framebuffer
+    // Create a framebuffer for the shadow map camera
+    glGenFramebuffers(1, &framebuffer_);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture_->id(), 0);
 
-    // Setup the correct texture resolution and cascade info
-    resolution_ = resolution;
-    cascadesCount_ = cascadesCount;
-    setup();
+    // Setup the correct cascade count and resolution
+    setCascades(cascadesCount, resolution);
 }
 
 ShadowMap::~ShadowMap()
@@ -37,36 +40,63 @@ ShadowMap::~ShadowMap()
     
     // Delete the shadow map texture
     delete texture_;
+    
+    // Delete the render pass
+    delete shadowCasterPass_;
 }
 
-Camera* ShadowMap::getCamera(int cascade)
+void ShadowMap::setCascades(int cascadesCount, int resolution)
 {
-    return &cascades_[cascade].camera;
-}
-
-void ShadowMap::setResolution(int resolution)
-{
+    assert(cascadesCount > 0 && cascadesCount <= 4);
+    assert(resolution > 0);
+    
+    cascadesCount_ = cascadesCount;
     resolution_ = resolution;
     
-    // Reconfigure cascades
-    setup();
-}
-
-void ShadowMap::setCascadesCount(int cascades)
-{
-    // Store the cascade count
-    cascadesCount_ = cascades;
+    // Use square shadow map textures
+    // Place all cascade textures in a horizontal line
+    texture_->setResolution(resolution_ * cascadesCount_, resolution_);
     
-    // Reconfigure cascades
-    setup();
+    // Set up each cascade
+    for(int i = 0; i < cascadesCount_; ++i)
+    {
+        // Calculate the min and max distance of the cascade
+        cascades_[i].minDistance = getCascadeMin(i, 150.0);
+        cascades_[i].maxDistance = getCascadeMax(i, 150.0);
+        
+        // Adjust the camera viewport to match the texture atlas
+        cascades_[i].camera.setPixelOffsetX(resolution_ * i);
+        cascades_[i].camera.setPixelOffsetY(0);
+        cascades_[i].camera.setPixelWidth(resolution_);
+        cascades_[i].camera.setPixelHeight(resolution_);
+        
+        // Use an orthographic camera for shadows.
+        cascades_[i].camera.setType(CameraType::Orthographic);
+        
+        // Use a negative near plane so the camera volume
+        // is centered on the camera position.
+        cascades_[i].camera.setNearPlane(-100.0);
+        cascades_[i].camera.setFarPlane(100.0);
+        
+        // Use the framebuffer as the shadow camera render target
+        cascades_[i].camera.setFramebuffer(framebuffer_);
+    }
+    
+    // Ensure unused cascades are not sampled
+    for(int i = cascadesCount_; i < MaxCascades; ++i)
+    {
+        // Make distance too far away to be used
+        cascades_[i].minDistance = 10000000.0;
+        cascades_[i].maxDistance = 10000000.0;
+    }
 }
 
-void ShadowMap::updatePosition(Camera* viewCamera, Light* light)
+void ShadowMap::updatePosition(Camera* viewCamera)
 {
     // Ensure each cascade is drawn from the correct direction
     for(int i = 0; i < cascadesCount_; ++i)
     {
-        cascades_[i].camera.setRotation(light->rotation());
+        cascades_[i].camera.setRotation(scene_->mainLight()->rotation());
     }
     
     // Get the world to light space transformation matrix (without translation)
@@ -116,6 +146,36 @@ void ShadowMap::updatePosition(Camera* viewCamera, Light* light)
     }
 }
 
+void ShadowMap::setLightSpaceBounds(Bounds lightSpaceBounds)
+{
+    // Only used for shadow maps with a single cascade
+    assert(cascadesCount_ == 1);
+    
+    // Rotate the camera correctly.
+    cascades_[0].camera.setRotation(scene_->mainLight()->rotation());
+    
+    // Get the light to world transformation matrix (without translation)
+    Matrix4x4 lightToWorld = cascades_[0].camera.localToWorld();
+    lightToWorld.set(0, 3, 0.0);
+    lightToWorld.set(1, 3, 0.0);
+    lightToWorld.set(2, 3, 0.0);
+    
+    // Compute the cascade centre in world space
+    Vector4 centre = lightToWorld * Vector4(lightSpaceBounds.centre(), 1.0);
+    
+    // The camera has a -ve near clip plane, so placing the camera in
+    // the centre of the bounds will render the full bounds.
+    cascades_[0].camera.setPosition(centre.vec3());
+
+    // Size the cascade camera to cover the bounds.
+    Vector3 size = lightSpaceBounds.size();
+    cascades_[0].camera.setOrthographicSize(max(size.x, size.y));
+    
+    // Set the near and far planes to cover the bounds
+    cascades_[0].camera.setNearPlane(-size.z / 2.0);
+    cascades_[0].camera.setFarPlane(size.z / 2.0);
+}
+
 void ShadowMap::updateUniformBuffer() const
 {
     ShadowUniformBuffer shadowData;
@@ -135,53 +195,36 @@ void ShadowMap::updateUniformBuffer() const
     uniformManager_->updateShadowBuffer(shadowData);
 }
 
-void ShadowMap::bindTexture(GLenum textureSlot) const
+void ShadowMap::renderCascades()
 {
-    // Attach the depth texture
-    texture_->bind(textureSlot);
-}
-
-void ShadowMap::setup()
-{
-    // Use square shadow map textures
-    // Place all cascade textures in a horizontal line
-    texture_->setResolution(resolution_ * cascadesCount_, resolution_);
+    // Enable depth biasing to prevent shadow acne
+    glPolygonOffset(2.5, 10.0);
+    glEnable(GL_POLYGON_OFFSET_FILL);
     
-    // Set up each cascade
-    for(int i = 0; i < cascadesCount_; ++i)
+    // Write to the depth buffer only.
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    glColorMask(false, false, false, false);
+    
+    // Render each shadow cascade
+    for(int c = 0; c < cascadesCount_; ++c)
     {
-        // Calculate the min and max distance of the cascade
-        cascades_[i].minDistance = getCascadeStart(100.0, i);
-        cascades_[i].maxDistance = getCascadeStart(100.0, i+1);
+        // Use the cascade camera
+        cascades_[c].camera.bind();
         
-        // Adjust the camera viewport to match the texture atlas
-        cascades_[i].camera.setPixelOffsetX(resolution_ * i);
-        cascades_[i].camera.setPixelOffsetY(0);
-        cascades_[i].camera.setPixelWidth(resolution_);
-        cascades_[i].camera.setPixelHeight(resolution_);
+        // Only clear the shadow map if this is the first cascade being rendered
+        shadowCasterPass_->setClearFlags(c == 0 ? GL_DEPTH_BUFFER_BIT : GL_NONE);
         
-        // Use an orthographic camera for shadows.
-        cascades_[i].camera.setType(CameraType::Orthographic);
-        
-        // Use a negative near plane so the camera volume
-        // is centered on the camera position.
-        cascades_[i].camera.setNearPlane(-100.0);
-        cascades_[i].camera.setFarPlane(100.0);
-        
-        // Use the framebuffer as the shadow camera render target
-        cascades_[i].camera.setFramebuffer(framebuffer_);
+        // Render the scene using the camera.
+        shadowCasterPass_->submit(&cascades_[c].camera, scene_->meshInstances());
     }
     
-    // Ensure unused cascades are not sampled
-    for(int i = cascadesCount_; i < MaxCascades; ++i)
-    {
-        // Make distance too far away to be used
-        cascades_[i].minDistance = 10000000.0;
-        cascades_[i].maxDistance = 10000000.0;
-    }
+    // Disable depth biasing
+    glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
-float ShadowMap::getCascadeStart(float maxDistance, int cascade) const
+float ShadowMap::getCascadeMin(int cascade, float farPlane) const
 {
     // Ensure cascade 0 starts at distance 0
     if(cascade == 0)
@@ -189,16 +232,16 @@ float ShadowMap::getCascadeStart(float maxDistance, int cascade) const
         return 0.0;
     }
     
-    // Ensure the last cascade finished at maxDistance
-    // i.e. ensure the index after the last cascade starts at maxDistance
+    // Ensure the last cascade finished at farPlane
+    // i.e. ensure the index after the last cascade starts at farPlane
     if(cascade == cascadesCount_)
     {
-        return maxDistance;
+        return farPlane;
     }
     
     // Compute the linear and logarithmic distances
-    float linearDistance = (maxDistance / (float)cascadesCount_) * cascade;
-    float logarithmicDistance = pow(maxDistance, (1.0 / (float)cascadesCount_) * cascade);
+    float linearDistance = (farPlane / (float)cascadesCount_) * cascade;
+    float logarithmicDistance = pow(farPlane, (1.0 / (float)cascadesCount_) * cascade);
     
     // Perform a weighted average of the 2 distances
     const float linearWeight = 0.3;
@@ -206,6 +249,12 @@ float ShadowMap::getCascadeStart(float maxDistance, int cascade) const
     
     // Combine the 2 distances
     return (linearDistance * linearWeight) + (logarithmicDistance * logarithmicWeight);
+}
+
+float ShadowMap::getCascadeMax(int cascade, float farPlane) const
+{
+    // = min distance of next cascade
+    return getCascadeMin(cascade + 1, farPlane);
 }
 
 Matrix4x4 ShadowMap::worldToShadowMatrix(int cascade) const

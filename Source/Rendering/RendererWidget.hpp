@@ -9,6 +9,7 @@
 #include "ShadowMask.hpp"
 #include "UniformManager.hpp"
 #include "Overlay.hpp"
+#include "VoxelTree.hpp"
 
 class RendererWidget : public QGLWidget
 {
@@ -22,6 +23,9 @@ public:
     // Main scene camera
     Camera* camera() const { return scene_->mainCamera(); }
     
+    // Gets the current shadow method
+    ShadowMaskMethod shadowMethod() const { return shadowMask_->method(); }
+    
     // Shader feature toggling
     void enableFeature(ShaderFeature feature);
     void disableFeature(ShaderFeature feature);
@@ -29,7 +33,8 @@ public:
     // Changes the overlay index. -1 means no overlay.
     void setOverlay(int overlayIndex);
     
-    // Changes the shadow map settings.
+    // Changes shadow rendering settings.
+    void setShadowRenderMethod(ShadowMaskMethod method);
     void setShadowMapResolution(int resolution);
     void setShadowMapCascades(int cascades);
     
@@ -40,14 +45,12 @@ private:
     GLuint sceneDepthFBO_;
     Texture* sceneDepthTexture_;
     ShadowMap* shadowMap_;
+    VoxelTree* voxelTree_;
     ShadowMask* shadowMask_;
     
-    RenderPass* shadowCasterPass_;
     RenderPass* sceneDepthPass_;
-    RenderPass* shadowMaskPass_;
     RenderPass* forwardPass_;
     
-    Mesh* fullScreenQuad_;
     vector<Overlay*> overlays_;
     int currentOverlay_;
 
@@ -66,7 +69,4 @@ private:
     void renderSceneDepth();
     void renderShadowMask();
     void renderForward();
-    
-    // Applies camera properties to the opengl state
-    void useCamera(Camera* camera);
 };

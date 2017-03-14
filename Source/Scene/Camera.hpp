@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QGLWidget>
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
 
 #include "Matrix4x4.hpp"
 #include "Object.hpp"
@@ -45,6 +46,10 @@ public:
     // Perspective mode only. The points returned are in local space.
     void getFrustumCorners(float distance, Vector4* corners) const;
     
+    // Applies camera properties and framebuffer settings to the opengl state.
+    void bind();
+    
+    // Property setters
     void setFramebuffer(GLuint framebuffer);
     void setType(CameraType type);
     void setPixelOffsetX(int offset);

@@ -20,9 +20,9 @@ int main(int argc, char* argv[])
     app.installEventFilter(controller);
 
     // Show the window
-    window->show();
+    window->resize(1350, 850);
     window->setWindowTitle("Shadow Rendering");
-    window->resize(1200, 900);
+    window->show();
 
     return app.exec();
 }

@@ -12,12 +12,17 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
     connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
     
+    // Shadow method radio button signals
+    connect(window_->shadowMapMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMappingMethodToggled()));
+    connect(window_->voxelTreeMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeMethodToggled()));
+    
     // Debug overlay radio button signals
     connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled()));
     connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled()));
     connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled()));
     connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled()));
     connect(window_->cascadeSplitsOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(cascadeSplitsOverlayToggled()));
+    connect(window_->voxelTreeDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeDepthOverlayToggled()));
     
     // Shadow map resolution radio button signals
     connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled()));
@@ -84,6 +89,16 @@ void MainWindowController::cutoutFeatureToggled(int state)
     updateShaderFeature(SF_Cutout, state);
 }
 
+void MainWindowController::shadowMappingMethodToggled()
+{
+    window_->rendererWidget()->setShadowRenderMethod(SMM_ShadowMap);
+}
+
+void MainWindowController::voxelTreeMethodToggled()
+{
+    window_->rendererWidget()->setShadowRenderMethod(SMM_VoxelTree);
+}
+
 void MainWindowController::noOverlayToggled()
 {
     window_->rendererWidget()->setOverlay(-1);
@@ -107,6 +122,11 @@ void MainWindowController::shadowMaskOverlayToggled()
 void MainWindowController::cascadeSplitsOverlayToggled()
 {
     window_->rendererWidget()->setOverlay(3);
+}
+
+void MainWindowController::voxelTreeDepthOverlayToggled()
+{
+    window_->rendererWidget()->setOverlay(4);
 }
 
 void MainWindowController::shadowResolution512Toggled()

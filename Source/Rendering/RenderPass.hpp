@@ -37,7 +37,8 @@ public:
     // Sends draw commands to the graphics API.
     void submit(Camera* camera, const vector<MeshInstance>* instances);
     
-    void renderFullScreen(ShaderFeatureList shaderFeatures, Mesh* fullScreenQuad);
+    // Draws a full screen quad using all enabled shader features.
+    void renderFullScreen();
                        
 private:
     string name_;
@@ -45,4 +46,5 @@ private:
     PassClearColor clearColor_;
     ShaderCollection* shaderCollection_;
     UniformManager* uniformManager_;
+    Mesh* fullScreenQuad_;
 };

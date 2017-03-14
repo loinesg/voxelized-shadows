@@ -41,6 +41,20 @@ struct ShadowUniformBuffer
 };
 
 
+// Uniform buffer for voxelized shadows
+struct VoxelsUniformBuffer
+{
+    static const int BlockID = 3;
+    
+    Matrix4x4 worldToVoxels;
+    uint32_t voxelTreeHeight;
+    uint32_t rootAddress;
+    
+    // 2 words spare at the end of the buffer
+    uint32_t padding2[2];
+};
+
+
 class UniformManager
 {
 public:
@@ -50,11 +64,13 @@ public:
     void updatePerObjectBuffer(const PerObjectUniformBuffer &buffer);
     void updateSceneBuffer(const SceneUniformBuffer &buffer);
     void updateShadowBuffer(const ShadowUniformBuffer &buffer);
+    void updateVoxelBuffer(const void* data, int sizeBytes);
     
 private:
     GLuint perObjectBlockID_;
     GLuint sceneBlockID_;
     GLuint shadowBlockID_;
+    GLuint voxelBlockID_;
     
     void createBuffers();
 };

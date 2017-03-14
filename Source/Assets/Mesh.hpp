@@ -7,6 +7,7 @@
 
 using namespace std;
 
+#include "Bounds.hpp"
 #include "Matrix4x4.hpp"
 #include "Texture.hpp"
 #include "Shader.hpp"
@@ -18,9 +19,13 @@ typedef unsigned short MeshElementIndex;
 class Mesh
 {
 public:
-    Mesh(int verticesCount, int elementsCount, GLuint vertexArray, GLuint vertexPositionsBuffer, GLuint vertexNormalsBuffer, GLuint vertexTangentsBuffer, GLuint vertexTexcoordsBuffer, GLuint elementsBuffer);
+    Mesh(vector<Vector3> positions, vector<Vector3> normals, vector<Vector4> tangents, vector<Vector2> texcoords, vector<MeshElementIndex> elements);
     ~Mesh();
     
+    // Object space vertex positions
+    const Vector3* vertices() const { return &positions_[0]; }
+    
+    // Vertex and elements info
     int verticesCount() const { return verticesCount_; }
     int elementsCount() const { return elementsCount_; }
     GLuint vertexArray() const { return vertexArray_; }
@@ -35,16 +40,11 @@ public:
     // Loads a mesh from a file
     static Mesh* load(const char* fileName);
     
-    // Creates a mesh from lists of vertices, normals, tangents, texcoords and elements.
-    static Mesh* create(vector<Vector3> positions, vector<Vector3> normals, vector<Vector4> tangents, vector<Vector2> texcoords, vector<MeshElementIndex> elements);
-    
 private:
+    vector<Vector3> positions_;
     int verticesCount_;
     int elementsCount_;
     GLuint vertexArray_;
-    GLuint vertexPositionsBuffer_;
-    GLuint vertexNormalsBuffer_;
-    GLuint vertexTangentsBuffer_;
-    GLuint vertexTexcoordsBuffer_;
+    GLuint vertexBuffers_[4];
     GLuint elementsBuffer_;
 };
