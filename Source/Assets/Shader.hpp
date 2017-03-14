@@ -31,6 +31,9 @@ enum ShaderFeature
     
     // Used for debug visualization of cascade split distances
     SF_Debug_ShowCascadeSplits = 64,
+    
+    // Used for debug visualization of the voxel tree traversal depth
+    SF_Debug_ShowVoxelTreeDepth = 128,
 };
 
 

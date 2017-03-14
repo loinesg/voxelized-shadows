@@ -208,6 +208,13 @@ void RendererWidget::createOverlays()
     cascadeSplitsOverlay->setUseBlending(true);
     cascadeSplitsOverlay->setTexture(sceneDepthTexture_);
     overlays_.push_back(cascadeSplitsOverlay);
+    
+    // Voxel traversal depth overlay
+    Overlay* voxelTraverselDepthOverlay = new Overlay("Voxel Traversal Depth", "ShadowSamplingPass-Voxel", SF_Debug_ShowVoxelTreeDepth);
+    voxelTraverselDepthOverlay->setFullScreen(true);
+    voxelTraverselDepthOverlay->setUseBlending(true);
+    voxelTraverselDepthOverlay->setTexture(sceneDepthTexture_);
+    overlays_.push_back(voxelTraverselDepthOverlay);
 }
 
 void RendererWidget::renderShadowMap()

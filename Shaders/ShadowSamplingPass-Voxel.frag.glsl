@@ -108,7 +108,7 @@ float sampleShadowTree(vec4 coord)
         // If uniform shadow, exit early
         if(childState < 2u)
         {
-#ifdef DEBUG_SHOW_CASCADE_SPLITS
+#ifdef DEBUG_SHOW_VOXEL_TREE_DEPTH
             // Output the depth visualization
             return float(depth) / (float(_VoxelTreeHeight));
 #endif
@@ -124,7 +124,7 @@ float sampleShadowTree(vec4 coord)
         memAddress = int(texelFetch(_VoxelData, childPtr).r);
     }
     
-#ifdef DEBUG_SHOW_CASCADE_SPLITS
+#ifdef DEBUG_SHOW_VOXEL_TREE_DEPTH
     return 1.0;
 #endif
     
@@ -158,7 +158,7 @@ void main()
  
     float shadow = sampleShadowTree(voxelCoord);
     
-#ifdef DEBUG_SHOW_CASCADE_SPLITS
+#ifdef DEBUG_SHOW_VOXEL_TREE_DEPTH
     // Output the depth visualization
     fragColor = vec4(shadow, 0.0, 1.0 - shadow, 0.5);
 #else

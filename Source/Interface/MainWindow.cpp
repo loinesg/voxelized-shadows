@@ -75,6 +75,7 @@ void MainWindow::createOverlayRadios()
     sceneDepthOverlayRadio_ = createOverlayRadio("Scene Depth");
     shadowMaskOverlayRadio_ = createOverlayRadio("Shadow Mask");
     cascadeSplitsOverlayRadio_ = createOverlayRadio("Cascade Splits");
+    voxelTreeDepthOverlayRadio_ = createOverlayRadio("Voxel Tree Depth");
     
     // Default = No Overlay
     noOverlayRadio_->setChecked(true);
