@@ -35,6 +35,7 @@ public:
     QRadioButton* sceneDepthOverlayRadio() const { return sceneDepthOverlayRadio_; }
     QRadioButton* shadowMaskOverlayRadio() const { return shadowMaskOverlayRadio_; }
     QRadioButton* cascadeSplitsOverlayRadio() const { return cascadeSplitsOverlayRadio_; }
+    QRadioButton* projectedShadowMapOverlayRadio() const { return projectedShadowMapOverlayRadio_; }
     QRadioButton* voxelTreeDepthOverlayRadio() const { return voxelTreeDepthOverlayRadio_; }
     
     // Shadow map resolution radio buttons
@@ -72,6 +73,7 @@ private:
     QRadioButton* sceneDepthOverlayRadio_;
     QRadioButton* shadowMaskOverlayRadio_;
     QRadioButton* cascadeSplitsOverlayRadio_;
+    QRadioButton* projectedShadowMapOverlayRadio_;
     QRadioButton* voxelTreeDepthOverlayRadio_;
     
     // Shadow resolution radio buttons
