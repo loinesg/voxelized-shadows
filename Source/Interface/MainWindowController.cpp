@@ -22,6 +22,7 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled()));
     connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled()));
     connect(window_->cascadeSplitsOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(cascadeSplitsOverlayToggled()));
+    connect(window_->projectedShadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(projectedShadowMapOverlayToggled()));
     connect(window_->voxelTreeDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeDepthOverlayToggled()));
     
     // Shadow map resolution radio button signals
@@ -124,9 +125,14 @@ void MainWindowController::cascadeSplitsOverlayToggled()
     window_->rendererWidget()->setOverlay(3);
 }
 
-void MainWindowController::voxelTreeDepthOverlayToggled()
+void MainWindowController::projectedShadowMapOverlayToggled()
 {
     window_->rendererWidget()->setOverlay(4);
+}
+
+void MainWindowController::voxelTreeDepthOverlayToggled()
+{
+    window_->rendererWidget()->setOverlay(5);
 }
 
 void MainWindowController::shadowResolution512Toggled()

@@ -76,7 +76,7 @@ void RendererWidget::initializeGL()
     shadowMask_ = new ShadowMask(uniformManager_, SMM_ShadowMap);
     
     // Create and build the voxel tree
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 2048*2);
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, 2048);
     voxelTree_->build();
     shadowMask_->setVoxelTree(voxelTree_);
     
@@ -208,6 +208,13 @@ void RendererWidget::createOverlays()
     cascadeSplitsOverlay->setUseBlending(true);
     cascadeSplitsOverlay->setTexture(sceneDepthTexture_);
     overlays_.push_back(cascadeSplitsOverlay);
+    
+    // Projected shadow map overlay
+    Overlay* projectedShadowMapOverlay = new Overlay("Projected Shadow Map", "ShadowSamplingPass", SF_Debug_ShowProjectedShadowMap);
+    projectedShadowMapOverlay->setFullScreen(true);
+    projectedShadowMapOverlay->setUseBlending(false);
+    projectedShadowMapOverlay->setTexture(sceneDepthTexture_);
+    overlays_.push_back(projectedShadowMapOverlay);
     
     // Voxel traversal depth overlay
     Overlay* voxelTraverselDepthOverlay = new Overlay("Voxel Traversal Depth", "ShadowSamplingPass-Voxel", SF_Debug_ShowVoxelTreeDepth);

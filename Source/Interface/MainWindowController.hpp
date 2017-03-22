@@ -37,6 +37,7 @@ public slots:
     void sceneDepthOverlayToggled();
     void shadowMaskOverlayToggled();
     void cascadeSplitsOverlayToggled();
+    void projectedShadowMapOverlayToggled();
     void voxelTreeDepthOverlayToggled();
     
     // Shadow map resoluton radio buttons
