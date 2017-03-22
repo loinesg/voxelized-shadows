@@ -71,20 +71,20 @@ void MainWindow::createOverlayRadios()
 {
     // Create group box
     overlayRadios_ = new QGroupBox("Debug Overlay");
-    overlayRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    
+    // Create a layout for the radio buttons
+    QBoxLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom);
+    overlayRadios_->setLayout(layout);
     
     // One radio per overlay
-    // Must match RendererWidget::createOverlays()
-    noOverlayRadio_ = createOverlayRadio("No Overlay");
-    shadowMapOverlayRadio_ = createOverlayRadio("Shadow Map");
-    sceneDepthOverlayRadio_ = createOverlayRadio("Scene Depth");
-    shadowMaskOverlayRadio_ = createOverlayRadio("Shadow Mask");
-    cascadeSplitsOverlayRadio_ = createOverlayRadio("Cascade Splits");
-    projectedShadowMapOverlayRadio_ = createOverlayRadio("Projected Shadow Map");
-    voxelTreeDepthOverlayRadio_ = createOverlayRadio("Voxel Tree Depth");
-    
-    // Default = No Overlay
-    noOverlayRadio_->setChecked(true);
+    // Indexes must match RendererWidget::createOverlays()
+    layout->addWidget(new OverlayToggle(-1, "No Overlay"));
+    layout->addWidget(new OverlayToggle(0, "Shadow Map"));
+    layout->addWidget(new OverlayToggle(1, "Scene Depth"));
+    layout->addWidget(new OverlayToggle(2, "Shadow Mask"));
+    layout->addWidget(new OverlayToggle(3, "Cascade Splits"));
+    layout->addWidget(new OverlayToggle(4, "Projected Shadow Map"));
+    layout->addWidget(new OverlayToggle(5, "Voxel Tree Depth"));
 }
 
 void MainWindow::createShadowResolutionRadios()
@@ -119,14 +119,6 @@ QRadioButton* MainWindow::createShadowMethodRadio(const char* label)
 {
     QRadioButton* radio = new QRadioButton(label);
     shadowMethodRadios_->layout()->addWidget(radio);
-    
-    return radio;
-}
-
-QRadioButton* MainWindow::createOverlayRadio(const char* label)
-{
-    QRadioButton* radio = new QRadioButton(label);
-    overlayRadios_->layout()->addWidget(radio);
     
     return radio;
 }

@@ -8,9 +8,9 @@ MainWindowController::MainWindowController(MainWindow* window)
 {
     // Shader feature toggle signals
     QObjectList featureToggles = window_->featureToggles();
-    for(int i = 0; i < featureToggles.size(); ++i)
+    for(int i = 1; i < featureToggles.size(); ++i)
     {
-        connect((FeatureToggle*)featureToggles[i], SIGNAL(stateChanged(int)), this, SLOT(shaderFeatureToggled()));
+        connect(featureToggles[i], SIGNAL(stateChanged(int)), this, SLOT(shaderFeatureToggled()));
     }
     
     // Shadow method radio button signals
@@ -18,13 +18,11 @@ MainWindowController::MainWindowController(MainWindow* window)
     connect(window_->voxelTreeMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeMethodToggled()));
     
     // Debug overlay radio button signals
-    connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled()));
-    connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled()));
-    connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled()));
-    connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled()));
-    connect(window_->cascadeSplitsOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(cascadeSplitsOverlayToggled()));
-    connect(window_->projectedShadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(projectedShadowMapOverlayToggled()));
-    connect(window_->voxelTreeDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeDepthOverlayToggled()));
+    QObjectList overlayRadios = window_->overlayRadios();
+    for(int i = 1; i < overlayRadios.size(); ++i)
+    {
+        connect(overlayRadios[i], SIGNAL(toggled(bool)), this, SLOT(overlayToggled()));
+    }
     
     // Shadow map resolution radio button signals
     connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled()));
@@ -96,39 +94,13 @@ void MainWindowController::voxelTreeMethodToggled()
     window_->rendererWidget()->setShadowRenderMethod(SMM_VoxelTree);
 }
 
-void MainWindowController::noOverlayToggled()
+void MainWindowController::overlayToggled()
 {
-    window_->rendererWidget()->setOverlay(-1);
-}
-
-void MainWindowController::shadowMapOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(0);
-}
-
-void MainWindowController::sceneDepthOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(1);
-}
-
-void MainWindowController::shadowMaskOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(2);
-}
-
-void MainWindowController::cascadeSplitsOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(3);
-}
-
-void MainWindowController::projectedShadowMapOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(4);
-}
-
-void MainWindowController::voxelTreeDepthOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(5);
+    // The sender is an OverlayToggle instance
+    OverlayToggle* toggle = (OverlayToggle*)QObject::sender();
+    
+    // Update the overlay index
+    window_->rendererWidget()->setOverlay(toggle->index());
 }
 
 void MainWindowController::shadowResolution512Toggled()

@@ -30,13 +30,7 @@ public slots:
     void voxelTreeMethodToggled();
     
     // Debug overlay radio buttons
-    void noOverlayToggled();
-    void shadowMapOverlayToggled();
-    void sceneDepthOverlayToggled();
-    void shadowMaskOverlayToggled();
-    void cascadeSplitsOverlayToggled();
-    void projectedShadowMapOverlayToggled();
-    void voxelTreeDepthOverlayToggled();
+    void overlayToggled();
     
     // Shadow map resoluton radio buttons
     void shadowResolution512Toggled();
