@@ -11,6 +11,7 @@
 using namespace std;
 
 #include "RendererWidget.hpp"
+#include "FeatureToggle.hpp"
 
 class MainWindow : public QWidget
 {
@@ -19,11 +20,8 @@ public:
 
     RendererWidget* rendererWidget() const { return rendererWidget_; }
 
-    // Shader features
-    QCheckBox* textureToggle() const { return textureToggle_; }
-    QCheckBox* specularToggle() const { return specularToggle_; }
-    QCheckBox* normalMapToggle() const { return normalMapToggle_; }
-    QCheckBox* cutoutToggle() const { return cutoutToggle_; }
+    // Shader feature check boxes
+    const QObjectList featureToggles() const { return featureToggles_->children(); }
     
     // Shadow render method radio buttons
     QRadioButton* shadowMapMethodRadio() const { return shadowMapMethodRadio_; }
@@ -56,10 +54,6 @@ private:
     
     // Shader feature toggles
     QGroupBox* featureToggles_;
-    QCheckBox* textureToggle_;
-    QCheckBox* specularToggle_;
-    QCheckBox* normalMapToggle_;
-    QCheckBox* cutoutToggle_;
     
     // Shadow method radio buttons
     QGroupBox* shadowMethodRadios_;
@@ -96,7 +90,6 @@ private:
     void createShadowResolutionRadios();
     void createShadowCascadesRadios();
     
-    QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label, bool on);
     QRadioButton* createShadowMethodRadio(const char* label);
     QRadioButton* createOverlayRadio(const char* label);
     QRadioButton* createShadowResolutionRadio(const char* label);

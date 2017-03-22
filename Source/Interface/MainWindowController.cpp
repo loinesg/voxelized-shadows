@@ -7,10 +7,11 @@ MainWindowController::MainWindowController(MainWindow* window)
     mousePosition_(Vector2(0, 0))
 {
     // Shader feature toggle signals
-    connect(window_->textureToggle(), SIGNAL(stateChanged(int)), this, SLOT(textureFeatureToggled(int)));
-    connect(window_->specularToggle(), SIGNAL(stateChanged(int)), this, SLOT(specularFeatureToggled(int)));
-    connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
-    connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
+    QObjectList featureToggles = window_->featureToggles();
+    for(int i = 0; i < featureToggles.size(); ++i)
+    {
+        connect((FeatureToggle*)featureToggles[i], SIGNAL(stateChanged(int)), this, SLOT(shaderFeatureToggled()));
+    }
     
     // Shadow method radio button signals
     connect(window_->shadowMapMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMappingMethodToggled()));
@@ -70,24 +71,19 @@ bool MainWindowController::eventFilter(QObject* obj, QEvent* event)
     return QObject::eventFilter(obj, event);
 }
 
-void MainWindowController::textureFeatureToggled(int state)
+void MainWindowController::shaderFeatureToggled()
 {
-    updateShaderFeature(SF_Texture, state);
-}
-
-void MainWindowController::specularFeatureToggled(int state)
-{
-    updateShaderFeature(SF_Specular, state);
-}
-
-void MainWindowController::normalMapsFeatureToggled(int state)
-{
-    updateShaderFeature(SF_NormalMap, state);
-}
-
-void MainWindowController::cutoutFeatureToggled(int state)
-{
-    updateShaderFeature(SF_Cutout, state);
+    // The sender is a FeatureToggle instance
+    FeatureToggle* toggle = (FeatureToggle*)QObject::sender();
+    
+    if(toggle->featureEnabled())
+    {
+        window_->rendererWidget()->enableFeature(toggle->feature());
+    }
+    else
+    {
+        window_->rendererWidget()->disableFeature(toggle->feature());
+    }
 }
 
 void MainWindowController::shadowMappingMethodToggled()
@@ -268,16 +264,4 @@ void MainWindowController::keyReleaseEvent(QKeyEvent* event)
         inputManager_.keyReleased(IK_MoveDown);
     else if(event->key() == Qt::Key::Key_Shift)
         inputManager_.keyReleased(IK_MoveFast);
-}
-
-void MainWindowController::updateShaderFeature(ShaderFeature feature, int state)
-{
-    if(state == Qt::CheckState::Checked)
-    {
-        window_->rendererWidget()->enableFeature(feature);
-    }
-    else
-    {
-        window_->rendererWidget()->disableFeature(feature);
-    }
 }

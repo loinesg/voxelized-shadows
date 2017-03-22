@@ -39,13 +39,18 @@ MainWindow::MainWindow(const QGLFormat &format)
 
 void MainWindow::createFeatureToggles()
 {
+    // Create group box
     featureToggles_ = new QGroupBox("Shader Features");
-    featureToggles_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+
+    // Create a layout to contain the check boxes
+    QBoxLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom);
+    featureToggles_->setLayout(layout);
     
-    textureToggle_ = createFeatureToggle(SF_Texture, "Diffuse Textures", true);
-    specularToggle_ = createFeatureToggle(SF_Specular, "Specular Highlights", true);
-    normalMapToggle_ = createFeatureToggle(SF_NormalMap, "Normal Mapping", true);
-    cutoutToggle_ = createFeatureToggle(SF_Cutout, "Cutout Transparency", true);
+    // Create check boxes
+    layout->addWidget(new FeatureToggle(SF_Texture, "Diffuse Textures"));
+    layout->addWidget(new FeatureToggle(SF_Specular, "Specular Highlights"));
+    layout->addWidget(new FeatureToggle(SF_NormalMap, "Normal Mapping"));
+    layout->addWidget(new FeatureToggle(SF_Cutout, "Cutout Transparency"));
 }
 
 void MainWindow::createShadowMethodRadios()
@@ -108,16 +113,6 @@ void MainWindow::createShadowCascadesRadios()
     
     // Default = 2
     shadowCascades2_->setChecked(true);
-}
-
-QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* label, bool on)
-{
-    QCheckBox* checkBox = new QCheckBox(label);
-    checkBox->setChecked(on);
-    
-    featureToggles_->layout()->addWidget(checkBox);
-    
-    return checkBox;
 }
 
 QRadioButton* MainWindow::createShadowMethodRadio(const char* label)

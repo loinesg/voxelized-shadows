@@ -21,11 +21,9 @@ protected:
     
 public slots:
     
-    // Shader feature checkboxes
-    void textureFeatureToggled(int state);
-    void specularFeatureToggled(int state);
-    void normalMapsFeatureToggled(int state);
-    void cutoutFeatureToggled(int state);
+    // Triggered when a shader feature is toggled via a checkbox
+    // The sender is a FeatureToggle widget.
+    void shaderFeatureToggled();
     
     // Shadow method radio buttons
     void shadowMappingMethodToggled();
@@ -69,7 +67,4 @@ private:
     void mouseMoveEvent(QMouseEvent* event);
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
-    
-    // Shader features
-    void updateShaderFeature(ShaderFeature feature, int state);
 };
