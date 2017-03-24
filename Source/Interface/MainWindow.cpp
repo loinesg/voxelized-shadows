@@ -8,12 +8,51 @@ MainWindow::MainWindow(const QGLFormat &format)
     // Create main renderer
     rendererWidget_ = new RendererWidget(format);
     
-    // Create check boxes and radios
-    createFeatureToggles();
-    createShadowMethodRadios();
-    createOverlayRadios();
-    createShadowResolutionRadios();
-    createShadowCascadesRadios();
+    // Create settings groups
+    featureToggles_ = new QGroupBox("Shader Features");
+    shadowMethodRadios_ = new QGroupBox("Shadow Methods");
+    overlayRadios_ = new QGroupBox("Debug Overlay");
+    shadowResolutionRadios_ = new QGroupBox("Shadow Map Resolution");
+    shadowCascadesRadios_ = new QGroupBox("Shadow Cascades");
+    
+    // Use a vertical layout for all settings groups
+    featureToggles_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    shadowMethodRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    overlayRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    shadowResolutionRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    shadowCascadesRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    
+    // Create shading feature toggles
+    createFeatureToggle(SF_Texture, "Diffuse Textures");
+    createFeatureToggle(SF_Specular, "Specular Highlights");
+    createFeatureToggle(SF_NormalMap, "Normal Mapping");
+    createFeatureToggle(SF_Cutout, "Cutout Transparency");
+    
+    // Create shadow method toggles
+    createShadowMethodRadio(SMM_ShadowMap, "Shadow Mapping")->setChecked(true); // Default
+    createShadowMethodRadio(SMM_VoxelTree, "Voxel Tree");
+
+    // Create overlay radios
+    // Must match RendererWidget::createOverlays()
+    createOverlayRadio(-1, "No Overlay")->setChecked(true); // Default = No Overlay
+    createOverlayRadio(0, "Shadow Map");
+    createOverlayRadio(1, "Scene Depth");
+    createOverlayRadio(2, "Shadow Mask");
+    createOverlayRadio(3, "Cascade Splits");
+    createOverlayRadio(4, "Projected Shadow Map");
+    createOverlayRadio(5, "Voxel Tree Depth");
+    
+    // Create shadow resolution radios
+    createShadowResolutionRadio(512);
+    createShadowResolutionRadio(1024);
+    createShadowResolutionRadio(2048);
+    createShadowResolutionRadio(4096)->setChecked(true); // Default = 4096
+    
+    // Create shadow cascades radios
+    createShadowCascadesRadio(1);
+    createShadowCascadesRadio(2)->setChecked(true); // Default = 2
+    createShadowCascadesRadio(3);
+    createShadowCascadesRadio(4);
     
     // Add widgets to side panel
     QBoxLayout* sidePanelLayout = new QBoxLayout(QBoxLayout::TopToBottom);
@@ -35,78 +74,12 @@ MainWindow::MainWindow(const QGLFormat &format)
     mainLayout->addWidget(sidePanel);
 }
 
-void MainWindow::createFeatureToggles()
-{
-    // Create the group box
-    featureToggles_ = new QGroupBox("Shader Features");
-    featureToggles_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
-    
-    // Create the check boxes
-    createFeatureToggle(SF_Texture, "Diffuse Textures", true);
-    createFeatureToggle(SF_Specular, "Specular Highlights", true);
-    createFeatureToggle(SF_NormalMap, "Normal Mapping", true);
-    createFeatureToggle(SF_Cutout, "Cutout Transparency", true);
-}
-
-void MainWindow::createShadowMethodRadios()
-{
-    // Create group box
-    shadowMethodRadios_ = new QGroupBox("Shadow Methods");
-    shadowMethodRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
-    
-    // One radio per method
-    shadowMapMethodRadio_ = createShadowMethodRadio("Shadow Mapping");
-    voxelTreeMethodRadio_ = createShadowMethodRadio("Voxel Tree");
-    
-    // Default = Shadow Mapping
-    shadowMapMethodRadio_->setChecked(true);
-}
-
-void MainWindow::createOverlayRadios()
-{
-    // Create group box
-    overlayRadios_ = new QGroupBox("Debug Overlay");
-    overlayRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
-    
-    // One radio per overlay
-    // Must match RendererWidget::createOverlays()
-    createOverlayRadio(-1, "No Overlay")->setChecked(true); // Default = No Overlay
-    createOverlayRadio(0, "Shadow Map");
-    createOverlayRadio(1, "Scene Depth");
-    createOverlayRadio(2, "Shadow Mask");
-    createOverlayRadio(3, "Cascade Splits");
-    createOverlayRadio(4, "Projected Shadow Map");
-    createOverlayRadio(5, "Voxel Tree Depth");
-}
-
-void MainWindow::createShadowResolutionRadios()
-{
-    shadowResolutionRadios_ = new QGroupBox("Shadow Map Resolution");
-    shadowResolutionRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
-    
-    createShadowResolutionRadio(512);
-    createShadowResolutionRadio(1024);
-    createShadowResolutionRadio(2048);
-    createShadowResolutionRadio(4096)->setChecked(true); // Default = 4096
-}
-
-void MainWindow::createShadowCascadesRadios()
-{
-    shadowCascadesRadios_ = new QGroupBox("Shadow Cascades");
-    shadowCascadesRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
-    
-    createShadowCascadesRadio(1);
-    createShadowCascadesRadio(2)->setChecked(true); // Default = 2
-    createShadowCascadesRadio(3);
-    createShadowCascadesRadio(4);
-}
-
-QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* label, bool on)
+QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* label)
 {
     // Create the check box
     QCheckBox* checkBox = new QCheckBox(label);
     checkBox->setProperty("featureID", (int)feature);
-    checkBox->setChecked(on);
+    checkBox->setChecked(true);
     
     // Add to the feature toggles group
     featureToggles_->layout()->addWidget(checkBox);
@@ -114,11 +87,12 @@ QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* la
     return checkBox;
 }
 
-QRadioButton* MainWindow::createShadowMethodRadio(const char* label)
+QRadioButton* MainWindow::createShadowMethodRadio(ShadowMaskMethod method, const char* label)
 {
     QRadioButton* radio = new QRadioButton(label);
-    shadowMethodRadios_->layout()->addWidget(radio);
+    radio->setProperty("method", (int)method);
     
+    shadowMethodRadios_->layout()->addWidget(radio);
     return radio;
 }
 

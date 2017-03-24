@@ -13,8 +13,10 @@ MainWindowController::MainWindowController(MainWindow* window)
     }
     
     // Shadow method radio button signals
-    connect(window_->shadowMapMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMappingMethodToggled()));
-    connect(window_->voxelTreeMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeMethodToggled()));
+    for(int i = 1; i < window_->shadowMethodRadios().size(); ++i)
+    {
+        connect(window_->shadowMethodRadios()[i], SIGNAL(toggled(bool)), this, SLOT(shadowMethodToggled()));
+    }
     
     // Debug overlay radio button signals
     for(int i = 1; i < window_->overlayRadios().size(); ++i)
@@ -84,14 +86,14 @@ void MainWindowController::shaderFeatureToggled()
     }
 }
 
-void MainWindowController::shadowMappingMethodToggled()
+void MainWindowController::shadowMethodToggled()
 {
-    window_->rendererWidget()->setShadowRenderMethod(SMM_ShadowMap);
-}
-
-void MainWindowController::voxelTreeMethodToggled()
-{
-    window_->rendererWidget()->setShadowRenderMethod(SMM_VoxelTree);
+    // The sender is a shadow method radio button
+    QRadioButton* sender = (QRadioButton*)QObject::sender();
+    ShadowMaskMethod method = (ShadowMaskMethod)sender->property("method").toInt();
+    
+    // Update the shadow method
+    window_->rendererWidget()->setShadowRenderMethod(method);
 }
 
 void MainWindowController::overlayToggled()

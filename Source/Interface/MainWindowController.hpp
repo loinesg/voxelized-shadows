@@ -21,17 +21,10 @@ protected:
     
 public slots:
     
-    // Shader feature checkboxes
+    // Render setting widgets
     void shaderFeatureToggled();
-    
-    // Shadow method radio buttons
-    void shadowMappingMethodToggled();
-    void voxelTreeMethodToggled();
-    
-    // Debug overlay radio buttons
+    void shadowMethodToggled();
     void overlayToggled();
-    
-    // Shadow map radio buttons
     void shadowResolutionToggled();
     void shadowCascadesToggled();
 
