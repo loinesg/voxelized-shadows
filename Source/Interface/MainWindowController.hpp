@@ -22,35 +22,18 @@ protected:
 public slots:
     
     // Shader feature checkboxes
-    void textureFeatureToggled(int state);
-    void specularFeatureToggled(int state);
-    void normalMapsFeatureToggled(int state);
-    void cutoutFeatureToggled(int state);
+    void shaderFeatureToggled();
     
     // Shadow method radio buttons
     void shadowMappingMethodToggled();
     void voxelTreeMethodToggled();
     
     // Debug overlay radio buttons
-    void noOverlayToggled();
-    void shadowMapOverlayToggled();
-    void sceneDepthOverlayToggled();
-    void shadowMaskOverlayToggled();
-    void cascadeSplitsOverlayToggled();
-    void projectedShadowMapOverlayToggled();
-    void voxelTreeDepthOverlayToggled();
+    void overlayToggled();
     
-    // Shadow map resoluton radio buttons
-    void shadowResolution512Toggled();
-    void shadowResolution1024Toggled();
-    void shadowResolution2048Toggled();
-    void shadowResolution4096Toggled();
-    
-    // Shadow map cascades radio buttons
-    void shadowCascades1Toggled();
-    void shadowCascades2Toggled();
-    void shadowCascades3Toggled();
-    void shadowCascades4Toggled();
+    // Shadow map radio buttons
+    void shadowResolutionToggled();
+    void shadowCascadesToggled();
 
 private:
     MainWindow* window_;
@@ -69,7 +52,4 @@ private:
     void mouseMoveEvent(QMouseEvent* event);
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
-    
-    // Shader features
-    void updateShaderFeature(ShaderFeature feature, int state);
 };

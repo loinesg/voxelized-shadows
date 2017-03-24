@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 
 #include <cstdio>
+#include <QVariant>
 
 MainWindow::MainWindow(const QGLFormat &format)
 {
@@ -17,14 +18,11 @@ MainWindow::MainWindow(const QGLFormat &format)
     // Add widgets to side panel
     QBoxLayout* sidePanelLayout = new QBoxLayout(QBoxLayout::TopToBottom);
     sidePanelLayout->addWidget(featureToggles_);
-    sidePanelLayout->addSpacing(20);
     sidePanelLayout->addWidget(shadowMethodRadios_);
-    sidePanelLayout->addSpacing(20);
     sidePanelLayout->addWidget(overlayRadios_);
-    sidePanelLayout->addSpacing(20);
     sidePanelLayout->addWidget(shadowResolutionRadios_);
-    sidePanelLayout->addSpacing(20);
     sidePanelLayout->addWidget(shadowCascadesRadios_);
+    sidePanelLayout->setSpacing(20);
     sidePanelLayout->addStretch();
     
     QWidget* sidePanel = new QWidget();
@@ -39,13 +37,15 @@ MainWindow::MainWindow(const QGLFormat &format)
 
 void MainWindow::createFeatureToggles()
 {
+    // Create the group box
     featureToggles_ = new QGroupBox("Shader Features");
     featureToggles_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     
-    textureToggle_ = createFeatureToggle(SF_Texture, "Diffuse Textures", true);
-    specularToggle_ = createFeatureToggle(SF_Specular, "Specular Highlights", true);
-    normalMapToggle_ = createFeatureToggle(SF_NormalMap, "Normal Mapping", true);
-    cutoutToggle_ = createFeatureToggle(SF_Cutout, "Cutout Transparency", true);
+    // Create the check boxes
+    createFeatureToggle(SF_Texture, "Diffuse Textures", true);
+    createFeatureToggle(SF_Specular, "Specular Highlights", true);
+    createFeatureToggle(SF_NormalMap, "Normal Mapping", true);
+    createFeatureToggle(SF_Cutout, "Cutout Transparency", true);
 }
 
 void MainWindow::createShadowMethodRadios()
@@ -70,16 +70,13 @@ void MainWindow::createOverlayRadios()
     
     // One radio per overlay
     // Must match RendererWidget::createOverlays()
-    noOverlayRadio_ = createOverlayRadio("No Overlay");
-    shadowMapOverlayRadio_ = createOverlayRadio("Shadow Map");
-    sceneDepthOverlayRadio_ = createOverlayRadio("Scene Depth");
-    shadowMaskOverlayRadio_ = createOverlayRadio("Shadow Mask");
-    cascadeSplitsOverlayRadio_ = createOverlayRadio("Cascade Splits");
-    projectedShadowMapOverlayRadio_ = createOverlayRadio("Projected Shadow Map");
-    voxelTreeDepthOverlayRadio_ = createOverlayRadio("Voxel Tree Depth");
-    
-    // Default = No Overlay
-    noOverlayRadio_->setChecked(true);
+    createOverlayRadio(-1, "No Overlay")->setChecked(true); // Default = No Overlay
+    createOverlayRadio(0, "Shadow Map");
+    createOverlayRadio(1, "Scene Depth");
+    createOverlayRadio(2, "Shadow Mask");
+    createOverlayRadio(3, "Cascade Splits");
+    createOverlayRadio(4, "Projected Shadow Map");
+    createOverlayRadio(5, "Voxel Tree Depth");
 }
 
 void MainWindow::createShadowResolutionRadios()
@@ -87,13 +84,10 @@ void MainWindow::createShadowResolutionRadios()
     shadowResolutionRadios_ = new QGroupBox("Shadow Map Resolution");
     shadowResolutionRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     
-    shadowResolution512Radio_ = createShadowResolutionRadio("512x512");
-    shadowResolution1024Radio_ = createShadowResolutionRadio("1024x1024");
-    shadowResolution2048Radio_ = createShadowResolutionRadio("2048x2048");
-    shadowResolution4096Radio_ = createShadowResolutionRadio("4096x4096");
-    
-    // Default = 4096
-    shadowResolution4096Radio_->setChecked(true);
+    createShadowResolutionRadio(512);
+    createShadowResolutionRadio(1024);
+    createShadowResolutionRadio(2048);
+    createShadowResolutionRadio(4096)->setChecked(true); // Default = 4096
 }
 
 void MainWindow::createShadowCascadesRadios()
@@ -101,20 +95,20 @@ void MainWindow::createShadowCascadesRadios()
     shadowCascadesRadios_ = new QGroupBox("Shadow Cascades");
     shadowCascadesRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     
-    shadowCascades1_ = createShadowCascadesRadio("No Cascades");
-    shadowCascades2_ = createShadowCascadesRadio("2 Cascades");
-    shadowCascades3_ = createShadowCascadesRadio("3 Cascades");
-    shadowCascades4_ = createShadowCascadesRadio("4 Cascades");
-    
-    // Default = 2
-    shadowCascades2_->setChecked(true);
+    createShadowCascadesRadio(1);
+    createShadowCascadesRadio(2)->setChecked(true); // Default = 2
+    createShadowCascadesRadio(3);
+    createShadowCascadesRadio(4);
 }
 
 QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* label, bool on)
 {
+    // Create the check box
     QCheckBox* checkBox = new QCheckBox(label);
+    checkBox->setProperty("featureID", (int)feature);
     checkBox->setChecked(on);
     
+    // Add to the feature toggles group
     featureToggles_->layout()->addWidget(checkBox);
     
     return checkBox;
@@ -128,25 +122,37 @@ QRadioButton* MainWindow::createShadowMethodRadio(const char* label)
     return radio;
 }
 
-QRadioButton* MainWindow::createOverlayRadio(const char* label)
+QRadioButton* MainWindow::createOverlayRadio(int index, const char* label)
 {
+    // Creat the radio button
     QRadioButton* radio = new QRadioButton(label);
+    radio->setProperty("overlay", index);
+    
+    // Add to the overlay radios group
     overlayRadios_->layout()->addWidget(radio);
     
     return radio;
 }
 
-QRadioButton* MainWindow::createShadowResolutionRadio(const char* label)
+QRadioButton* MainWindow::createShadowResolutionRadio(int resolution)
 {
-    QRadioButton* radio = new QRadioButton(label);
+    // Create the radio button
+    QRadioButton* radio = new QRadioButton(QString("%1 x %1").arg(resolution));
+    radio->setProperty("resolution", resolution);
+    
+    // Add to the shadow resolution radios group
     shadowResolutionRadios_->layout()->addWidget(radio);
     
     return radio;
 }
 
-QRadioButton* MainWindow::createShadowCascadesRadio(const char* label)
+QRadioButton* MainWindow::createShadowCascadesRadio(const int cascades)
 {
+    // Create the radio button
+    QString label = QString("%1 Cascades").arg(cascades == 1 ? "No" : QString::number(cascades));
     QRadioButton* radio = new QRadioButton(label);
+    radio->setProperty("cascades", cascades);
+    
     shadowCascadesRadios_->layout()->addWidget(radio);
     
     return radio;
