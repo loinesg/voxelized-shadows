@@ -1,14 +1,10 @@
 #pragma once
 
-#include <vector>
-
 #include <QWidget>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QRadioButton>
-
-using namespace std;
 
 #include "RendererWidget.hpp"
 

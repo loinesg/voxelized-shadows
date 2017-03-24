@@ -1,6 +1,5 @@
 #include "MainWindow.hpp"
 
-#include <cstdio>
 #include <QVariant>
 
 MainWindow::MainWindow(const QGLFormat &format)
