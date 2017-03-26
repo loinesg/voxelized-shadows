@@ -55,17 +55,18 @@ bool MainWindowController::eventFilter(QObject* obj, QEvent* event)
     {
         mouseMoveEvent(static_cast<QMouseEvent*>(event));
     }
-    else if(event->type() == QEvent::KeyPress)
+    
+    // InputManager handles key press / release events
+    if(event->type() == QEvent::KeyPress)
     {
-        keyPressEvent(static_cast<QKeyEvent*>(event));
-        return true;
+        inputManager_.keyPressed((InputKey)static_cast<QKeyEvent*>(event)->key());
     }
     else if(event->type() == QEvent::KeyRelease)
     {
-        keyReleaseEvent(static_cast<QKeyEvent*>(event));
-        return true;
+        inputManager_.keyReleased((InputKey)static_cast<QKeyEvent*>(event)->key());
     }
     
+    // Unhandled events are passed back to Qt
     return QObject::eventFilter(obj, event);
 }
 
@@ -136,11 +137,11 @@ void MainWindowController::update(float deltaTime)
     movement.x = inputManager_.getSidewaysMovement();
     movement.z = inputManager_.getForwardsMovement();
     movement.y = inputManager_.getVerticalMovement();
+    movement = movement * inputManager_.getMovementSpeed();
     movement = camera->localToWorldVector(movement);
     
     // Apply movement to camera (frame rate independent)
-    float speed = (inputManager_.isKeyDown(IK_MoveFast)) ? 20.0 : 5.0;
-    camera->translate(movement * speed * deltaTime);
+    camera->translate(movement * deltaTime);
 }
 
 void MainWindowController::mousePressEvent(QMouseEvent* event)
@@ -184,40 +185,4 @@ void MainWindowController::mouseMoveEvent(QMouseEvent *event)
         // Apply rotation, vertical first
         camera->setRotation(horizontal * vertical * camera->rotation());
     }
-}
-
-void MainWindowController::keyPressEvent(QKeyEvent* event)
-{
-    if(event->key() == Qt::Key::Key_W)
-        inputManager_.keyPressed(IK_MoveForward);
-    else if(event->key() == Qt::Key::Key_A)
-        inputManager_.keyPressed(IK_MoveLeft);
-    else if(event->key() == Qt::Key::Key_S)
-        inputManager_.keyPressed(IK_MoveBackwards);
-    else if(event->key() == Qt::Key::Key_D)
-        inputManager_.keyPressed(IK_MoveRight);
-    else if(event->key() == Qt::Key::Key_E)
-        inputManager_.keyPressed(IK_MoveUp);
-    else if(event->key() == Qt::Key::Key_Q)
-        inputManager_.keyPressed(IK_MoveDown);
-    else if(event->key() == Qt::Key::Key_Shift)
-        inputManager_.keyPressed(IK_MoveFast);
-}
-
-void MainWindowController::keyReleaseEvent(QKeyEvent* event)
-{
-    if(event->key() == Qt::Key::Key_W)
-        inputManager_.keyReleased(IK_MoveForward);
-    else if(event->key() == Qt::Key::Key_A)
-        inputManager_.keyReleased(IK_MoveLeft);
-    else if(event->key() == Qt::Key::Key_S)
-        inputManager_.keyReleased(IK_MoveBackwards);
-    else if(event->key() == Qt::Key::Key_D)
-        inputManager_.keyReleased(IK_MoveRight);
-    else if(event->key() == Qt::Key::Key_E)
-        inputManager_.keyReleased(IK_MoveUp);
-    else if(event->key() == Qt::Key::Key_Q)
-        inputManager_.keyReleased(IK_MoveDown);
-    else if(event->key() == Qt::Key::Key_Shift)
-        inputManager_.keyReleased(IK_MoveFast);
 }
