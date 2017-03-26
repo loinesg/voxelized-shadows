@@ -92,14 +92,30 @@ VoxelShadowing VoxelDepthMap::sampleRegionShadow(int x, int y, int z, int width,
     assert(z >= 0 && z + depth <= resolution_);
     
     // Compute the depth bounds of the region
-    float minDepth = z / (float)resolution_;
-    float maxDepth = (z + depth) / (float)resolution_;
+    float minDepth = (z + 0.5) / (float)resolution_;
+    float maxDepth = (z + depth - 0.5) / (float)resolution_;
     
     // Calculate the correct mip level to sample
     int mip = log2(width);
     
-    // Sample the mip
-    if(minDepth > entryDepths_[mip][(y/width) * (resolution_ / width) + (x/width)]) return VS_Shadowed;
-    else if(maxDepth < exitDepths_[mip][(y/width) * (resolution_ / width) + (x/width)]) return VS_Unshadowed;
-    else return VS_Mixed;
+    // Sample the mips
+    int mipResolution = resolution_ / width;
+    int mipIndex = (y / width) * mipResolution + (x / width);
+    float entryDepth = entryDepths_[mip][mipIndex];
+    float exitDepth = exitDepths_[mip][mipIndex];
+    
+    // If the whole region is after the entry depth, it is shadowed
+    if(minDepth > entryDepth)
+    {
+        return VS_Shadowed;
+    }
+    
+    // If the whole region is before the exit depth, it is unshadowed
+    if(maxDepth < exitDepth)
+    {
+        return VS_Unshadowed;
+    }
+    
+    // Otherwise the region is mixed
+    return VS_Mixed;
 }
