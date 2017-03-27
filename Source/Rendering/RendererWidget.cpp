@@ -76,7 +76,7 @@ void RendererWidget::initializeGL()
     shadowMask_ = new ShadowMask(uniformManager_, SMM_ShadowMap);
     
     // Create and build the voxel tree
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 2048);
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, 8192);
     voxelTree_->build();
     shadowMask_->setVoxelTree(voxelTree_);
     
