@@ -56,6 +56,17 @@ VoxelDepthMap::VoxelDepthMap(int resolution, float* entryDepths, float* exitDept
             }
         }
     }
+    
+    // Create the midpoints
+    midpointDepths_ = new int[resolution_ * resolution_];
+    for(int i = 0; i < resolution_ * resolution_; ++i)
+    {
+        float entryDepth = entryDepths[i];
+        float exitDepth = exitDepths[i];
+        float midpointDepth = (entryDepth + exitDepth) * 0.5;
+        
+        midpointDepths_[i] = (midpointDepth * resolution_) - 0.5;
+    }
 }
 
 VoxelDepthMap::~VoxelDepthMap()
@@ -70,6 +81,9 @@ VoxelDepthMap::~VoxelDepthMap()
     // Delete the main arrays
     delete[] entryDepths_;
     delete[] exitDepths_;
+    
+    // Delete the midpoint depths
+    delete[] midpointDepths_;
 }
 
 VoxelShadowing VoxelDepthMap::sampleVoxelShadow(int x, int y, int z) const
@@ -80,16 +94,13 @@ VoxelShadowing VoxelDepthMap::sampleVoxelShadow(int x, int y, int z) const
     assert(z >= 0 && z < resolution_);
     
     // Get the midpoint of the shadow caster
-    int index = y * resolution_ + x;
-    float shadowEntry = entryDepths_[0][index];
-    float shadowExit = exitDepths_[0][index];
-    float shadowMidpoint = (shadowEntry + shadowExit) * 0.5;
+    int shadowMidpoint = midpointDepths_[y * resolution_ + x];
     
     // Get the voxel depth
-    float voxelDepth = z + 0.5;
+    int voxelDepth = z;
     
     // Depth test
-    return (voxelDepth > shadowMidpoint * resolution_) ? VS_Shadowed : VS_Unshadowed;
+    return (voxelDepth > shadowMidpoint) ? VS_Shadowed : VS_Unshadowed;
 }
 
 VoxelShadowing VoxelDepthMap::sampleRegionShadow(int x, int y, int z, int width, int depth) const
