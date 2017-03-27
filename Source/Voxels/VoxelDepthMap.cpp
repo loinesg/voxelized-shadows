@@ -28,21 +28,31 @@ VoxelDepthMap::VoxelDepthMap(int resolution, float* entryDepths, float* exitDept
         exitDepths_[i] = new float[resolution * resolution];
         
         // Create each element
-        for(int x = 0; x < resolution; ++x)
+        for(int y = 0; y < resolution; ++y)
         {
-            for(int y = 0; y < resolution; ++y)
+            for(int x = 0; x < resolution; ++x)
             {
-                int index = y * resolution + x;
-                int parent0 = (y*2) * (resolution * 2) + (x*2);
-                int parent1 = (y*2 + 1) * (resolution * 2) + (x*2);
-                int parent2 = (y*2) * (resolution * 2) + (x*2 + 1);
-                int parent3 = (y*2 + 1) * (resolution * 2) + (x*2 + 1);
+                int mipTexel = y * resolution + x;
+                
+                // Use the corresponding texel, and the 3 adjacent ones
+                int parent0 = (y * 2) * (resolution * 2) + (x * 2);
+                int parent1 = parent0 + 1;
+                int parent2 = parent0 + (resolution * 2);
+                int parent3 = parent2 + 1;
                 
                 // Get the biggest entry depth
-                entryDepths_[i][index] = std::max(std::max(entryDepths_[i-1][parent0], entryDepths_[i-1][parent1]), std::max(entryDepths_[i-1][parent2], entryDepths_[i-1][parent3]));
+                float entry0 = entryDepths_[i-1][parent0];
+                float entry1 = entryDepths_[i-1][parent1];
+                float entry2 = entryDepths_[i-1][parent2];
+                float entry3 = entryDepths_[i-1][parent3];
+                entryDepths_[i][mipTexel] = std::max(std::max(entry0, entry1), std::max(entry2, entry3));
                 
                 // Get the smallest exit depth
-                exitDepths_[i][index] = std::min(std::min(exitDepths_[i-1][parent0], exitDepths_[i-1][parent1]), std::min(exitDepths_[i-1][parent2], exitDepths_[i-1][parent3]));
+                float exit0 = exitDepths_[i-1][parent0];
+                float exit1 = exitDepths_[i-1][parent1];
+                float exit2 = exitDepths_[i-1][parent2];
+                float exit3 = exitDepths_[i-1][parent3];
+                exitDepths_[i][mipTexel] = std::min(std::min(exit0, exit1), std::min(exit2, exit3));
             }
         }
     }
