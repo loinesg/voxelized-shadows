@@ -26,7 +26,7 @@ public:
     
 private:
     int resolution_;
-    int treeHeight_;
+    int mipHierarchyHeight_;
     
     // Hierarchy of depths
     // Ordered highest resolution -> lowest resolution

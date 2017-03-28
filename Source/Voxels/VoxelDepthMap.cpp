@@ -9,20 +9,20 @@ VoxelDepthMap::VoxelDepthMap(int resolution, float* entryDepths, float* exitDept
     assert(resolution_ > 0);
     
     // Allocate the main arrays for the depth hierarchy
-    treeHeight_ = log2(resolution_) + 1;
+    mipHierarchyHeight_ = log2(resolution) + 1;
     
     // Dont generate the last 1x1 mip. It isn't used.
-    treeHeight_ --;
+    mipHierarchyHeight_ --;
     
-    entryDepths_ = new float*[treeHeight_];
-    exitDepths_ = new float*[treeHeight_];
+    entryDepths_ = new float*[mipHierarchyHeight_];
+    exitDepths_ = new float*[mipHierarchyHeight_];
     
     // The top tree level has already been created
     entryDepths_[0] = entryDepths;
     exitDepths_[0] = exitDepths;
 
     // Create the mip levels
-    for(int i = 1; i < treeHeight_; ++i)
+    for(int i = 1; i < mipHierarchyHeight_; ++i)
     {
         // Halve the resolution
         resolution /= 2;
@@ -76,7 +76,7 @@ VoxelDepthMap::VoxelDepthMap(int resolution, float* entryDepths, float* exitDept
 VoxelDepthMap::~VoxelDepthMap()
 {
     // Delete the mip levels
-    for(int i = 0; i < treeHeight_; ++i)
+    for(int i = 0; i < mipHierarchyHeight_; ++i)
     {
         delete[] entryDepths_[i];
         delete[] exitDepths_[i];
