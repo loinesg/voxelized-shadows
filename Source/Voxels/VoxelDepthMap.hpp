@@ -17,11 +17,12 @@ public:
     // Depth resolution
     int resolution() const { return resolution_; }
     
-    // Gets the shadow state of a single voxel
-    VoxelShadowing sampleVoxelShadow(int x, int y, int z) const;
+    // Samples a leaf mask.
+    // Also outputs depth that the leaf mask next changes.
+    uint64_t sampleLeafMask(int x, int y, int z, int* nextChangeZ) const;
     
-    // Gets the shadow state of a region
-    VoxelShadowing sampleRegionShadow(int x, int y, int z, int width, int depth) const;
+    // Samples 8 tile children to construct a childmask.
+    uint16_t sampleChildMask(const VoxelTile* children) const;
     
 private:
     int resolution_;

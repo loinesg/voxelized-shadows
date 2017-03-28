@@ -8,6 +8,17 @@ typedef uint32_t VoxelPointer;
 // Use 64-bit hashes
 typedef uint64_t VoxelNodeHash;
 
+// Subsection of the voxel structure
+struct VoxelTile
+{
+    int x;
+    int y;
+    int z;
+    
+    int width; // x and y size
+    int depth; // z size
+};
+
 // First bit = Mixed / Uniform flag
 // Second bit = Shadowed / Unshadowed flag
 enum VoxelShadowing : int

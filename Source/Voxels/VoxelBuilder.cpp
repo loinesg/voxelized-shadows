@@ -10,6 +10,20 @@ VoxelBuilder::VoxelBuilder(const VoxelDepthMap* depthMap)
     // Resolution must be at least 8
     // Otherwise leaf nodes cannot be made.
     assert(depthMap_->resolution() >= 8);
+    
+    // Create the leaf cache.
+    // There is one cache per 8x8 tile in the depth map.
+    int leafTileCount = (depthMap_->resolution() / 8) * (depthMap_->resolution() / 8);
+    leafCache_ = new VoxelLeafCache[leafTileCount];
+    
+    // Set each tile's change distance to 0 so they will be computed on first use
+    std::memset(leafCache_, 0, leafTileCount * sizeof(VoxelLeafCache));
+}
+
+VoxelBuilder::~VoxelBuilder()
+{
+    // Delete the leaf cache
+    delete[] leafCache_;
 }
 
 void VoxelBuilder::build()
@@ -55,27 +69,10 @@ VoxelPointer VoxelBuilder::processInnerTile(const VoxelTile &tile)
     VoxelInnerNode node;
     node.paddingBits = 0;
     node.childMask = 0;
-    node.expandedChildCount = 0;
-
-    // Determine the shadowing state of each child
-    for(int index = 0; index < 8; ++index)
-    {
-        // Get the child position
-        VoxelTile child = children[index];
-        
-        // Sample the child shadowing
-        VoxelShadowing childShadowing = depthMap_->sampleRegionShadow(child.x, child.y, child.z, child.width, child.depth);
-        
-        // Add to the child mask
-        node.childMask |= (childShadowing << (index * 2));
-        
-        // Increment the childCount if the child will be expanded
-        if(childShadowing == VS_Mixed)
-        {
-            node.expandedChildCount ++;
-        }
-    }
     
+    // Get the child mask
+    node.childMask = depthMap_->sampleChildMask(children);
+
     // Expand any children with Mixed state
     int visitedChildren = 0;
     for(int index = 0; index < 8; ++index)
@@ -92,8 +89,7 @@ VoxelPointer VoxelBuilder::processInnerTile(const VoxelTile &tile)
         }
     }
     
-    // Check the correct number of children were visited
-    assert(visitedChildren == node.expandedChildCount);
+    node.expandedChildCount = visitedChildren;
     
     // Save the node and return its memory address.
     return writer_.writeNode(node);
@@ -105,34 +101,27 @@ VoxelPointer VoxelBuilder::processLeafTile(const VoxelTile &tile)
     assert(tile.width == 8);
     assert(tile.depth == 1);
     
-    // Create the leaf node
-    VoxelLeafNode leafNode;
-    leafNode.leafMask = 0;
-    
-    // Test each voxel
-    for(int x = 0; x < 8; ++x)
+    // Get the cache for this tile.
+    int leafIndex = (tile.y / 8) * (depthMap_->resolution() / 8) + (tile.x / 8);
+    VoxelLeafCache* cachedLeaf = &leafCache_[leafIndex];
+    if(tile.z < cachedLeaf->changeZ)
     {
-        for(int y = 0; y < 8; ++y)
-        {
-            // Get the voxel position
-            int voxelX = tile.x + x;
-            int voxelY = tile.y + y;
-            int voxelZ = tile.z;
-            
-            // Get the shadowing state
-            VoxelShadowing shadowing = depthMap_->sampleVoxelShadow(voxelX, voxelY, voxelZ);
-            assert(shadowing == VS_Shadowed || shadowing == VS_Unshadowed);
-            
-            // Get the voxel index
-            uint64_t index = ((uint64_t)x << 3) | (uint64_t)y;
-            
-            // Store in the leaf max
-            leafNode.leafMask |= ((uint64_t)shadowing << index);
-        }
+        // Cached tile is valid at this z depth
+        // Reuse the cached tile
+        return cachedLeaf->location;
     }
     
+    // Create a new leaf node
+    VoxelLeafNode leafNode;
+    
+    // Sample the depth map to create the leaf mask
+    leafNode.leafMask = depthMap_->sampleLeafMask(tile.x, tile.y, tile.z, &cachedLeaf->changeZ);
+    
     // Save the leaf node and return its memory address.
-    return writer_.writeLeaf(leafNode);
+    VoxelPointer ptr = writer_.writeLeaf(leafNode);
+    cachedLeaf->location = ptr;
+    
+    return ptr;
 }
 
 void VoxelBuilder::getChildLocations(const VoxelTile &parent, VoxelTile* children) const
