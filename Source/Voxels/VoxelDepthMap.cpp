@@ -60,17 +60,6 @@ VoxelDepthMap::VoxelDepthMap(int resolution, float* entryDepths, float* exitDept
             }
         }
     }
-    
-    // Create the midpoints
-    midpointDepths_ = new int[resolution_ * resolution_];
-    for(int i = 0; i < resolution_ * resolution_; ++i)
-    {
-        float entryDepth = entryDepths[i];
-        float exitDepth = exitDepths[i];
-        float midpointDepth = (entryDepth + exitDepth) * 0.5;
-        
-        midpointDepths_[i] = (midpointDepth * resolution_) - 0.5;
-    }
 }
 
 VoxelDepthMap::~VoxelDepthMap()
@@ -85,9 +74,6 @@ VoxelDepthMap::~VoxelDepthMap()
     // Delete the main arrays
     delete[] entryDepths_;
     delete[] exitDepths_;
-    
-    // Delete the midpoint depths
-    delete[] midpointDepths_;
 }
 
 uint64_t VoxelDepthMap::sampleLeafMask(int x, int y, int z, int* nextChangeZ) const
@@ -114,7 +100,9 @@ uint64_t VoxelDepthMap::sampleLeafMask(int x, int y, int z, int* nextChangeZ) co
             int voxelIndex = voxelY * resolution_ + voxelX;
             
             // Get the midpoint of the shadow caster
-            int shadowMidpoint = midpointDepths_[voxelIndex];
+            float entryDepth = entryDepths_[0][voxelIndex] * resolution_;
+            float exitDepth = exitDepths_[0][voxelIndex] * resolution_;
+            float shadowMidpoint = (entryDepth + exitDepth) * 0.5;
 
             // Depth test
             int shadowed = (z > shadowMidpoint) ? VS_Shadowed : VS_Unshadowed;
@@ -125,7 +113,6 @@ uint64_t VoxelDepthMap::sampleLeafMask(int x, int y, int z, int* nextChangeZ) co
             
             // Check if the midpoint depth limits the distance the leafmask
             // can be reused for.
-            int exitDepth = exitDepths_[0][voxelIndex] * resolution_;
             if(shadowed == VS_Unshadowed && exitDepth < *nextChangeZ && exitDepth >= z)
             {
                 *nextChangeZ = exitDepth;

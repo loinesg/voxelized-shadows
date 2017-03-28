@@ -32,5 +32,4 @@ private:
     // Ordered highest resolution -> lowest resolution
     float** entryDepths_;
     float** exitDepths_;
-    int* midpointDepths_;
 };
