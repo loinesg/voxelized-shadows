@@ -8,12 +8,11 @@ VoxelDepthMap::VoxelDepthMap(int resolution, float* entryDepths, float* exitDept
     // Must be a +vs resolution
     assert(resolution_ > 0);
     
-    // Allocate the main arrays for the depth hierarchy
-    mipHierarchyHeight_ = log2(resolution) + 1;
+    // Compute the number of mip levels needed. There is no
+    // level for the last 1x1 mip as it is not needed.
+    mipHierarchyHeight_ = log2(resolution);
     
-    // Dont generate the last 1x1 mip. It isn't used.
-    mipHierarchyHeight_ --;
-    
+    // Create the hierarchy
     entryDepths_ = new float*[mipHierarchyHeight_];
     exitDepths_ = new float*[mipHierarchyHeight_];
     
@@ -22,41 +21,48 @@ VoxelDepthMap::VoxelDepthMap(int resolution, float* entryDepths, float* exitDept
     exitDepths_[0] = exitDepths;
 
     // Create the mip levels
-    for(int i = 1; i < mipHierarchyHeight_; ++i)
+    for(int mip = 1; mip < mipHierarchyHeight_; ++mip)
     {
-        // Halve the resolution
+        // Halve the resolution with each mip level
+        int parentResolution = resolution;
         resolution /= 2;
+        int mipResolution = resolution;
         
         // Make the arrays
-        entryDepths_[i] = new float[resolution * resolution];
-        exitDepths_[i] = new float[resolution * resolution];
+        entryDepths_[mip] = new float[mipResolution * mipResolution];
+        exitDepths_[mip] = new float[mipResolution * mipResolution];
         
-        // Create each element
-        for(int y = 0; y < resolution; ++y)
+        // Consider row in the parent mip
+        for(int parentRow = 0; parentRow < parentResolution; ++parentRow)
         {
-            for(int x = 0; x < resolution; ++x)
+            // Consider each element in the row, in pairs
+            for(int i = 0; i < mipResolution; ++i)
             {
-                int mipTexel = y * resolution + x;
+                int parentIndex = parentRow * parentResolution + i*2;
+                int mipIndex = parentRow/2 * mipResolution + i;
                 
-                // Use the corresponding texel, and the 3 adjacent ones
-                int parent0 = (y * 2) * (resolution * 2) + (x * 2);
-                int parent1 = parent0 + 1;
-                int parent2 = parent0 + (resolution * 2);
-                int parent3 = parent2 + 1;
+                // Get the min exit depth from the pair
+                float entry0 = entryDepths_[mip-1][parentIndex];
+                float entry1 = entryDepths_[mip-1][parentIndex + 1];
+                float entryMax = std::max(entry0, entry1);
                 
-                // Get the biggest entry depth
-                float entry0 = entryDepths_[i-1][parent0];
-                float entry1 = entryDepths_[i-1][parent1];
-                float entry2 = entryDepths_[i-1][parent2];
-                float entry3 = entryDepths_[i-1][parent3];
-                entryDepths_[i][mipTexel] = std::max(std::max(entry0, entry1), std::max(entry2, entry3));
+                // Get the max exit depth from the pair
+                float exit0 = exitDepths_[mip-1][parentIndex];
+                float exit1 = exitDepths_[mip-1][parentIndex +1];
+                float exitMin = std::min(exit0, exit1);
                 
-                // Get the smallest exit depth
-                float exit0 = exitDepths_[i-1][parent0];
-                float exit1 = exitDepths_[i-1][parent1];
-                float exit2 = exitDepths_[i-1][parent2];
-                float exit3 = exitDepths_[i-1][parent3];
-                exitDepths_[i][mipTexel] = std::min(std::min(exit0, exit1), std::min(exit2, exit3));
+                if((parentRow % 2) == 0)
+                {
+                    // If it is an even row, we haven't computed the other 2 values yet
+                    entryDepths_[mip][mipIndex] = entryMax;
+                    exitDepths_[mip][mipIndex] = exitMin;
+                }
+                else
+                {
+                    // If an odd row, combine the 2 values with the other values computed earlier
+                    entryDepths_[mip][mipIndex] = std::max(entryDepths_[mip][mipIndex], entryMax);
+                    exitDepths_[mip][mipIndex] = std::min(exitDepths_[mip][mipIndex], exitMin);
+                }
             }
         }
     }
@@ -102,10 +108,10 @@ uint64_t VoxelDepthMap::sampleLeafMask(int x, int y, int z, int* nextChangeZ) co
             // Get the midpoint of the shadow caster
             float entryDepth = entryDepths_[0][voxelIndex] * resolution_;
             float exitDepth = exitDepths_[0][voxelIndex] * resolution_;
-            float shadowMidpoint = (entryDepth + exitDepth) * 0.5;
+            float doubleShadowMidpoint = (entryDepth + exitDepth);
 
             // Depth test
-            int shadowed = (z > shadowMidpoint) ? VS_Shadowed : VS_Unshadowed;
+            int shadowed = (z * 2 > doubleShadowMidpoint) ? VS_Shadowed : VS_Unshadowed;
             
             // Add to the leaf mask
             int index = (xOffset << 3) | yOffset;
@@ -113,7 +119,7 @@ uint64_t VoxelDepthMap::sampleLeafMask(int x, int y, int z, int* nextChangeZ) co
             
             // Check if the midpoint depth limits the distance the leafmask
             // can be reused for.
-            if(shadowed == VS_Unshadowed && exitDepth < *nextChangeZ && exitDepth >= z)
+            if(exitDepth >= z && exitDepth < *nextChangeZ)
             {
                 *nextChangeZ = exitDepth;
             }
@@ -130,7 +136,7 @@ uint16_t VoxelDepthMap::sampleChildMask(const VoxelTile* children) const
     
     // All the children sample from the same mip
     int mip = log2(children[0].width);
-    int mipResolution = resolution_ / children[0].width;
+    int mipResolution = 1 << (mipHierarchyHeight_ - mip);
     
     // Determine the shadowing state of each child
     for(int index = 0; index < 8; ++index)
@@ -146,13 +152,13 @@ uint16_t VoxelDepthMap::sampleChildMask(const VoxelTile* children) const
         assert(child.z >= 0 && child.z + child.depth <= resolution_);
         
         // Compute the depth bounds of the child region
-        float minDepth = (child.z + 0.5) / (float)resolution_;
-        float maxDepth = (child.z + child.depth - 0.5) / (float)resolution_;
+        float minDepth = (child.z + 0.5);
+        float maxDepth = (child.z + child.depth - 0.5);
         
         // Sample the mips
-        int mipIndex = (child.y / child.width) * mipResolution + (child.x / child.width);
-        float entryDepth = entryDepths_[mip][mipIndex];
-        float exitDepth = exitDepths_[mip][mipIndex];
+        int mipIndex = (child.y >> mip) * mipResolution + (child.x >> mip);
+        float entryDepth = entryDepths_[mip][mipIndex] * resolution_;
+        float exitDepth = exitDepths_[mip][mipIndex] * resolution_;
         
         // Determine shadowing state
         VoxelShadowing childShadowing =
