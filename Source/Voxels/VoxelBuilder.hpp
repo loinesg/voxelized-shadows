@@ -6,15 +6,13 @@
 #include "VoxelWriter.hpp"
 #include "VoxelNode.hpp"
 
-// Subsection of the voxel structure
-struct VoxelTile
+struct VoxelLeafCache
 {
-    int x;
-    int y;
-    int z;
+    // The pointer to the leaf node
+    VoxelPointer location;
     
-    int width; // x and y size
-    int depth; // z size
+    // The z depth where the leaf next changes
+    int changeZ;
 };
 
 // Builds a voxel tree structure.
@@ -22,6 +20,7 @@ class VoxelBuilder
 {
 public:
     VoxelBuilder(const VoxelDepthMap* depthMap);
+    ~VoxelBuilder();
     
     // Tree data
     const void* tree() const { return writer_.data(); }
@@ -38,6 +37,9 @@ private:
     // Shadow map depth intervals
     const VoxelDepthMap* depthMap_;
     VoxelWriter writer_;
+    
+    // The leafmask cache. One value per 8x8 depth tile.
+    VoxelLeafCache* leafCache_;
     
     // The address of the root node.
     VoxelPointer rootAddress_;
