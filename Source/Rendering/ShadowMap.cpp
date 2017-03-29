@@ -169,7 +169,8 @@ void ShadowMap::setLightSpaceBounds(Bounds lightSpaceBounds)
 
     // Size the cascade camera to cover the bounds.
     Vector3 size = lightSpaceBounds.size();
-    cascades_[0].camera.setOrthographicSize(max(size.x, size.y));
+    cascades_[0].camera.setOrthographicWidth(size.x);
+    cascades_[0].camera.setOrthographicHeight(size.y);
     
     // Set the near and far planes to cover the bounds
     cascades_[0].camera.setNearPlane(-size.z / 2.0);
