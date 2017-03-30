@@ -38,24 +38,25 @@ void VoxelBuilder::build()
     
     // Process the root tile
     // This recursively processes all tiles
-    rootAddress_ = processTile(root);
+    uint64_t hash;
+    rootAddress_ = processTile(root, &hash);
 }
 
-VoxelPointer VoxelBuilder::processTile(const VoxelTile &tile)
+VoxelPointer VoxelBuilder::processTile(const VoxelTile &tile, VoxelNodeHash* hash)
 {
     if(tile.depth == 1)
     {
         // Treat as a leaf tile if it is an 8x8x1 block
-        return processLeafTile(tile);
+        return processLeafTile(tile, hash);
     }
     else
     {
         // Otherwise treat as a normal inner tile
-        return processInnerTile(tile);
+        return processInnerTile(tile, hash);
     }
 }
 
-VoxelPointer VoxelBuilder::processInnerTile(const VoxelTile &tile)
+VoxelPointer VoxelBuilder::processInnerTile(const VoxelTile &tile, VoxelNodeHash* hash)
 {
     // The tile should be a cube of at least size 8
     assert(tile.width >= 8);
@@ -67,35 +68,47 @@ VoxelPointer VoxelBuilder::processInnerTile(const VoxelTile &tile)
     
     // Create the node
     VoxelInnerNode node;
-    node.paddingBits = 0;
-    node.childMask = 0;
     
     // Get the child mask
     node.childMask = depthMap_->sampleChildMask(children);
-
-    // Expand any children with Mixed state
+    
+    // Store the hash for each child node
+    VoxelNodeHash childHashes[8];
+    
+    // Track the number of expanded children
     int visitedChildren = 0;
-    for(int index = 0; index < 8; ++index)
+    
+    // Expand any children with Mixed state
+    for(int i = 0; i < 8; ++i)
     {
         // Expand the child if it is mixed
-        if(node.isChildExpanded(index))
+        if(node.isChildExpanded(i))
         {
+            // Get the position of the child
+            VoxelTile child = children[i];
+            
             // Process the child
-            VoxelTile child = children[index];
-            node.childPositions[visitedChildren] = processTile(child);
+            node.childPositions[visitedChildren] = processTile(child, &childHashes[i]);
             
             // Keep track of how many expanded children have been visited.
             visitedChildren ++;
         }
+        else
+        {
+            // The child is not expanded.
+            // For hashing, use the child mask instead.
+            childHashes[i] = node.childMask;
+        }
     }
     
-    node.expandedChildCount = visitedChildren;
+    // Compute the node hash
+    *hash = computeInnerNodeHash(childHashes);
     
     // Save the node and return its memory address.
-    return writer_.writeNode(node);
+    return writer_.writeNode(node, visitedChildren, *hash);
 }
 
-VoxelPointer VoxelBuilder::processLeafTile(const VoxelTile &tile)
+VoxelPointer VoxelBuilder::processLeafTile(const VoxelTile &tile, VoxelNodeHash* hash)
 {
     // The tile should be of width 8 and depth 1
     assert(tile.width == 8);
@@ -104,10 +117,12 @@ VoxelPointer VoxelBuilder::processLeafTile(const VoxelTile &tile)
     // Get the cache for this tile.
     int leafIndex = (tile.y / 8) * (depthMap_->resolution() / 8) + (tile.x / 8);
     VoxelLeafCache* cachedLeaf = &leafCache_[leafIndex];
+    
+    // Check if the cached leaf node is still valid at this depth
     if(tile.z < cachedLeaf->changeZ)
     {
-        // Cached tile is valid at this z depth
         // Reuse the cached tile
+        *hash = cachedLeaf->hash;
         return cachedLeaf->location;
     }
     
@@ -117,9 +132,13 @@ VoxelPointer VoxelBuilder::processLeafTile(const VoxelTile &tile)
     // Sample the depth map to create the leaf mask
     leafNode.leafMask = depthMap_->sampleLeafMask(tile.x, tile.y, tile.z, &cachedLeaf->changeZ);
     
+    // The leafmask is the hash
+    *hash = leafNode.leafMask;
+    
     // Save the leaf node and return its memory address.
     VoxelPointer ptr = writer_.writeLeaf(leafNode);
     cachedLeaf->location = ptr;
+    cachedLeaf->hash = *hash;
     
     return ptr;
 }

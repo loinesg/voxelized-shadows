@@ -13,6 +13,9 @@ struct VoxelLeafCache
     
     // The z depth where the leaf next changes
     int changeZ;
+    
+    // The hash of the cached leaf node
+    VoxelNodeHash hash;
 };
 
 // Builds a voxel tree structure.
@@ -44,10 +47,10 @@ private:
     // The address of the root node.
     VoxelPointer rootAddress_;
     
-    // Tile processing
-    VoxelPointer processTile(const VoxelTile &tile);
-    VoxelPointer processInnerTile(const VoxelTile &tile);
-    VoxelPointer processLeafTile(const VoxelTile &tile);
+    // Tile processing. Returns the hash of the tile node
+    VoxelPointer processTile(const VoxelTile &tile, VoxelNodeHash* hash);
+    VoxelPointer processInnerTile(const VoxelTile &tile, VoxelNodeHash* hash);
+    VoxelPointer processLeafTile(const VoxelTile &tile, VoxelNodeHash* hash);
     
     // Computes the location and size of the 8 children of a tile
     void getChildLocations(const VoxelTile &parent, VoxelTile* children) const;

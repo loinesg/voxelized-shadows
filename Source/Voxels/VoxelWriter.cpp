@@ -25,11 +25,8 @@ VoxelWriter::~VoxelWriter()
     delete[] data_;
 }
 
-uint32_t VoxelWriter::writeNode(const VoxelInnerNode &node)
+VoxelPointer VoxelWriter::writeNode(const VoxelInnerNode &node, int expandedChildCount, VoxelNodeHash hash)
 {
-    // Get the node hash
-    VoxelNodeHash hash = node.hash();
-    
     // Check if a node with the same hash has already been written
     auto cached = innerNodeLocations_.find(hash);
     if(cached != innerNodeLocations_.end())
@@ -38,17 +35,18 @@ uint32_t VoxelWriter::writeNode(const VoxelInnerNode &node)
     }
     
     // No existing node. Write a new one and cache.
-    VoxelPointer ptr = writeWords(&node, 1 + node.expandedChildCount);
+    VoxelPointer ptr = writeWords(&node, 1 + expandedChildCount);
     innerNodeLocations_.insert(std::pair<VoxelNodeHash, VoxelPointer>(hash, ptr));
     
     // Return the address
     return ptr;
 }
 
-uint32_t VoxelWriter::writeLeaf(const VoxelLeafNode &leaf)
+VoxelPointer VoxelWriter::writeLeaf(const VoxelLeafNode &leaf)
 {
     // Get the leaf hash
-    VoxelNodeHash hash = leaf.hash();
+    // The hash is identical to the 64 bit leafmask.
+    VoxelNodeHash hash = leaf.leafMask;
     
     // Check if a leaf with the same has was already written.
     auto cached = leafLocations_.find(hash);
@@ -65,7 +63,7 @@ uint32_t VoxelWriter::writeLeaf(const VoxelLeafNode &leaf)
     return ptr;
 }
 
-uint32_t VoxelWriter::writeWords(const void* words, int wordCount)
+VoxelPointer VoxelWriter::writeWords(const void* words, int wordCount)
 {
     // Check the word count is valid and not too big
     assert(wordCount > 0);

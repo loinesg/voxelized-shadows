@@ -23,7 +23,7 @@ public:
     
     // Writes an inner node to the buffer.
     // Returns its position pointer.
-    VoxelPointer writeNode(const VoxelInnerNode &node);
+    VoxelPointer writeNode(const VoxelInnerNode &node, int expandedChildCount, VoxelNodeHash hash);
     
     // Writes a leaf node to the buffer.
     // Returns its position pointer.
