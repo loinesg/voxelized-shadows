@@ -76,8 +76,7 @@ void RendererWidget::initializeGL()
     shadowMask_ = new ShadowMask(uniformManager_, SMM_ShadowMap);
     
     // Create and build the voxel tree
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 8192);
-    voxelTree_->build();
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, 8192 * 8);
     shadowMask_->setVoxelTree(voxelTree_);
     
     // Create RenderPass instances
@@ -128,6 +127,9 @@ void RendererWidget::paintGL()
         // Render shadow depth to the shadow map framebuffer.
         renderShadowMap();
     }
+    
+    // Update construction of the voxel tree
+    voxelTree_->updateBuild();
     
     // Render scene depth to the main framebuffer.
     renderSceneDepth();

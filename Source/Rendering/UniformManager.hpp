@@ -40,7 +40,6 @@ struct ShadowUniformBuffer
     Matrix4x4 worldToShadow[4];
 };
 
-
 // Uniform buffer for voxelized shadows
 struct VoxelsUniformBuffer
 {
@@ -48,10 +47,11 @@ struct VoxelsUniformBuffer
     
     Matrix4x4 worldToVoxels;
     uint32_t voxelTreeHeight;
-    uint32_t rootAddress;
+    int tileSubdivisions;
+    int padding[2];
     
-    // 2 words spare at the end of the buffer
-    uint32_t padding2[2];
+    // The root address of each subtree
+    int rootAddresses[16 * 16 * 4];
 };
 
 

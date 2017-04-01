@@ -3,13 +3,10 @@
 #include <assert.h>
 #include <memory.h>
 
-VoxelWriter::VoxelWriter(int resolution)
+VoxelWriter::VoxelWriter()
     : innerNodeLocations_(),
     leafLocations_()
 {
-    // Resolution must be +ve
-    assert(resolution > 0);
-    
     // Define the max buffer size
     const uint32_t bufferSizeMB = 128;
     const uint32_t bufferSizeB = bufferSizeMB * 1024 * 1024;
@@ -61,6 +58,75 @@ VoxelPointer VoxelWriter::writeLeaf(const VoxelLeafNode &leaf)
     
     // Return the location
     return ptr;
+}
+
+VoxelPointer VoxelWriter::writeTree(const uint32_t* tree, VoxelPointer root, int resolution)
+{
+    // Compute the tree height from the resolution
+    int height = log2(resolution) - 1;
+    
+    // Check the height is valid
+    assert(height > 0);
+    assert(height <= 13); // 13 = the height of a 16K tree
+    
+    // Write the tree to the buffer and return the position of its root
+    uint64_t hash;
+    return writeSubtree(tree, root, height, &hash);
+}
+
+VoxelPointer VoxelWriter::writeSubtree(const uint32_t* tree, uint32_t nodeLocation, int height, uint64_t* hash)
+{
+    // Check the height is valid
+    assert(height > 0);
+    assert(height <= 13); // 13 = the height of a 16K tree
+    
+    // The bottom level in the tree consists of leaf nodes
+    if(height == 1)
+    {
+        // Get the leaf node
+        VoxelLeafNode leafNode = *(const VoxelLeafNode*)(tree + nodeLocation);
+        
+        // The hash is the leaf mask
+        *hash = leafNode.leafMask;
+        
+        // Write to the buffer and return the pointer.
+        return writeLeaf(leafNode);
+    }
+    
+    // Otherwise, it is an inner node.
+    VoxelInnerNode innerNode = *(const VoxelInnerNode*)(tree + nodeLocation);
+    
+    // Keep track of child hashes
+    uint64_t childHashes[8];
+    
+    // Check the child mask and write child nodes to the buffer
+    int visitedChildren = 0;
+    for(int i = 0; i < 8; ++i)
+    {
+        // Write the child if it is mixed
+        if(innerNode.isChildExpanded(i))
+        {
+            // Get the location of the child
+            uint32_t childLocation = innerNode.childPositions[visitedChildren];
+            
+            // Write the child subtree
+            innerNode.childPositions[visitedChildren] = writeSubtree(tree, childLocation, height - 1, &childHashes[i]);
+            
+            visitedChildren ++;
+        }
+        else
+        {
+            // The child is not expanded.
+            // For hashing, use the child mask instead.
+            childHashes[i] = innerNode.childMask;
+        }
+    }
+    
+    // Compute the node hash
+    *hash = computeInnerNodeHash(childHashes);
+    
+    // Write the node and return its address
+    return writeNode(innerNode, visitedChildren, *hash);
 }
 
 VoxelPointer VoxelWriter::writeWords(const void* words, int wordCount)

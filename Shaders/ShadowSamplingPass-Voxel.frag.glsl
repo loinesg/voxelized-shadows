@@ -16,7 +16,8 @@ layout(std140) uniform voxel_data
 {
     uniform mat4x4 _WorldToVoxel;
     uniform uint _VoxelTreeHeight;
-    uniform uint _RootNodeAddress;
+    uniform int _TileSubdivisions;
+    uniform int _RootNodeAddresses[64];
 };
 
 // Scene depth texture
@@ -87,14 +88,20 @@ uint getVoxelLeafIndex(uint coordX, uint coordY)
 
 float sampleShadowTree(vec4 coord)
 {
-    // Start at the root node
-    int memAddress = int(_RootNodeAddress);
-    
     // Retrive the coord bits
     uint coordBitsX = uint(coord.x);
     uint coordBitsY = uint(coord.y);
     uint coordBitsZ = uint(coord.z);
     
+    // Determine which root node to use, based on the position
+    // within the voxel forest
+    int rootNodeX = int(coordBitsX >> _VoxelTreeHeight);
+    int rootNodeY = int(coordBitsY >> _VoxelTreeHeight);
+    int rootNodeIndex = (rootNodeX * _TileSubdivisions) | rootNodeY;
+    
+    // Start at the root node
+    int memAddress = _RootNodeAddresses[rootNodeIndex];
+
     // Traverse inner nodes
     for(uint depth = 0u; depth <= _VoxelTreeHeight - 3u; ++depth)
     {

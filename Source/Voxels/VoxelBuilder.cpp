@@ -3,31 +3,60 @@
 #include <assert.h>
 #include <cstdio>
 
-VoxelBuilder::VoxelBuilder(const VoxelDepthMap* depthMap)
-    : depthMap_(depthMap),
-    writer_(depthMap->resolution())
+VoxelBuilder::VoxelBuilder(int tileIndex, int resolution, float* entryDepths, float* exitDepths)
+    : tileIndex_(tileIndex),
+    resolution_(resolution),
+    entryDepths_(entryDepths),
+    exitDepths_(exitDepths),
+    buildState_(VoxelBuilderState::Building),
+    depthMap_(NULL),
+    writer_(NULL),
+    leafCache_(NULL)
 {
-    // Resolution must be at least 8
-    // Otherwise leaf nodes cannot be made.
-    assert(depthMap_->resolution() >= 8);
-    
-    // Create the leaf cache.
-    // There is one cache per 8x8 tile in the depth map.
-    int leafTileCount = (depthMap_->resolution() / 8) * (depthMap_->resolution() / 8);
-    leafCache_ = new VoxelLeafCache[leafTileCount];
-    
-    // Set each tile's change distance to 0 so they will be computed on first use
-    std::memset(leafCache_, 0, leafTileCount * sizeof(VoxelLeafCache));
+    // Start the build thread
+    buildThread_ = std::thread(&VoxelBuilder::build, this);
 }
 
 VoxelBuilder::~VoxelBuilder()
 {
+    // Ensure the build thread has finished
+    buildThread_.join();
+    
+    // Delete the depth map
+    if(depthMap_ != NULL)
+    {
+        delete depthMap_;
+    }
+    
+    // Delete the writer
+    if(writer_ != NULL)
+    {
+        delete writer_;
+    }
+    
     // Delete the leaf cache
-    delete[] leafCache_;
+    if(leafCache_ != NULL)
+    {
+        delete[] leafCache_;
+    }
+}
+
+void VoxelBuilder::waitUntilDone()
+{
+    // Wait until the building thread completes
+    buildThread_.join();
+    
+    // The build should now be done
+    assert(buildState_ == VoxelBuilderState::Done);
 }
 
 void VoxelBuilder::build()
 {
+    // Create the building objects
+    createDepthMap();
+    createWriter();
+    createLeafCache();
+    
     // The root tile covers the entire region.
     VoxelTile root;
     root.x = 0;
@@ -40,6 +69,43 @@ void VoxelBuilder::build()
     // This recursively processes all tiles
     uint64_t hash;
     rootAddress_ = processTile(root, &hash);
+    
+    // The depth map is no longer needed
+    delete depthMap_;
+    depthMap_ = NULL;
+    
+    // The leaf cache is no longer needed
+    delete[] leafCache_;
+    leafCache_ = NULL;
+    
+    // The writer *is* still needed, as it contains the built tree.
+    
+    // Update the build state
+    buildState_ = VoxelBuilderState::Done;
+}
+
+void VoxelBuilder::createDepthMap()
+{
+    // The constructor builds the depth hierarchy.
+    // This is slow so should be run from the builder thread.
+    depthMap_ = new VoxelDepthMap(resolution_, entryDepths_, exitDepths_);
+}
+
+void VoxelBuilder::createWriter()
+{
+    // The writer will store the created nodes.
+    writer_ = new VoxelWriter();
+}
+
+void VoxelBuilder::createLeafCache()
+{
+    // Create the leaf cache.
+    // There is one cache per 8x8 tile in the depth map.
+    int leafTileCount = (resolution_ / 8) * (resolution_ / 8);
+    leafCache_ = new VoxelLeafCache[leafTileCount];
+    
+    // Set each tile's change distance to 0 so they will be computed on first use
+    std::memset(leafCache_, 0, leafTileCount * sizeof(VoxelLeafCache));
 }
 
 VoxelPointer VoxelBuilder::processTile(const VoxelTile &tile, VoxelNodeHash* hash)
@@ -105,7 +171,7 @@ VoxelPointer VoxelBuilder::processInnerTile(const VoxelTile &tile, VoxelNodeHash
     *hash = computeInnerNodeHash(childHashes);
     
     // Save the node and return its memory address.
-    return writer_.writeNode(node, visitedChildren, *hash);
+    return writer_->writeNode(node, visitedChildren, *hash);
 }
 
 VoxelPointer VoxelBuilder::processLeafTile(const VoxelTile &tile, VoxelNodeHash* hash)
@@ -136,7 +202,7 @@ VoxelPointer VoxelBuilder::processLeafTile(const VoxelTile &tile, VoxelNodeHash*
     *hash = leafNode.leafMask;
     
     // Save the leaf node and return its memory address.
-    VoxelPointer ptr = writer_.writeLeaf(leafNode);
+    VoxelPointer ptr = writer_->writeLeaf(leafNode);
     cachedLeaf->location = ptr;
     cachedLeaf->hash = *hash;
     
