@@ -23,7 +23,7 @@ class VoxelTree
     // The number of tiles the tree is split into in each direction
     // Each tile can be up to 16K (limited by GPU texture max resolution)
     // 16 allows a tree of up to 16x16K = 256K to be created.
-    const static int TileSubdivisons = 4;
+    const static int TileSubdivisons = 16;
     
     // The number of tiles that are built simultaneously
     const static int ConcurrentBuilds = 6;
