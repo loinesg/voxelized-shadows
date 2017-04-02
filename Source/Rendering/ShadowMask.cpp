@@ -44,6 +44,19 @@ ShadowMask::~ShadowMask()
 void ShadowMask::setMethod(ShadowMaskMethod method)
 {
     method_ = method;
+    
+    if(method == SMM_Combined)
+    {
+        // The shadow map pass should not clear the framebuffer
+        // when being rendered in combined mode as it is rendered
+        // *after* the voxel tree pass.
+        shadowMapPass_->setClearFlags(GL_NONE);
+    }
+    else
+    {
+        // Otherwise, clear
+        shadowMapPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
+    }
 }
 
 void ShadowMask::setResolution(int width, int height)
@@ -82,15 +95,9 @@ void ShadowMask::render()
     // Draw in full screen
     glViewport(0, 0, texture_->width(), texture_->height());
     
-    if(method_ == SMM_ShadowMap)
-    {
-        // Bind the input shadow map texture
-        shadowMapTexture_->bind(GL_TEXTURE2);
-        
-        // Render using the shadow map pass
-        shadowMapPass_->renderFullScreen();
-    }
-    else // method == SMM_VoxelTree
+    // Execute the voxel tree pass, unless we are
+    // using the shadow map only.
+    if(method_ != SMM_ShadowMap)
     {
         // Bind the input shadow tree
         glActiveTexture(GL_TEXTURE4);
@@ -98,5 +105,29 @@ void ShadowMask::render()
         
         // Render using the voxel tree pass
         voxelTreePass_->renderFullScreen();
+    }
+    
+    // Execute the shadow map pass, unless we are
+    // using the voxel tree only.
+    if(method_ != SMM_VoxelTree)
+    {
+        // Bind the input shadow map texture
+        shadowMapTexture_->bind(GL_TEXTURE2);
+        
+        // Use MIN blending in combined mode
+        // This combines the shadow map sampling
+        // with the earlier voxel tree sampling.
+        if(method_ == SMM_Combined)
+        {
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_MIN);
+        }
+        
+        // Render using the shadow map pass
+        // This will not clear when in combined mode.
+        shadowMapPass_->renderFullScreen();
+        
+        // Disable blending
+        glDisable(GL_BLEND);
     }
 }

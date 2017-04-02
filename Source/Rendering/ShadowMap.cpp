@@ -196,7 +196,7 @@ void ShadowMap::updateUniformBuffer() const
     uniformManager_->updateShadowBuffer(shadowData);
 }
 
-void ShadowMap::renderCascades()
+void ShadowMap::renderCascades(bool drawStatic, bool drawDynamic)
 {
     // Enable depth biasing to prevent shadow acne
     glPolygonOffset(2.5, 10.0);
@@ -218,7 +218,7 @@ void ShadowMap::renderCascades()
         shadowCasterPass_->setClearFlags(c == 0 ? GL_DEPTH_BUFFER_BIT : GL_NONE);
         
         // Render the scene using the camera.
-        shadowCasterPass_->submit(&cascades_[c].camera, scene_->meshInstances());
+        shadowCasterPass_->submit(&cascades_[c].camera, scene_->meshInstances(), drawStatic, drawDynamic);
     }
     
     // Disable depth biasing

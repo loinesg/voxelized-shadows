@@ -208,9 +208,12 @@ Bounds VoxelTree::sceneBoundsLightSpace() const
     Bounds bounds = Bounds(Vector3::zero(), Vector3::zero());
     
     // Expand the scene bounds to cover each mesh
-    const vector<MeshInstance>* instances = scene_->meshInstances();
-    for(auto instance = instances->begin(); instance != instances->end(); ++instance)
+    const vector<MeshInstance*>* instances = scene_->meshInstances();
+    for(unsigned int i = 0; i < instances->size(); ++i)
     {
+        // Get the mesh instance
+        MeshInstance* instance = (*instances)[i];
+        
         // Get the model to light transformation
         Matrix4x4 modelToLight = worldToLight * instance->localToWorld();
         
@@ -257,8 +260,8 @@ void VoxelTree::computeDualShadowMaps(const Bounds &bounds, float** entryDepths,
     // Set the shadow map to cover the correct area
     shadowMap_.setLightSpaceBounds(bounds);
     
-    // Render the shadow map normally
-    shadowMap_.renderCascades();
+    // Render the shadow map with static but not dynamic objects
+    shadowMap_.renderCascades(true, false);
     
     // Store the depths as the shadow entry depths
     *entryDepths = new float[tileResolution_ * tileResolution_];
@@ -266,7 +269,7 @@ void VoxelTree::computeDualShadowMaps(const Bounds &bounds, float** entryDepths,
     
     // Render the shadow map back faces
     glCullFace(GL_FRONT);
-    shadowMap_.renderCascades();
+    shadowMap_.renderCascades(true, false); // Static objects only
     glCullFace(GL_BACK);
     
     // Store the depths as the shadow exit depths

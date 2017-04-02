@@ -16,7 +16,10 @@ enum ShadowMaskMethod
     SMM_ShadowMap,
   
     // Sampling the voxelized shadow tree
-    SMM_VoxelTree
+    SMM_VoxelTree,
+    
+    // Shadow map for dynamics + voxel tree for statics
+    SMM_Combined
 };
 
 class ShadowMask

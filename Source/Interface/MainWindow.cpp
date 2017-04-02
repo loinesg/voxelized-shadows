@@ -28,8 +28,9 @@ MainWindow::MainWindow(const QGLFormat &format)
     createFeatureToggle(SF_Cutout, "Cutout Transparency");
     
     // Create shadow method toggles
-    createShadowMethodRadio(SMM_ShadowMap, "Shadow Mapping")->setChecked(true); // Default
-    createShadowMethodRadio(SMM_VoxelTree, "Voxel Tree");
+    createShadowMethodRadio(SMM_ShadowMap, "Shadow Mapping");    createShadowMethodRadio(SMM_VoxelTree, "Voxel Tree");
+    createShadowMethodRadio(SMM_Combined, "Combined")->setChecked(true); // Default
+;
 
     // Create overlay radios
     // Must match RendererWidget::createOverlays()
