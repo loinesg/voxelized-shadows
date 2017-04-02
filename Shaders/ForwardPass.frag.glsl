@@ -51,7 +51,7 @@ vec3 BlinnPhongLight(vec4 surface, vec3 worldNormal, vec3 viewDirection)
 {
     vec3 h = normalize(_LightDirection + viewDirection);
     float ndoth = max(0.0, dot(worldNormal, h));
-    float spec = pow(ndoth, 45.0) * 0.35;
+    float spec = pow(ndoth, 25.0) * surface.a;
     
     return LambertLight(surface, worldNormal) + spec * _LightColor;
 }
