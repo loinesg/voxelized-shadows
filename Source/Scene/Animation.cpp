@@ -4,7 +4,8 @@ Animation::Animation(MeshInstance* meshInstance, Vector3 rotationSpeed)
     : meshInstance_(meshInstance),
     rotationSpeed_(rotationSpeed)
 {
-    
+    // Animated mesh instances are made non-static
+    meshInstance->makeNonStatic();
 }
 
 void Animation::update(float deltaTime)
