@@ -124,7 +124,8 @@ void RendererWidget::paintGL()
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
     uniformManager_->updateSceneBuffer(data);
     
-    if(shadowMask_->method() == SMM_ShadowMap)
+    if(shadowMask_->method() == SMM_ShadowMap
+       || shadowMask_->method() == SMM_Combined)
     {
         // Render shadow depth to the shadow map framebuffer.
         renderShadowMap();
@@ -237,7 +238,9 @@ void RendererWidget::renderShadowMap()
     shadowMap_->updateUniformBuffer();
     
     // Render all cascades
-    shadowMap_->renderCascades();
+    bool renderStaticObjects = (shadowMask_->method() == SMM_ShadowMap);
+    bool renderDynamicObjects = true;
+    shadowMap_->renderCascades(renderStaticObjects, renderDynamicObjects);
 }
 
 void RendererWidget::renderSceneDepth()

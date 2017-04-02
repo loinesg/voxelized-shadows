@@ -30,6 +30,7 @@ MainWindow::MainWindow(const QGLFormat &format)
     // Create shadow method toggles
     createShadowMethodRadio(SMM_ShadowMap, "Shadow Mapping")->setChecked(true); // Default
     createShadowMethodRadio(SMM_VoxelTree, "Voxel Tree");
+    createShadowMethodRadio(SMM_Combined, "Combined");
 
     // Create overlay radios
     // Must match RendererWidget::createOverlays()
