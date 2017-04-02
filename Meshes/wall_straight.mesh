@@ -47,35 +47,35 @@ normal 0 0 -1
 tangent -1 0 0 1
 texcoord -0.6420863 1.029072
 vertex -0.1865631 0 0.1865631
-normal -1 0 0
+normal -0.9999986 -0.001639709 0
 tangent 0 0 -1 -1
 texcoord -1.891453 -0.638905
 vertex -0.1913444 2.915931 0.1865631
-normal -1 0 0
+normal -0.9999986 -0.001639709 0
 tangent 0 0 -1 -1
 texcoord -1.891453 1.025668
 vertex -0.1913444 2.915931 -0.1865631
-normal -1 0 0
+normal -0.9999986 -0.001639709 0
 tangent 0 0 -1 -1
 texcoord -1.465178 1.025668
 vertex -0.1865631 0 -0.1865631
-normal -1 0 0
+normal -0.9999986 -0.001639709 0
 tangent 0 0 -1 -1
 texcoord -1.465178 -0.638905
 vertex 0.1865631 0 -0.1865631
-normal 1 0 0
+normal 0.9999986 -0.001639709 0
 tangent 0 0 -1 1
 texcoord -1.465178 -0.638905
 vertex 0.1913444 2.915931 -0.1865631
-normal 1 0 0
+normal 0.9999986 -0.001639709 0
 tangent 0 0 -1 1
 texcoord -1.465178 1.025668
 vertex 0.1913444 2.915931 0.1865631
-normal 1 0 0
+normal 0.9999986 -0.001639709 0
 tangent 0 0 -1 1
 texcoord -1.891453 1.025668
 vertex 0.1865631 0 0.1865631
-normal 1 0 0
+normal 0.9999986 -0.001639709 0
 tangent 0 0 -1 1
 texcoord -1.891453 -0.638905
 vertex 0.1120679 2.809792 -1.907349E-08
@@ -95,35 +95,35 @@ normal 0 1 0
 tangent 0 0 -1 -1
 texcoord -1.690102 0.177106
 vertex -0.1092676 0 -1.907349E-08
-normal -1 0 0
+normal -0.9999995 -0.000996636 0
 tangent 0 0 -1 -1
 texcoord -1.678316 -0.638905
 vertex -0.1120679 2.809792 -1.907349E-08
-normal -1 0 0
+normal -0.9999995 -0.000996636 0
 tangent 0 0 -1 -1
 texcoord -1.678316 0.9650774
 vertex -0.1120679 2.809792 -4
-normal -1 0 0
+normal -0.9999995 -0.000996636 0
 tangent 0 0 -1 -1
 texcoord 2.891454 0.9650774
 vertex -0.1092676 0 -4
-normal -1 0 0
+normal -0.9999995 -0.000996636 0
 tangent 0 0 -1 -1
 texcoord 2.891454 -0.638905
 vertex 0.1092676 0 -4
-normal 1 0 0
+normal 0.9999995 -0.000996636 0
 tangent 0 0 -1 1
 texcoord 2.891454 -0.638905
 vertex 0.1120679 2.809792 -4
-normal 1 0 0
+normal 0.9999995 -0.000996636 0
 tangent 0 0 -1 1
 texcoord 2.891454 0.9650774
 vertex 0.1120679 2.809792 -1.907349E-08
-normal 1 0 0
+normal 0.9999995 -0.000996636 0
 tangent 0 0 -1 1
 texcoord -1.678316 0.9650774
 vertex 0.1092676 0 -1.907349E-08
-normal 1 0 0
+normal 0.9999995 -0.000996636 0
 tangent 0 0 -1 1
 texcoord -1.678316 -0.638905
 triangle 0 1 2
