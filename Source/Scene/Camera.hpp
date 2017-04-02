@@ -34,7 +34,9 @@ public:
     float farPlane() const { return farPlane_; }
     
     // Orthographic / perspective settings
-    float orthographicSize() const { return orthographicSize_; }
+    float orthographicSize() const;
+    float orthographicWidth() const { return orthographicWidth_; }
+    float orthographicHeight() const { return orthographicHeight_; }
     float fov() const { return fov_; }
     
     // Camera matrices
@@ -52,26 +54,48 @@ public:
     // Property setters
     void setFramebuffer(GLuint framebuffer);
     void setType(CameraType type);
+    
+    // Sets the viewport position and size
     void setPixelOffsetX(int offset);
     void setPixelOffsetY(int offset);
     void setPixelWidth(int w);
     void setPixelHeight(int h);
+    
+    // Sets near and far clipping planes
     void setNearPlane(float nearPlane);
     void setFarPlane(float farPlane);
+    
+    // Sets the orthographic projection to a specified square size
     void setOrthographicSize(float size);
+    
+    // Changes the orthographic width/height separately
+    void setOrthographicWidth(float width);
+    void setOrthographicHeight(float height);
+    
     void setFov(float fov);
     
 private:
     GLuint framebuffer_;
     CameraType type_;
+    
+    // Viewport offset and size
     int pixelOffsetX_;
     int pixelOffsetY_;
     int pixelWidth_;
     int pixelHeight_;
+    
+    // Near and far clipping planes
     float nearPlane_;
     float farPlane_;
-    float orthographicSize_;
+    
+    // Orthographic size
+    float orthographicWidth_;
+    float orthographicHeight_;
+    
+    // Vertical fov
     float fov_;
+    
+    // Projection matrices
     Matrix4x4 projectionMatrix_;
     Matrix4x4 invProjectionMatrix_;
     
