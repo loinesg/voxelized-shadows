@@ -41,7 +41,7 @@ void RenderPass::setSupportedFeatures(ShaderFeatureList supportedFeatures)
     shaderCollection_->setSupportedFeatures(supportedFeatures);
 }
 
-void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
+void RenderPass::submit(Camera* camera, const vector<MeshInstance*>* instances)
 {
     // Clear the screen
     glClearColor(clearColor_.x, clearColor_.y, clearColor_.z, clearColor_.w);
@@ -54,8 +54,9 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance>* instances)
     Texture* prevNormalMap = NULL;
     Mesh* prevMesh = NULL;
     
-    for(auto instance = instances->begin(); instance != instances->end(); ++instance)
+    for(unsigned int i = 0; i < instances->size(); ++i)
     {
+        MeshInstance* instance = (*instances)[i];
         ShaderFeatureList shaderFeatures = instance->shaderFeatures();
         Texture* texture = instance->texture();
         Texture* normalMap = instance->normalMap();

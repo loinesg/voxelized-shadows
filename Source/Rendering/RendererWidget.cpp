@@ -112,6 +112,8 @@ void RendererWidget::resizeGL(int w, int h)
 
 void RendererWidget::paintGL()
 {
+    scene_->update(1.0 / 60.0);
+    
     // Update scene uniform buffer
     SceneUniformBuffer data;
     data.screenResolution = Vector4(camera()->pixelWidth(), camera()->pixelHeight(), 0.0, 0.0);

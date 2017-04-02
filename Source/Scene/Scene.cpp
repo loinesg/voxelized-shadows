@@ -1,6 +1,7 @@
 #include "Scene.hpp"
 
 #include <cstdio>
+#include <assert.h>
 
 #include "Platform.hpp"
 
@@ -16,7 +17,26 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+    // Delete all mesh instances
+    for(unsigned int i = 0; i < meshInstances_.size(); ++i)
+    {
+        delete meshInstances_[i];
+    }
     
+    // Delete all animatiions
+    for(unsigned int i = 0; i < animations_.size(); ++i)
+    {
+        delete animations_[i];
+    }
+}
+
+void Scene::update(float deltaTime)
+{
+    // Update all animations
+    for(unsigned int i = 0; i < animations_.size(); ++i)
+    {
+        animations_[i]->update(deltaTime);
+    }
 }
 
 bool Scene::loadFromFile(const string &fileName)
@@ -59,6 +79,10 @@ bool Scene::loadObject(ifstream &file)
     else if(objectType == "mesh")
     {
         return loadMeshInstance(file);
+    }
+    else if(objectType == "animation")
+    {
+        return loadAnimation(file);
     }
     
     printf("Object type %s not known. \n", objectType.c_str());
@@ -136,9 +160,25 @@ bool Scene::loadMeshInstance(ifstream &file)
     }
     
     // Create the instance
-    MeshInstance instance(mesh, shaderFeatures, texture, normalMap);
-    loadObjectTransform(file, &instance);
+    MeshInstance* instance = new MeshInstance(mesh, shaderFeatures, texture, normalMap);
+    loadObjectTransform(file, instance);
     meshInstances_.push_back(instance);
+    return true;
+}
+
+bool Scene::loadAnimation(ifstream &file)
+{
+    // Rotation speed is stored in the file
+    Vector3 rotationSpeed;
+    file >> rotationSpeed;
+    
+    // The animation component affects the mesh instance
+    // most recently found in the file
+    assert(!meshInstances_.empty());
+    MeshInstance* meshInstance = meshInstances_.back();
+    
+    // Create the animation instance
+    animations_.push_back(new Animation(meshInstance, rotationSpeed));
     return true;
 }
 

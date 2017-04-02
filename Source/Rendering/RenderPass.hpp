@@ -35,7 +35,7 @@ public:
     void setSupportedFeatures(ShaderFeatureList supportedFeatures);
     
     // Sends draw commands to the graphics API.
-    void submit(Camera* camera, const vector<MeshInstance>* instances);
+    void submit(Camera* camera, const vector<MeshInstance*>* instances);
     
     // Draws a full screen quad using all enabled shader features.
     void renderFullScreen();

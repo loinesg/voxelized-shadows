@@ -208,9 +208,12 @@ Bounds VoxelTree::sceneBoundsLightSpace() const
     Bounds bounds = Bounds(Vector3::zero(), Vector3::zero());
     
     // Expand the scene bounds to cover each mesh
-    const vector<MeshInstance>* instances = scene_->meshInstances();
-    for(auto instance = instances->begin(); instance != instances->end(); ++instance)
+    const vector<MeshInstance*>* instances = scene_->meshInstances();
+    for(unsigned int i = 0; i < instances->size(); ++i)
     {
+        // Get the mesh instance
+        MeshInstance* instance = (*instances)[i];
+        
         // Get the model to light transformation
         Matrix4x4 modelToLight = worldToLight * instance->localToWorld();
         
