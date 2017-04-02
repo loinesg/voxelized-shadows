@@ -5,19 +5,19 @@ light 2.5 2.276372 1.930147 0.8245026 0.8790448 0.8970588
 0 0 0   22.29999 32.2 0   1 1 1
 
 mesh building_01.mesh 7 bricks_diffuse.png bricks_normal.png
--5.85 0 7.79   0 359.2285 0   1.429936 1.429936 1.429936
+21.48 0 -16.41   0 359.2285 0   1.429936 1.429936 1.429936
 
 mesh building_01.mesh 7 bricks_diffuse.png bricks_normal.png
 -5.85 0 -21.4   0 359.2285 0   1.429936 1.429936 1.429936
+
+mesh building_01.mesh 7 bricks_diffuse.png bricks_normal.png
+-5.85 0 7.79   0 359.2285 0   1.429936 1.429936 1.429936
 
 mesh building_01.mesh 7 bricks_diffuse.png bricks_normal.png
 60.22 -0.03 -25.06   0 272.146 0   1.429936 1.429936 1.429936
 
 mesh building_01.mesh 7 bricks_diffuse.png bricks_normal.png
 35.05 -0.03 10.26   0 272.146 0   1.948402 1.948402 1.948403
-
-mesh building_01.mesh 7 bricks_diffuse.png bricks_normal.png
-21.48 0 -16.41   0 359.2285 0   1.429936 1.429936 1.429936
 
 mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
 50.5 -0.21 5.940001   0 90 0   1 1 1
@@ -26,16 +26,16 @@ mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
 50.5 -0.21 -6.299999   0 90 0   1 1 1
 
 mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
-40.5 -0.21 -6.299998   0 90 0   1 1 1
-
-mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
 40.5 -0.21 5.940002   0 90 0   1 1 1
 
 mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
-30.5 -0.21 -6.299996   0 90 0   1 1 1
+40.5 -0.21 -6.299998   0 90 0   1 1 1
 
 mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
 30.5 -0.21 5.940004   0 90 0   1 1 1
+
+mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
+30.5 -0.21 -6.299996   0 90 0   1 1 1
 
 mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
 20.5 -0.21 5.940004   0 90 0   1 1 1
@@ -44,67 +44,91 @@ mesh fence.mesh 15 fence_mesh_diffuse.png fence_mesh_normal.png
 20.5 -0.21 -6.299996   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
-50.5 -0.21 5.940001   0 90 0   1 1 1
-
-mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
-40.5 -0.21 -6.299998   0 90 0   1 1 1
+50.5 -0.21 -6.299999   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
 60.5 -0.21 -6.3   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
-20.5 -0.21 -6.299996   0 90 0   1 1 1
+30.5 -0.21 -6.299996   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
 20.5 -0.21 5.940004   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
-30.5 -0.21 5.940004   0 90 0   1 1 1
+20.5 -0.21 -6.299996   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
 40.5 -0.21 5.940002   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
+40.5 -0.21 -6.299998   0 90 0   1 1 1
+
+mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
 60.5 -0.21 5.94   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
-50.5 -0.21 -6.299999   0 90 0   1 1 1
+30.5 -0.21 5.940004   0 90 0   1 1 1
 
 mesh fence_posts.mesh 7 metal_diffuse.png metal_normal.png
-30.5 -0.21 -6.299996   0 90 0   1 1 1
+50.5 -0.21 5.940001   0 90 0   1 1 1
 
 mesh road.mesh 7 gravel_diffuse.png gravel_normal.png
 5.1 0.01 -0.11   0 180 0   1 1 1
 
 mesh building_01_roof.mesh 7 metal_diffuse.png metal_normal.png
-35.05 -0.03 10.26   0 272.146 0   1.948402 1.948402 1.948403
-
-mesh building_01_roof.mesh 7 metal_diffuse.png metal_normal.png
--5.85 0 7.79   0 359.2285 0   1.429936 1.429936 1.429936
-
-mesh building_01_roof.mesh 7 metal_diffuse.png metal_normal.png
 21.48 0 -16.41   0 359.2285 0   1.429936 1.429936 1.429936
+
+mesh building_01_roof.mesh 7 metal_diffuse.png metal_normal.png
+60.22 -0.03 -25.06   0 272.146 0   1.429936 1.429936 1.429936
 
 mesh building_01_roof.mesh 7 metal_diffuse.png metal_normal.png
 -5.85 0 -21.4   0 359.2285 0   1.429936 1.429936 1.429936
 
 mesh building_01_roof.mesh 7 metal_diffuse.png metal_normal.png
-60.22 -0.03 -25.06   0 272.146 0   1.429936 1.429936 1.429936
+-5.85 0 7.79   0 359.2285 0   1.429936 1.429936 1.429936
+
+mesh building_01_roof.mesh 7 metal_diffuse.png metal_normal.png
+35.05 -0.03 10.26   0 272.146 0   1.948402 1.948402 1.948403
 
 mesh terrain.mesh 7 grass_plain_diffuse.png grass_plain_normal.png
 5.1 0.01 -0.11   0 180 0   1 1 1
 
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
--5.98 0 -9.17   0 0 0   1 1 1
+mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
+19.34251 15.18057 -33.97576   307.3971 324.5103 -1.40577E-06   0.6998466 0.6998467 0.6998467
 
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
--5.98 0 2.83   0 0 0   1 1 1
+mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
+20.03366 14.97297 10.29595   316.4958 324.5103 -1.177094E-06   0.6998466 0.6998467 0.6998467
+
+mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
+-12.50749 15.18057 -15.27576   0 324.5103 0   0.6998466 0.6998466 0.6998466
+
+mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
+40.4189 15.18057 -34.12666   12.98652 310.274 1.314276E-06   0.6998467 0.6998466 0.6998467
+
+mesh turbine_tower.mesh 7 turbine_diffuse.png turbine_normal.png
+20.84115 0.1299099 10.87171   0 324.5103 0   0.6998466 0.6998466 0.6998466
+
+mesh turbine_tower.mesh 7 turbine_diffuse.png turbine_normal.png
+20.15 0.3375103 -33.4   0 324.5103 0   0.6998466 0.6998466 0.6998466
+
+mesh turbine_tower.mesh 7 turbine_diffuse.png turbine_normal.png
+41.06 0.3375103 -33.37   0 310.274 0   0.6998467 0.6998466 0.6998467
+
+mesh turbine_tower.mesh 7 turbine_diffuse.png turbine_normal.png
+-11.7 0.3375103 -14.7   0 324.5103 0   0.6998466 0.6998466 0.6998466
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 -5.98 0 -5.17   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+-5.98 0 2.83   0 0 0   1 1 1
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 -5.98 0 -1.17   0 0 0   1 1 1
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+-5.98 0 -9.17   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 -5.98 0 -13.17   0 0 0   1 1 1
@@ -125,16 +149,22 @@ mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 16.69 0 -28.35   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-16.68999 0 36.62   0 270 0   1 1 1
-
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
--5.98 0 -33.17   0 0 0   1 1 1
+16.69 0 8.599998   0 180 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 16.68999 0 -35.99001   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-16.69 0 8.599998   0 180 0   1 1 1
+-5.98 0 -33.17   0 0 0   1 1 1
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+16.68999 0 36.62   0 270 0   1 1 1
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+16.69 0 12.6   0 180 0   1 1 1
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+20.69 0.21 36.62   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 -5.98 0 -29.17   0 0 0   1 1 1
@@ -143,16 +173,10 @@ mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 20.69 0.21 -35.99001   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-20.69 0.21 36.62   0 270 0   1 1 1
-
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-16.69 0 12.6   0 180 0   1 1 1
+-5.98 0 -25.17   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 36.69 0.2 -35.99   0 270 0   1 1 1
-
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
--5.98 0 -25.17   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 36.69 -0.09 36.62   0 270 0   1 1 1
@@ -161,28 +185,28 @@ mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 16.69 0 28.6   0 180 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-16.69 0 16.6   0 180 0   1 1 1
-
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 24.69 0.37 -35.99001   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-24.69 0.48 36.62   0 270 0   1 1 1
+16.69 0 16.6   0 180 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 -5.98 0 -21.17   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-28.69 0.21 -35.99001   0 270 0   1 1 1
-
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-16.69 0 20.6   0 180 0   1 1 1
+24.69 0.48 36.62   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 -6.74 0 36.6   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+16.69 0 20.6   0 180 0   1 1 1
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 28.69 0.21 36.62   0 270 0   1 1 1
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+28.69 0.21 -35.99001   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 -5.98 0 -17.17   0 0 0   1 1 1
@@ -197,40 +221,40 @@ mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 32.69 0.27 -35.99   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-44.69 0.02 -35.99   0 270 0   1.000001 1 1.000001
-
-mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 16.69 0 -32.35   0 0 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 44.69 0.6 36.62   0 270 0   1.000001 1 1.000001
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-48.69 0.42 -35.99   0 270 0   1.000001 1 1.000001
+44.69 0.02 -35.99   0 270 0   1.000001 1 1.000001
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-48.69 1.12 36.62   0 270 0   1.000001 1 1.000001
+48.69 0.42 -35.99   0 270 0   1.000001 1 1.000001
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 16.69 0 32.6   0 180 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-40.69 0 36.62   0 270 0   1 1 1
+48.69 1.12 36.62   0 270 0   1.000001 1 1.000001
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 52.69 0.82 36.62   0 270 0   1.000001 1 1.000001
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-52.69 0.82 -35.99   0 270 0   1.000001 1 1.000001
+40.69 0 36.62   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
-56.69 -0.01 36.62   0 270 0   1.000001 1 1.000001
+52.69 0.82 -35.99   0 270 0   1.000001 1 1.000001
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 40.69 0 -35.99   0 270 0   1 1 1
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 56.69 0.4 -35.99   0 270 0   1.000001 1 1.000001
+
+mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
+56.69 -0.01 36.62   0 270 0   1.000001 1 1.000001
 
 mesh wall_straight.mesh 7 bricks_diffuse.png bricks_normal.png
 60.69 -0.01 36.62   0 270 0   1.000001 1 1.000001
@@ -263,25 +287,25 @@ mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 5.501343 -0.1 0.7357966   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-7.92149 -0.1 5.155476   0 0 0   1 1 1
+14.20603 -0.11 -1.795308   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 56.07303 0.4383256 15.62778   0 334.6646 0   1.308929 1.308929 1.308929
 
 mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-14.20603 -0.11 -1.795308   0 0 0   1 1 1
-
-mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-38.49897 -0.12 4.00063   0 0 0   1.250645 1.250645 1.250645
+7.92149 -0.1 5.155476   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 43.03756 0.1 23.45315   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-2.88 -0.1 -18.34   0 0 0   1 1 1
+38.49897 -0.12 4.00063   0 0 0   1.250645 1.250645 1.250645
 
 mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 43.03756 1.103 23.45315   0 334.8111 0   1 1 1
+
+mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
+2.88 -0.1 -18.34   0 0 0   1 1 1
 
 mesh wood_box.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 22.45506 0.4018955 16.70898   0 0 0   1 1 1
@@ -344,10 +368,10 @@ mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 3.091353 -0.092 -2.812883   0 0 0   1 1 1
 
 mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-0.55 -0.1 27.24   0 301.6168 0   1 1 1
+21.21119 0.1291766 -9.788244   0 330.4138 0   1 1 1
 
 mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-21.21119 0.1291766 -9.788244   0 330.4138 0   1 1 1
+0.55 -0.1 27.24   0 301.6168 0   1 1 1
 
 mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 19.61277 -0.1 0.6157857   0 0 0   1 1 1
@@ -362,10 +386,10 @@ mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 38.13453 0.1290184 -5.311673   0 327.4456 0   1 1 1
 
 mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-32.49225 0.0009000099 -15.80287   0 0 0   1 1 1
+0.32 -0.092 19.87   0 0 0   1 1 1
 
 mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
-0.32 -0.092 19.87   0 0 0   1 1 1
+32.49225 0.0009000099 -15.80287   0 0 0   1 1 1
 
 mesh wood_box_pile.mesh 7 wood_planks_diffuse.png wood_planks_normal.png
 45.75646 0.68 -27.65481   354.9185 349.3676 356.4183   1.225606 1.225606 1.225606
