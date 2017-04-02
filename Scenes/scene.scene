@@ -99,8 +99,8 @@ mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
 animation 120 0 0
 
 mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
-20.03366 14.97297 10.29595   316.4958 324.5103 -1.177094E-06   0.6998466 0.6998467 0.6998467
-animation 120 0 0
+21.76751 14.97297 11.22582   316.4958 159.0802 -1.177094E-06   0.699847 0.6998467 0.6998469
+animation -120 0 0
 
 mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
 -12.50749 15.18057 -15.27576   0 324.5103 0   0.6998466 0.6998466 0.6998466
@@ -111,7 +111,7 @@ mesh turbine_blades.mesh 7 turbine_diffuse.png turbine_normal.png
 animation 120 0 0
 
 mesh turbine_tower.mesh 7 turbine_diffuse.png turbine_normal.png
-20.84115 0.1299099 10.87171   0 324.5103 0   0.6998466 0.6998466 0.6998466
+20.84115 0.1299099 10.87171   0 159.0802 0   0.6998468 0.6998466 0.6998468
 
 mesh turbine_tower.mesh 7 turbine_diffuse.png turbine_normal.png
 20.15 0.3375103 -33.4   0 324.5103 0   0.6998466 0.6998466 0.6998466
