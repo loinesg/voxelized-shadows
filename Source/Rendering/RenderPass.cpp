@@ -41,7 +41,7 @@ void RenderPass::setSupportedFeatures(ShaderFeatureList supportedFeatures)
     shaderCollection_->setSupportedFeatures(supportedFeatures);
 }
 
-void RenderPass::submit(Camera* camera, const vector<MeshInstance*>* instances)
+void RenderPass::submit(Camera* camera, const vector<MeshInstance*>* instances, bool drawStatic, bool drawDynamic)
 {
     // Clear the screen
     glClearColor(clearColor_.x, clearColor_.y, clearColor_.z, clearColor_.w);
@@ -57,6 +57,14 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance*>* instances)
     for(unsigned int i = 0; i < instances->size(); ++i)
     {
         MeshInstance* instance = (*instances)[i];
+        
+        // Check if the instance should be skipped due to its static flag
+        if((instance->isStatic() && !drawStatic)
+           || (!instance->isStatic() && !drawDynamic))
+        {
+            continue;
+        }
+        
         ShaderFeatureList shaderFeatures = instance->shaderFeatures();
         Texture* texture = instance->texture();
         Texture* normalMap = instance->normalMap();
