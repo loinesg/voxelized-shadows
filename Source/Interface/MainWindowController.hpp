@@ -37,7 +37,8 @@ private:
     
     // Called each frame
     void update(float deltaTime);
-    void applyCameraMovement();
+    void applyCameraMovement(float deltaTime);
+    void updateStatsUI();
     
     // Qt event handling
     void mousePressEvent(QMouseEvent* event);

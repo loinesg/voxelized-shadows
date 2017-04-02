@@ -7,19 +7,28 @@ MainWindow::MainWindow(const QGLFormat &format)
     // Create main renderer
     rendererWidget_ = new RendererWidget(format);
     
-    // Create settings groups
+    // Create groups
+    statsGroupBox_ = new QGroupBox("Stats");
     featureToggles_ = new QGroupBox("Shader Features");
     shadowMethodRadios_ = new QGroupBox("Shadow Methods");
     overlayRadios_ = new QGroupBox("Debug Overlay");
     shadowResolutionRadios_ = new QGroupBox("Shadow Map Resolution");
     shadowCascadesRadios_ = new QGroupBox("Shadow Cascades");
     
-    // Use a vertical layout for all settings groups
+    // Use a vertical layout for all groups
+    statsGroupBox_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     featureToggles_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     shadowMethodRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     overlayRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     shadowResolutionRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     shadowCascadesRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    
+    // Create stats widgets
+    treeResolutionLabel_ = createStatsLabel();
+    treeCompletedTilesLabel_ = createStatsLabel();
+    treeTotalTilesLabel_ = createStatsLabel();
+    originalSizeLabel_ = createStatsLabel();
+    treeSizeLabel_ = createStatsLabel();
     
     // Create shading feature toggles
     createFeatureToggle(SF_Texture, "Diffuse Textures");
@@ -56,6 +65,7 @@ MainWindow::MainWindow(const QGLFormat &format)
     
     // Add widgets to side panel
     QBoxLayout* sidePanelLayout = new QBoxLayout(QBoxLayout::TopToBottom);
+    sidePanelLayout->addWidget(statsGroupBox_);
     sidePanelLayout->addWidget(featureToggles_);
     sidePanelLayout->addWidget(shadowMethodRadios_);
     sidePanelLayout->addWidget(overlayRadios_);
@@ -72,6 +82,13 @@ MainWindow::MainWindow(const QGLFormat &format)
     QBoxLayout* mainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     mainLayout->addWidget(rendererWidget_);
     mainLayout->addWidget(sidePanel);
+}
+
+QLabel* MainWindow::createStatsLabel()
+{
+    QLabel* label = new QLabel();
+    statsGroupBox_->layout()->addWidget(label);
+    return label;
 }
 
 QCheckBox* MainWindow::createFeatureToggle(ShaderFeature feature, const char* label)

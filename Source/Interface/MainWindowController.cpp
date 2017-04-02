@@ -130,6 +130,15 @@ void MainWindowController::shadowCascadesToggled()
 
 void MainWindowController::update(float deltaTime)
 {
+    // Move the camera with user input
+    applyCameraMovement(deltaTime);
+    
+    // Update the statistics ui
+    updateStatsUI();
+}
+
+void MainWindowController::applyCameraMovement(float deltaTime)
+{
     Camera* camera = window_->rendererWidget()->camera();
 
     // Calculate movement from inputs
@@ -142,6 +151,31 @@ void MainWindowController::update(float deltaTime)
     
     // Apply movement to camera (frame rate independent)
     camera->translate(movement * deltaTime);
+}
+
+void MainWindowController::updateStatsUI()
+{
+    // Get the voxel tree stats
+    const VoxelTree* tree = window_->rendererWidget()->voxelTree();
+    int resolution = tree->resolution() / 1024;
+    int totalTiles = tree->totalTiles();
+    int completedTiles = tree->completedTiles();
+    size_t originalSizeMB = tree->originalSizeMB();
+    size_t treeSizeMB = tree->sizeMB();
+    
+    // Create the text for each label
+    QString resolutionText = QString("Resolution: %1 K^2").arg(resolution);
+    QString totalTilesText = QString("Total Tiles: %1").arg(totalTiles);
+    QString completedTilesText = QString("Completed Tiles: %1").arg(completedTiles);
+    QString originalSizeText = QString("Original Size: %1 MB").arg(originalSizeMB);
+    QString treeSizeText = QString("Tree Size: %1 MB").arg(treeSizeMB);
+    
+    // Update the stats labels
+    window_->treeResolutionLabel()->setText(resolutionText);
+    window_->treeTotalTilesLabel()->setText(totalTilesText);
+    window_->treeCompletedTilesLabel()->setText(completedTilesText);
+    window_->originalSizeLabel()->setText(originalSizeText);
+    window_->treeSizeLabel()->setText(treeSizeText);
 }
 
 void MainWindowController::mousePressEvent(QMouseEvent* event)

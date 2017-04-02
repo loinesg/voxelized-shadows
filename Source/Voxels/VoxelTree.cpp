@@ -49,9 +49,29 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     mergingThread_ = thread(&VoxelTree::mergeTiles, this);
 }
 
-VoxelTree::~VoxelTree()
+size_t VoxelTree::sizeBytes() const
 {
+    return voxelWriter_.dataSizeBytes();
+}
+
+size_t VoxelTree::sizeMB() const
+{
+    return sizeBytes() / (1024 * 1024);
+}
+
+size_t VoxelTree::originalSizeBytes() const
+{
+    // Get the shadow map pixel count
+    size_t pixelCountPerTile = tileResolution_ * tileResolution_;
+    size_t pixelCountTotal = pixelCountPerTile * TileSubdivisons * TileSubdivisons;
     
+    // Get the bytes, assuming 3 bytes = 24 bits per pixel
+    return pixelCountTotal * 3;
+}
+
+size_t VoxelTree::originalSizeMB() const
+{
+    return originalSizeBytes() / (1024 * 1024);
 }
 
 void VoxelTree::updateBuild()

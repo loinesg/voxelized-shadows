@@ -30,12 +30,23 @@ class VoxelTree
     
 public:
     VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution);
-    ~VoxelTree();
+
+    // The total resolution of the tree
+    int resolution() const { return tileResolution_ * TileSubdivisons; }
     
     // The number of tiles in different states
     int totalTiles() const { return TileSubdivisons * TileSubdivisons; }
     int completedTiles() const { return completedTiles_; }
     int activeTiles() const { return (int)activeTiles_.size(); }
+    
+    // The size of the tree
+    size_t sizeBytes() const;
+    size_t sizeMB() const;
+    
+    // The size of an equivalent shadow map in bytes
+    // This assumes the shadow map uses 24 bits per pixel.
+    size_t originalSizeBytes() const;
+    size_t originalSizeMB() const;
     
     // The voxels buffer texture id
     GLuint treeBufferTexture() const { return bufferTexture_; }

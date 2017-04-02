@@ -26,6 +26,10 @@ public:
     // Gets the current shadow method
     ShadowMaskMethod shadowMethod() const { return shadowMask_->method(); }
     
+    // The current rendering components
+    const ShadowMap* shadowMap() const { return shadowMap_; }
+    const VoxelTree* voxelTree() const { return voxelTree_; }
+    
     // Shader feature toggling
     void enableFeature(ShaderFeature feature);
     void disableFeature(ShaderFeature feature);
