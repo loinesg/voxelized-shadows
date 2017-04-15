@@ -75,8 +75,8 @@ void ShadowMap::setCascades(int cascadesCount, int resolution)
         
         // Use a negative near plane so the camera volume
         // is centered on the camera position.
-        cascades_[i].camera.setNearPlane(-100.0);
-        cascades_[i].camera.setFarPlane(100.0);
+        cascades_[i].camera.setNearPlane(-250.0);
+        cascades_[i].camera.setFarPlane(250.0);
         
         // Use the framebuffer as the shadow camera render target
         cascades_[i].camera.setFramebuffer(framebuffer_);
