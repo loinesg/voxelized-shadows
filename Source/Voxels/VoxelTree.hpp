@@ -108,6 +108,7 @@ private:
     void updateTreeBuffer();
     
     // Computes bounds of the entire scene in light space.
+    // The bounds includes *static* objects only.
     Bounds sceneBoundsLightSpace() const;
     
     // Gets the bounds of the tile with the specified index

@@ -226,6 +226,12 @@ Bounds VoxelTree::sceneBoundsLightSpace() const
         // Get the mesh instance
         MeshInstance* instance = (*instances)[i];
         
+        // Skip objects that are not static
+        if(instance->isStatic() == false)
+        {
+            continue;
+        }
+        
         // Get the model to light transformation
         Matrix4x4 modelToLight = worldToLight * instance->localToWorld();
         
