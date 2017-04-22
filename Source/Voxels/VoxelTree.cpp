@@ -77,9 +77,10 @@ size_t VoxelTree::originalSizeMB() const
 void VoxelTree::updateBuild()
 {
     // Start another tile build if the limit is not currently met
-    if(activeTiles_.size() < ConcurrentBuilds)
+    if(activeTiles_.size() < ConcurrentBuilds
+       && startedTiles_ < TileSubdivisons * TileSubdivisons)
     {
-        processFirstQueuedTile();
+        startTileBuild();
     }
     
     // Reupload the tree to the gpu if more tiles have finished
@@ -90,22 +91,14 @@ void VoxelTree::updateBuild()
         updateUniformBuffer();
         updateTreeBuffer();
     }
-    
-    // Check if any tiles have finished being built
-    // and are ready to be merged
-    //mergeFirstFinishedTile();
 }
 
-void VoxelTree::processFirstQueuedTile()
+void VoxelTree::startTileBuild()
 {
-    // Only continue if there are tiles left to start
-    if(startedTiles_ == TileSubdivisons * TileSubdivisons)
-    {
-        return;
-    }
-    
-    // Use the bounds for the next queued tile
     int tileIndex = startedTiles_;
+    startedTiles_ ++;
+    
+    // Compute the light space bounds of the tile
     Bounds bounds = tileBounds(tileIndex);
     
     // Get the entry and exit depths for the tile by rendering
@@ -115,13 +108,12 @@ void VoxelTree::processFirstQueuedTile()
     computeDualShadowMaps(bounds, &entryDepths, &exitDepths);
     
     // Create the builder.
-    // The builder will construct the tile's tree on a background thread.
-    activeTilesMutex_.lock();
-    activeTiles_.push_back(new VoxelBuilder(tileIndex, tileResolution_, entryDepths, exitDepths));
-    activeTilesMutex_.unlock();
+    VoxelBuilder* builder = new VoxelBuilder(tileIndex, tileResolution_, entryDepths, exitDepths);
     
-    // Increment the started tiles count
-    startedTiles_ ++;
+    // Add to the active tiles list
+    activeTilesMutex_.lock();
+    activeTiles_.push_back(builder);
+    activeTilesMutex_.unlock();
 }
 
 void VoxelTree::mergeTiles()

@@ -91,7 +91,7 @@ private:
     
     // Starts the processing of the next queued tile.
     // Renders the tile's depth maps and starts a builder thread.
-    void processFirstQueuedTile();
+    void startTileBuild();
     
     // Runs on the merging thread.
     // Merges finished builders into the
