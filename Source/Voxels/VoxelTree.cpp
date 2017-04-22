@@ -46,15 +46,12 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     // Create the buffer to hold the tree
     glGenBuffers(1, &buffer_);
     glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
-    updateTreeBuffer();
-
-    // Create the buffer texture
     glGenTextures(1, &bufferTexture_);
     glBindTexture(GL_TEXTURE_BUFFER, bufferTexture_);
     glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buffer_);
     
-    // Set the initial uniform buffer values
-    updateUniformBuffer();
+    // Set the initial buffer values
+    updateBuffers();
     
     // Start the tile merging thread
     mergingThread_ = thread(&VoxelTree::mergeTiles, this);
@@ -93,10 +90,7 @@ void VoxelTree::updateBuild()
     // Reupload the tree to the gpu if more tiles have finished
     if(tilesOnGPU_ < completedTiles_)
     {
-        tilesOnGPU_ = completedTiles_;
-        
-        updateUniformBuffer();
-        updateTreeBuffer();
+        updateBuffers();
     }
 }
 
@@ -178,6 +172,12 @@ VoxelBuilder* VoxelTree::findFinishedBuilder()
     return NULL;
 }
 
+void VoxelTree::updateBuffers()
+{
+    updateUniformBuffer();
+    updateTreeBuffer();
+}
+
 void VoxelTree::updateUniformBuffer()
 {
     // Cover the scene witht the shadowmap and get the world to shadow matrix
@@ -207,6 +207,9 @@ void VoxelTree::updateUniformBuffer()
 
 void VoxelTree::updateTreeBuffer()
 {
+    // Update the uploaded tiles count
+    tilesOnGPU_ = completedTiles_;
+    
     // Get the current tree data
     const void* treeData = voxelWriter_.data();
     size_t treeSizeBytes = voxelWriter_.dataSizeBytes();

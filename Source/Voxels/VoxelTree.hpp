@@ -105,10 +105,9 @@ private:
     // to be merged. Removes it from the active tiles vector.
     VoxelBuilder* findFinishedBuilder();
     
-    // Updates the uniform buffer
+    // Updates the uniform buffer and tree texture buffer
+    void updateBuffers();
     void updateUniformBuffer();
-    
-    // Update the contents of the tree texture buffer
     void updateTreeBuffer();
     
     // Computes bounds of the entire scene in light space.
