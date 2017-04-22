@@ -20,24 +20,27 @@ using namespace std;
 
 class VoxelTree
 {
-    // The number of tiles the tree is split into in each direction
-    // Each tile can be up to 16K (limited by GPU texture max resolution)
-    // 16 allows a tree of up to 16x16K = 256K to be created.
-    const static int TileSubdivisons = 16;
+    // The maximum resolution supported by a tree
+    const static int MaxResolution = 262144;
     
-    // The number of tiles that are built simultaneously
+    // The maximum tile count. Each tile is up to 16K.
+    const static int MaxTileCount = (MaxResolution / 16384) * (MaxResolution / 16384);
+    
+    // The maximum number of tiles that are built simultaneously.
     const static int ConcurrentBuilds = 6;
     
 public:
     VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution);
 
     // The total resolution of the tree
-    int resolution() const { return tileResolution_ * TileSubdivisons; }
+    int resolution() const { return treeResolution_; }
+    
+    // The number of subdivisions in each axis (x, y)
+    int tileSubdivisions() const { return treeResolution_ / tileResolution_; }
     
     // The number of tiles in different states
-    int totalTiles() const { return TileSubdivisons * TileSubdivisons; }
+    int totalTiles() const { return tileSubdivisions() * tileSubdivisions(); }
     int completedTiles() const { return completedTiles_; }
-    int activeTiles() const { return (int)activeTiles_.size(); }
     
     // The size of the tree
     size_t sizeBytes() const;
@@ -61,7 +64,8 @@ private:
     UniformManager* uniformManager_;
     const Scene* scene_;
     
-    // Resolution of each tile and the combined tree
+    // Resolution of the entire tree and an individual tile
+    int treeResolution_;
     int tileResolution_;
     
     // The voxel buffer and containing buffer texture.
@@ -75,7 +79,7 @@ private:
     VoxelWriter voxelWriter_;
     
     // The pointers to each child tree within the merged structure
-    VoxelPointer treePointers_[TileSubdivisons * TileSubdivisons];
+    VoxelPointer treePointers_[MaxTileCount];
     
     // The number of completed tiles and the tiles being built
     int startedTiles_;

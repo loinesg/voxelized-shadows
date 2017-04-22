@@ -6,8 +6,8 @@
 VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution)
     : uniformManager_(uniformManager),
     scene_(scene),
-    tileResolution_(resolution / TileSubdivisons),
-    shadowMap_(scene, uniformManager, 1, resolution / TileSubdivisons),
+    treeResolution_(resolution),
+    shadowMap_(scene, uniformManager, 1, 4),
     voxelWriter_(),
     startedTiles_(0),
     completedTiles_(0),
@@ -15,10 +15,21 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     activeTilesMutex_(),
     tilesOnGPU_(0)
 {
+    // Make each tile as small as possible.
+    tileResolution_ = 4096;
+    while(totalTiles() > MaxTileCount)
+    {
+        // Double the resolution until under the tile count limit.
+        tileResolution_ *= 2;
+    }
+    
     // Each tile must be at least 8x8 so that leaf masks can be used
     // and no more than 16K (maximum texture resolution)
     assert(tileResolution_ >= 8);
     assert(tileResolution_ <= 16384);
+    
+    // Set the correct shadow map resolution
+    shadowMap_.setCascades(1, tileResolution_);
     
     // For now, use a dummy tree consisting of a single, fully
     // unshadowed inner node
@@ -27,7 +38,7 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     VoxelPointer nodePtr = voxelWriter_.writeNode(node, 0, 0);
     
     // Set the dummy node as the root for every tile
-    for(int i = 0; i < TileSubdivisons * TileSubdivisons; ++i)
+    for(int i = 0; i < MaxTileCount; ++i)
     {
         treePointers_[i] = nodePtr;
     }
@@ -61,12 +72,8 @@ size_t VoxelTree::sizeMB() const
 
 size_t VoxelTree::originalSizeBytes() const
 {
-    // Get the shadow map pixel count
-    size_t pixelCountPerTile = tileResolution_ * tileResolution_;
-    size_t pixelCountTotal = pixelCountPerTile * TileSubdivisons * TileSubdivisons;
-    
-    // Get the bytes, assuming 3 bytes = 24 bits per pixel
-    return pixelCountTotal * 3;
+    // Using 3 bytes -> 24 bits per pixel
+    return treeResolution_ * treeResolution_ * 3;
 }
 
 size_t VoxelTree::originalSizeMB() const
@@ -77,8 +84,8 @@ size_t VoxelTree::originalSizeMB() const
 void VoxelTree::updateBuild()
 {
     // Start another tile build if the limit is not currently met
-    if(activeTiles_.size() < ConcurrentBuilds
-       && startedTiles_ < TileSubdivisons * TileSubdivisons)
+    int activeTiles = startedTiles_ - completedTiles_;
+    if(activeTiles < ConcurrentBuilds && startedTiles_ < totalTiles())
     {
         startTileBuild();
     }
@@ -119,7 +126,7 @@ void VoxelTree::startTileBuild()
 void VoxelTree::mergeTiles()
 {
     // Keep looking for tiles to merge until finished
-    while(completedTiles_ < TileSubdivisons * TileSubdivisons)
+    while(completedTiles_ < totalTiles())
     {
         // Look for a finished builder
         activeTilesMutex_.lock();
@@ -179,8 +186,8 @@ void VoxelTree::updateUniformBuffer()
     
     // Scale the world to shadow matrix by the total voxel resolution
     Vector3 scale;
-    scale.x = tileResolution_ * TileSubdivisons;
-    scale.y = tileResolution_ * TileSubdivisons;
+    scale.x = treeResolution_;
+    scale.y = treeResolution_;
     scale.z = tileResolution_; // The trees are only tiled in x and y
     worldToShadow = Matrix4x4::scale(scale) * worldToShadow;
     
@@ -188,9 +195,9 @@ void VoxelTree::updateUniformBuffer()
     VoxelsUniformBuffer buffer;
     buffer.worldToVoxels = worldToShadow;
     buffer.voxelTreeHeight = log2(tileResolution_);
-    buffer.tileSubdivisions = TileSubdivisons;
+    buffer.tileSubdivisions = tileSubdivisions();
     
-    for(int i = 0; i < TileSubdivisons * TileSubdivisons; ++i)
+    for(int i = 0; i < totalTiles(); ++i)
     {
         buffer.rootAddresses[i*4] = treePointers_[i];
     }
@@ -257,12 +264,12 @@ Bounds VoxelTree::tileBounds(int index) const
     Bounds sceneBounds = sceneBoundsLightSpace();
     
     // Compute the light space size of each tile
-    float tileSizeX = sceneBounds.size().x / TileSubdivisons;
-    float tileSizeY = sceneBounds.size().y / TileSubdivisons;
+    float tileSizeX = sceneBounds.size().x / tileSubdivisions();
+    float tileSizeY = sceneBounds.size().y / tileSubdivisions();
     
     // Get the x and y position of the tile
-    int x = index / TileSubdivisons;
-    int y = index % TileSubdivisons;
+    int x = index / tileSubdivisions();
+    int y = index % tileSubdivisions();
     
     // Determine the light space bounds of the tile
     float posX = sceneBounds.min().x + (tileSizeX * x);
