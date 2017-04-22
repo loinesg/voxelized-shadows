@@ -6,14 +6,14 @@
 VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution)
     : uniformManager_(uniformManager),
     scene_(scene),
+    startedTiles_(0),
+    mergedTiles_(0),
+    uploadedTiles_(0),
     treeResolution_(resolution),
     shadowMap_(scene, uniformManager, 1, 4),
     voxelWriter_(),
-    startedTiles_(0),
-    completedTiles_(0),
     activeTiles_(),
-    activeTilesMutex_(),
-    tilesOnGPU_(0)
+    activeTilesMutex_()
 {
     // Make each tile as small as possible.
     tileResolution_ = 4096;
@@ -81,14 +81,14 @@ size_t VoxelTree::originalSizeMB() const
 void VoxelTree::updateBuild()
 {
     // Start another tile build if the limit is not currently met
-    int activeTiles = startedTiles_ - completedTiles_;
+    int activeTiles = startedTiles_ - mergedTiles_;
     if(activeTiles < ConcurrentBuilds && startedTiles_ < totalTiles())
     {
         startTileBuild();
     }
     
     // Reupload the tree to the gpu if more tiles have finished
-    if(tilesOnGPU_ < completedTiles_)
+    if(uploadedTiles_ < mergedTiles_)
     {
         updateBuffers();
     }
@@ -120,7 +120,7 @@ void VoxelTree::startTileBuild()
 void VoxelTree::mergeTiles()
 {
     // Keep looking for tiles to merge until finished
-    while(completedTiles_ < totalTiles())
+    while(mergedTiles_ < totalTiles())
     {
         // Look for a finished builder
         activeTilesMutex_.lock();
@@ -144,8 +144,8 @@ void VoxelTree::mergeTiles()
         // The builder is no longer needed
         delete builder;
         
-        // Update the completed tiles count
-        completedTiles_ ++;
+        // Update the merged tiles count
+        mergedTiles_ ++;
     }
 }
 
@@ -208,7 +208,7 @@ void VoxelTree::updateUniformBuffer()
 void VoxelTree::updateTreeBuffer()
 {
     // Update the uploaded tiles count
-    tilesOnGPU_ = completedTiles_;
+    uploadedTiles_ = mergedTiles_;
     
     // Get the current tree data
     const void* treeData = voxelWriter_.data();

@@ -40,7 +40,7 @@ public:
     
     // The number of tiles in different states
     int totalTiles() const { return tileSubdivisions() * tileSubdivisions(); }
-    int completedTiles() const { return completedTiles_; }
+    int completedTiles() const { return uploadedTiles_; }
     
     // The size of the tree
     size_t sizeBytes() const;
@@ -64,6 +64,11 @@ private:
     UniformManager* uniformManager_;
     const Scene* scene_;
     
+    // The building status
+    int startedTiles_;
+    int mergedTiles_;
+    int uploadedTiles_;
+    
     // Resolution of the entire tree and an individual tile
     int treeResolution_;
     int tileResolution_;
@@ -82,13 +87,8 @@ private:
     VoxelPointer treePointers_[MaxTileCount];
     
     // The number of completed tiles and the tiles being built
-    int startedTiles_;
-    int completedTiles_;
     vector<VoxelBuilder*> activeTiles_;
     mutex activeTilesMutex_;
-    
-    // The number of tiles uploaded to the GPU
-    int tilesOnGPU_;
     
     // The thread that merges finished tiles into voxelWriter_
     thread mergingThread_;
