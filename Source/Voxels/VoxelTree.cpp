@@ -100,7 +100,7 @@ void VoxelTree::startTileBuild()
     startedTiles_ ++;
     
     // Compute the light space bounds of the tile
-    Bounds bounds = tileBounds(tileIndex);
+    Bounds bounds = tileBoundsLightSpace(tileIndex);
     
     // Get the entry and exit depths for the tile by rendering
     // a dual shadow map.
@@ -261,7 +261,7 @@ Bounds VoxelTree::sceneBoundsLightSpace() const
     return bounds;
 }
 
-Bounds VoxelTree::tileBounds(int index) const
+Bounds VoxelTree::tileBoundsLightSpace(int index) const
 {
     // Compute the bounds of the entire scene in light space
     Bounds sceneBounds = sceneBoundsLightSpace();
