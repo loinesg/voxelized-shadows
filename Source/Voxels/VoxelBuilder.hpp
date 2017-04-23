@@ -50,9 +50,6 @@ public:
     // Root node position
     VoxelPointer rootAddress() const { return rootAddress_; }
     
-    // Pauses the calling thread until building is complete
-    void waitUntilDone();
-    
 private:
     
     // The index of the tile being built

@@ -41,15 +41,6 @@ VoxelBuilder::~VoxelBuilder()
     }
 }
 
-void VoxelBuilder::waitUntilDone()
-{
-    // Wait until the building thread completes
-    buildThread_.join();
-    
-    // The build should now be done
-    assert(buildState_ == VoxelBuilderState::Done);
-}
-
 void VoxelBuilder::build()
 {
     // Create the building objects
