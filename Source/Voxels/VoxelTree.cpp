@@ -289,7 +289,8 @@ void VoxelTree::computeDualShadowMaps(const Bounds &bounds, float** entryDepths,
     shadowMap_.setLightSpaceBounds(bounds);
     
     // Render the shadow map with static but not dynamic objects
-    shadowMap_.renderCascades(true, false);
+    // Do not use depth biasing.
+    shadowMap_.renderCascades(true, false, false);
     
     // Store the depths as the shadow entry depths
     *entryDepths = new float[tileResolution_ * tileResolution_];
@@ -297,7 +298,7 @@ void VoxelTree::computeDualShadowMaps(const Bounds &bounds, float** entryDepths,
     
     // Render the shadow map back faces
     glCullFace(GL_FRONT);
-    shadowMap_.renderCascades(true, false); // Static objects only
+    shadowMap_.renderCascades(true, false, false); // Static objects only
     glCullFace(GL_BACK);
     
     // Store the depths as the shadow exit depths

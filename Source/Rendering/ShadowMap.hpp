@@ -55,7 +55,7 @@ public:
     void updateUniformBuffer() const;
     
     // Rerenders all shadow map cascades
-    void renderCascades(bool drawStatic = true, bool drawDynamic = true);
+    void renderCascades(bool drawStatic = true, bool drawDynamic = true, bool depthBias = true);
     
 private:
     const Scene* scene_;
