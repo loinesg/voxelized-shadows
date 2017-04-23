@@ -70,7 +70,7 @@ size_t VoxelTree::sizeMB() const
 size_t VoxelTree::originalSizeBytes() const
 {
     // Using 3 bytes -> 24 bits per pixel
-    return treeResolution_ * treeResolution_ * 3;
+    return (size_t)treeResolution_ * (size_t)treeResolution_ * 3;
 }
 
 size_t VoxelTree::originalSizeMB() const
