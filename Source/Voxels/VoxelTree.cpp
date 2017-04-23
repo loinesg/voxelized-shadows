@@ -6,19 +6,30 @@
 VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution)
     : uniformManager_(uniformManager),
     scene_(scene),
-    tileResolution_(resolution / TileSubdivisons),
-    shadowMap_(scene, uniformManager, 1, resolution / TileSubdivisons),
-    voxelWriter_(),
     startedTiles_(0),
-    completedTiles_(0),
+    mergedTiles_(0),
+    uploadedTiles_(0),
+    treeResolution_(resolution),
+    shadowMap_(scene, uniformManager, 1, 4),
+    voxelWriter_(),
     activeTiles_(),
-    activeTilesMutex_(),
-    tilesOnGPU_(0)
+    activeTilesMutex_()
 {
+    // Make each tile as small as possible.
+    tileResolution_ = 4096;
+    while(totalTiles() > MaxTileCount)
+    {
+        // Double the resolution until under the tile count limit.
+        tileResolution_ *= 2;
+    }
+    
     // Each tile must be at least 8x8 so that leaf masks can be used
     // and no more than 16K (maximum texture resolution)
     assert(tileResolution_ >= 8);
     assert(tileResolution_ <= 16384);
+    
+    // Set the correct shadow map resolution
+    shadowMap_.setCascades(1, tileResolution_);
     
     // For now, use a dummy tree consisting of a single, fully
     // unshadowed inner node
@@ -27,7 +38,7 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     VoxelPointer nodePtr = voxelWriter_.writeNode(node, 0, 0);
     
     // Set the dummy node as the root for every tile
-    for(int i = 0; i < TileSubdivisons * TileSubdivisons; ++i)
+    for(int i = 0; i < MaxTileCount; ++i)
     {
         treePointers_[i] = nodePtr;
     }
@@ -35,15 +46,12 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     // Create the buffer to hold the tree
     glGenBuffers(1, &buffer_);
     glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
-    updateTreeBuffer();
-
-    // Create the buffer texture
     glGenTextures(1, &bufferTexture_);
     glBindTexture(GL_TEXTURE_BUFFER, bufferTexture_);
     glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buffer_);
     
-    // Set the initial uniform buffer values
-    updateUniformBuffer();
+    // Set the initial buffer values
+    updateBuffers();
     
     // Start the tile merging thread
     mergingThread_ = thread(&VoxelTree::mergeTiles, this);
@@ -61,12 +69,8 @@ size_t VoxelTree::sizeMB() const
 
 size_t VoxelTree::originalSizeBytes() const
 {
-    // Get the shadow map pixel count
-    size_t pixelCountPerTile = tileResolution_ * tileResolution_;
-    size_t pixelCountTotal = pixelCountPerTile * TileSubdivisons * TileSubdivisons;
-    
-    // Get the bytes, assuming 3 bytes = 24 bits per pixel
-    return pixelCountTotal * 3;
+    // Using 3 bytes -> 24 bits per pixel
+    return treeResolution_ * treeResolution_ * 3;
 }
 
 size_t VoxelTree::originalSizeMB() const
@@ -77,36 +81,26 @@ size_t VoxelTree::originalSizeMB() const
 void VoxelTree::updateBuild()
 {
     // Start another tile build if the limit is not currently met
-    if(activeTiles_.size() < ConcurrentBuilds)
+    int activeTiles = startedTiles_ - mergedTiles_;
+    if(activeTiles < ConcurrentBuilds && startedTiles_ < totalTiles())
     {
-        processFirstQueuedTile();
+        startTileBuild();
     }
     
     // Reupload the tree to the gpu if more tiles have finished
-    if(tilesOnGPU_ < completedTiles_)
+    if(uploadedTiles_ < mergedTiles_)
     {
-        tilesOnGPU_ = completedTiles_;
-        
-        updateUniformBuffer();
-        updateTreeBuffer();
+        updateBuffers();
     }
-    
-    // Check if any tiles have finished being built
-    // and are ready to be merged
-    //mergeFirstFinishedTile();
 }
 
-void VoxelTree::processFirstQueuedTile()
+void VoxelTree::startTileBuild()
 {
-    // Only continue if there are tiles left to start
-    if(startedTiles_ == TileSubdivisons * TileSubdivisons)
-    {
-        return;
-    }
-    
-    // Use the bounds for the next queued tile
     int tileIndex = startedTiles_;
-    Bounds bounds = tileBounds(tileIndex);
+    startedTiles_ ++;
+    
+    // Compute the light space bounds of the tile
+    Bounds bounds = tileBoundsLightSpace(tileIndex);
     
     // Get the entry and exit depths for the tile by rendering
     // a dual shadow map.
@@ -115,19 +109,18 @@ void VoxelTree::processFirstQueuedTile()
     computeDualShadowMaps(bounds, &entryDepths, &exitDepths);
     
     // Create the builder.
-    // The builder will construct the tile's tree on a background thread.
-    activeTilesMutex_.lock();
-    activeTiles_.push_back(new VoxelBuilder(tileIndex, tileResolution_, entryDepths, exitDepths));
-    activeTilesMutex_.unlock();
+    VoxelBuilder* builder = new VoxelBuilder(tileIndex, tileResolution_, entryDepths, exitDepths);
     
-    // Increment the started tiles count
-    startedTiles_ ++;
+    // Add to the active tiles list
+    activeTilesMutex_.lock();
+    activeTiles_.push_back(builder);
+    activeTilesMutex_.unlock();
 }
 
 void VoxelTree::mergeTiles()
 {
     // Keep looking for tiles to merge until finished
-    while(completedTiles_ < TileSubdivisons * TileSubdivisons)
+    while(mergedTiles_ < totalTiles())
     {
         // Look for a finished builder
         activeTilesMutex_.lock();
@@ -151,8 +144,8 @@ void VoxelTree::mergeTiles()
         // The builder is no longer needed
         delete builder;
         
-        // Update the completed tiles count
-        completedTiles_ ++;
+        // Update the merged tiles count
+        mergedTiles_ ++;
     }
 }
 
@@ -179,6 +172,12 @@ VoxelBuilder* VoxelTree::findFinishedBuilder()
     return NULL;
 }
 
+void VoxelTree::updateBuffers()
+{
+    updateUniformBuffer();
+    updateTreeBuffer();
+}
+
 void VoxelTree::updateUniformBuffer()
 {
     // Cover the scene witht the shadowmap and get the world to shadow matrix
@@ -187,8 +186,8 @@ void VoxelTree::updateUniformBuffer()
     
     // Scale the world to shadow matrix by the total voxel resolution
     Vector3 scale;
-    scale.x = tileResolution_ * TileSubdivisons;
-    scale.y = tileResolution_ * TileSubdivisons;
+    scale.x = treeResolution_;
+    scale.y = treeResolution_;
     scale.z = tileResolution_; // The trees are only tiled in x and y
     worldToShadow = Matrix4x4::scale(scale) * worldToShadow;
     
@@ -196,9 +195,9 @@ void VoxelTree::updateUniformBuffer()
     VoxelsUniformBuffer buffer;
     buffer.worldToVoxels = worldToShadow;
     buffer.voxelTreeHeight = log2(tileResolution_);
-    buffer.tileSubdivisions = TileSubdivisons;
+    buffer.tileSubdivisions = tileSubdivisions();
     
-    for(int i = 0; i < TileSubdivisons * TileSubdivisons; ++i)
+    for(int i = 0; i < totalTiles(); ++i)
     {
         buffer.rootAddresses[i*4] = treePointers_[i];
     }
@@ -208,6 +207,9 @@ void VoxelTree::updateUniformBuffer()
 
 void VoxelTree::updateTreeBuffer()
 {
+    // Update the uploaded tiles count
+    uploadedTiles_ = mergedTiles_;
+    
     // Get the current tree data
     const void* treeData = voxelWriter_.data();
     size_t treeSizeBytes = voxelWriter_.dataSizeBytes();
@@ -234,6 +236,12 @@ Bounds VoxelTree::sceneBoundsLightSpace() const
         // Get the mesh instance
         MeshInstance* instance = (*instances)[i];
         
+        // Skip objects that are not static
+        if(instance->isStatic() == false)
+        {
+            continue;
+        }
+        
         // Get the model to light transformation
         Matrix4x4 modelToLight = worldToLight * instance->localToWorld();
         
@@ -253,18 +261,18 @@ Bounds VoxelTree::sceneBoundsLightSpace() const
     return bounds;
 }
 
-Bounds VoxelTree::tileBounds(int index) const
+Bounds VoxelTree::tileBoundsLightSpace(int index) const
 {
     // Compute the bounds of the entire scene in light space
     Bounds sceneBounds = sceneBoundsLightSpace();
     
     // Compute the light space size of each tile
-    float tileSizeX = sceneBounds.size().x / TileSubdivisons;
-    float tileSizeY = sceneBounds.size().y / TileSubdivisons;
+    float tileSizeX = sceneBounds.size().x / tileSubdivisions();
+    float tileSizeY = sceneBounds.size().y / tileSubdivisions();
     
     // Get the x and y position of the tile
-    int x = index / TileSubdivisons;
-    int y = index % TileSubdivisons;
+    int x = index / tileSubdivisions();
+    int y = index % tileSubdivisions();
     
     // Determine the light space bounds of the tile
     float posX = sceneBounds.min().x + (tileSizeX * x);
@@ -281,7 +289,8 @@ void VoxelTree::computeDualShadowMaps(const Bounds &bounds, float** entryDepths,
     shadowMap_.setLightSpaceBounds(bounds);
     
     // Render the shadow map with static but not dynamic objects
-    shadowMap_.renderCascades(true, false);
+    // Do not use depth biasing.
+    shadowMap_.renderCascades(true, false, false);
     
     // Store the depths as the shadow entry depths
     *entryDepths = new float[tileResolution_ * tileResolution_];
@@ -289,7 +298,7 @@ void VoxelTree::computeDualShadowMaps(const Bounds &bounds, float** entryDepths,
     
     // Render the shadow map back faces
     glCullFace(GL_FRONT);
-    shadowMap_.renderCascades(true, false); // Static objects only
+    shadowMap_.renderCascades(true, false, false); // Static objects only
     glCullFace(GL_BACK);
     
     // Store the depths as the shadow exit depths

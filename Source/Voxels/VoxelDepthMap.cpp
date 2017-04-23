@@ -152,8 +152,13 @@ uint16_t VoxelDepthMap::sampleChildMask(const VoxelTile* children) const
         assert(child.z >= 0 && child.z + child.depth <= resolution_);
         
         // Compute the depth bounds of the child region
-        float minDepth = (child.z + 0.5);
-        float maxDepth = (child.z + child.depth - 0.5);
+        float minDepth = (child.z);
+        float maxDepth = (child.z + child.depth);
+        
+        // Bias the min and max depths to avoid self shadowing artifacts
+        // A 1 voxel bias in each direction is enough
+        minDepth -= 1.0;
+        maxDepth += 1.0;
         
         // Sample the mips
         int mipIndex = (child.y >> mip) * mipResolution + (child.x >> mip);

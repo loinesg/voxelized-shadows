@@ -196,11 +196,14 @@ void ShadowMap::updateUniformBuffer() const
     uniformManager_->updateShadowBuffer(shadowData);
 }
 
-void ShadowMap::renderCascades(bool drawStatic, bool drawDynamic)
+void ShadowMap::renderCascades(bool drawStatic, bool drawDynamic, bool depthBias)
 {
     // Enable depth biasing to prevent shadow acne
-    glPolygonOffset(2.5, 10.0);
-    glEnable(GL_POLYGON_OFFSET_FILL);
+    if(depthBias)
+    {
+        glPolygonOffset(2.5, 10.0);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+    }
     
     // Write to the depth buffer only.
     glEnable(GL_DEPTH_TEST);

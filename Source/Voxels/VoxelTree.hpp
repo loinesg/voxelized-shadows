@@ -20,24 +20,27 @@ using namespace std;
 
 class VoxelTree
 {
-    // The number of tiles the tree is split into in each direction
-    // Each tile can be up to 16K (limited by GPU texture max resolution)
-    // 16 allows a tree of up to 16x16K = 256K to be created.
-    const static int TileSubdivisons = 16;
+    // The maximum resolution supported by a tree
+    const static int MaxResolution = 262144;
     
-    // The number of tiles that are built simultaneously
+    // The maximum tile count. Each tile is up to 16K.
+    const static int MaxTileCount = (MaxResolution / 16384) * (MaxResolution / 16384);
+    
+    // The maximum number of tiles that are built simultaneously.
     const static int ConcurrentBuilds = 6;
     
 public:
     VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution);
 
     // The total resolution of the tree
-    int resolution() const { return tileResolution_ * TileSubdivisons; }
+    int resolution() const { return treeResolution_; }
+    
+    // The number of subdivisions in each axis (x, y)
+    int tileSubdivisions() const { return treeResolution_ / tileResolution_; }
     
     // The number of tiles in different states
-    int totalTiles() const { return TileSubdivisons * TileSubdivisons; }
-    int completedTiles() const { return completedTiles_; }
-    int activeTiles() const { return (int)activeTiles_.size(); }
+    int totalTiles() const { return tileSubdivisions() * tileSubdivisions(); }
+    int completedTiles() const { return uploadedTiles_; }
     
     // The size of the tree
     size_t sizeBytes() const;
@@ -61,7 +64,13 @@ private:
     UniformManager* uniformManager_;
     const Scene* scene_;
     
-    // Resolution of each tile and the combined tree
+    // The building status
+    int startedTiles_;
+    int mergedTiles_;
+    int uploadedTiles_;
+    
+    // Resolution of the entire tree and an individual tile
+    int treeResolution_;
     int tileResolution_;
     
     // The voxel buffer and containing buffer texture.
@@ -75,23 +84,18 @@ private:
     VoxelWriter voxelWriter_;
     
     // The pointers to each child tree within the merged structure
-    VoxelPointer treePointers_[TileSubdivisons * TileSubdivisons];
+    VoxelPointer treePointers_[MaxTileCount];
     
     // The number of completed tiles and the tiles being built
-    int startedTiles_;
-    int completedTiles_;
     vector<VoxelBuilder*> activeTiles_;
     mutex activeTilesMutex_;
-    
-    // The number of tiles uploaded to the GPU
-    int tilesOnGPU_;
     
     // The thread that merges finished tiles into voxelWriter_
     thread mergingThread_;
     
     // Starts the processing of the next queued tile.
     // Renders the tile's depth maps and starts a builder thread.
-    void processFirstQueuedTile();
+    void startTileBuild();
     
     // Runs on the merging thread.
     // Merges finished builders into the
@@ -101,17 +105,15 @@ private:
     // to be merged. Removes it from the active tiles vector.
     VoxelBuilder* findFinishedBuilder();
     
-    // Updates the uniform buffer
+    // Updates the uniform buffer and tree texture buffer
+    void updateBuffers();
     void updateUniformBuffer();
-    
-    // Update the contents of the tree texture buffer
     void updateTreeBuffer();
     
-    // Computes bounds of the entire scene in light space.
+    // Computes bounds of the scene in light space.
+    // The bounds includes *static* objects only.
     Bounds sceneBoundsLightSpace() const;
-    
-    // Gets the bounds of the tile with the specified index
-    Bounds tileBounds(int index) const;
+    Bounds tileBoundsLightSpace(int index) const;
     
     // Renders dual shadow maps for the scene.
     void computeDualShadowMaps(const Bounds &bounds, float** entryDepths, float** exitDepths);
