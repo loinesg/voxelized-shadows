@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <cstdio>
+#include <cstring>
 
 VoxelBuilder::VoxelBuilder(int tileIndex, int resolution, float* entryDepths, float* exitDepths)
     : tileIndex_(tileIndex),

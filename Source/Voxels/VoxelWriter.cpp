@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <memory.h>
+#include <cmath>
 
 VoxelWriter::VoxelWriter()
     : innerNodeLocations_(),
