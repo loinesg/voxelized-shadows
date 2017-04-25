@@ -5,7 +5,11 @@
 *qt_*.mak
 *.pbxproj
 .qmake*
+
+#Makefile files
 Makefile
+Makefile.Debug
+Makefile.Release
 
 # Build Results
 *.o
