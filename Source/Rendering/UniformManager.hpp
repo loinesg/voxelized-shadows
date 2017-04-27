@@ -47,7 +47,7 @@ struct VoxelsUniformBuffer
     
     Matrix4x4 worldToVoxels;
     uint32_t voxelTreeHeight;
-    int tileSubdivisions;
+    uint32_t tileSubdivisions;
     int padding[2];
     
     // The root address of each subtree
