@@ -39,6 +39,13 @@ struct VoxelQuery
     float shadowAttenuation;
 };
 
+struct LeafNodeQuery
+{
+    uint treeDepthReached;
+    uint highBits;
+    uint lowBits;
+};
+
 /*
  * Get the voxel-space coordinate corresponding to a world-space position.
  * The computed coordinate can be used to look up a voxel in the tree.
@@ -103,7 +110,7 @@ uint getVoxelLeafIndex(uvec3 coord)
     return (xIndex << 3) | yIndex;
 }
 
-VoxelQuery sampleShadowTree(uvec3 coord)
+LeafNodeQuery getLeafNode(uvec3 coord)
 {
     // Compute which tile the coord is in
     uint tileX = coord.x >> _VoxelTreeHeight;
@@ -124,9 +131,10 @@ VoxelQuery sampleShadowTree(uvec3 coord)
         // If uniform shadow, exit early
         if(childState < 2u)
         {
-            VoxelQuery q;
+            LeafNodeQuery q;
             q.treeDepthReached = depth;
-            q.shadowAttenuation = float(childState);
+            q.highBits = 4294967295u * childState;
+            q.lowBits = 4294967295u * childState;
             return q;
         }
         
@@ -137,25 +145,29 @@ VoxelQuery sampleShadowTree(uvec3 coord)
         memAddress = int(texelFetch(_VoxelData, childPtr).r);
     }
     
-    // No more inner nodes to traverse.
-    // Sample the leaf node.
+    // No more inner nodes. Sample the leaf node.
+    LeafNodeQuery q;
+    q.treeDepthReached = _VoxelTreeHeight;
+    q.highBits = texelFetch(_VoxelData, memAddress).r;
+    q.lowBits = texelFetch(_VoxelData, memAddress + 1).r;
+    return q;
+}
+
+VoxelQuery sampleShadowTree(uvec3 coord)
+{
+    // Get the leaf node
+    LeafNodeQuery leaf = getLeafNode(coord);
+    
+    // Extract the correct location
     uint leafIndex = getVoxelLeafIndex(coord);
+    uint shadowing = leafIndex > 31u
+        ? (leaf.lowBits >> (leafIndex-32u)) & 1u
+        : (leaf.highBits >> leafIndex) & 1u;
     
-    // Offset if in the second leafmask byte
-    if(leafIndex > 31u)
-    {
-        leafIndex -= 32u;
-        memAddress ++;
-    }
-    
-    // Get the correct voxel from the leaf mask
-    uint partialLeafMask = texelFetch(_VoxelData, memAddress).r;
-    float leafShadowing = float((partialLeafMask >> leafIndex) & 1u);
-    
-    // Return the result
+    // Return the query result
     VoxelQuery q;
     q.treeDepthReached = _VoxelTreeHeight;
-    q.shadowAttenuation = leafShadowing;
+    q.shadowAttenuation = float(shadowing);
     return q;
 }
 
