@@ -37,6 +37,9 @@ enum ShaderFeature
     
     // Visualization of the voxel tree traversal depth
     SF_Debug_ShowVoxelTreeDepth = 256,
+    
+    // Enables voxel PCF filtering
+    SF_Shadow_PCF_Filter = 512,
 };
 
 

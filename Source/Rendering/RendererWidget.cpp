@@ -27,12 +27,14 @@ RendererWidget::~RendererWidget()
 
 void RendererWidget::enableFeature(ShaderFeature feature)
 {
+    shadowMask_->enableFeature(feature);
     sceneDepthPass_->enableFeature(feature);
     forwardPass_->enableFeature(feature);
 }
 
 void RendererWidget::disableFeature(ShaderFeature feature)
 {
+    shadowMask_->disableFeature(feature);
     sceneDepthPass_->disableFeature(feature);
     forwardPass_->disableFeature(feature);
 }
