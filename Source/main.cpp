@@ -7,9 +7,9 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     
-    // Specify OpenGL 3.3 Core Profile
+    // Specify OpenGL 4.0 Core Profile
     QGLFormat format = QGLFormat::defaultFormat();
-    format.setVersion(3, 3);
+    format.setVersion(4, 0);
     format.setProfile(QGLFormat::CoreProfile);
     
     // Create the window and controller
