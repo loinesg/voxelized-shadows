@@ -61,7 +61,16 @@ void RendererWidget::setShadowMapCascades(int cascades)
 
 void RendererWidget::setVoxelPCFFilterSize(int kernelSize)
 {
-    voxelTree_->setPCFFilterSize(kernelSize);
+    if(kernelSize == 0)
+    {
+        // Completely disable PCF
+        disableFeature(SF_Shadow_PCF_Filter);
+    }
+    else
+    {
+        enableFeature(SF_Shadow_PCF_Filter);
+        voxelTree_->setPCFFilterSize(kernelSize);
+    }
 }
 
 void RendererWidget::initializeGL()

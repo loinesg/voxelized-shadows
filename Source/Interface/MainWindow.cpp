@@ -38,7 +38,6 @@ MainWindow::MainWindow(const QGLFormat &format)
     createFeatureToggle(SF_Specular, "Specular Highlights");
     createFeatureToggle(SF_NormalMap, "Normal Mapping");
     createFeatureToggle(SF_Cutout, "Cutout Transparency");
-    createFeatureToggle(SF_Shadow_PCF_Filter, "PCF Filtering");
     
     // Create shadow method toggles
     createShadowMethodRadio(SMM_ShadowMap, "Shadow Mapping");    createShadowMethodRadio(SMM_VoxelTree, "Voxel Tree");
@@ -68,6 +67,7 @@ MainWindow::MainWindow(const QGLFormat &format)
     createShadowCascadesRadio(4);
     
     // Create voxel pcf kernel size radios
+    createVoxelPCFFilterSizeRadio(0);
     createVoxelPCFFilterSizeRadio(9)->setChecked(true); // Default = 9x9 PCF
     createVoxelPCFFilterSizeRadio(17);
     
@@ -169,7 +169,7 @@ QRadioButton* MainWindow::createShadowCascadesRadio(int cascades)
 QRadioButton* MainWindow::createVoxelPCFFilterSizeRadio(int kernelSize)
 {
     // Create the radio button
-    QString label = QString("%1 x %1").arg(kernelSize);
+    QString label = kernelSize == 0 ? "No PCF" : QString("%1 x %1").arg(kernelSize);
     QRadioButton* radio = new QRadioButton(label);
     radio->setProperty("kernelSize", kernelSize);
     
