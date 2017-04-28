@@ -71,6 +71,7 @@ public:
 private:
     UniformManager* uniformManager_;
     const Scene* scene_;
+    Bounds sceneBoundsLightSpace_;
     
     // The size of the PCF filter kernel
     int pcfKernelSize_;
@@ -97,7 +98,8 @@ private:
     // The pointers to each child tree within the merged structure
     VoxelPointer treePointers_[MaxTileCount];
     
-    // The number of completed tiles and the tiles being built
+    // The tiles that are not started yet and those being built
+    vector<int> notStartedTiles_;
     vector<VoxelBuilder*> activeTiles_;
     mutex activeTilesMutex_;
     
@@ -107,6 +109,7 @@ private:
     // Starts the processing of the next queued tile.
     // Renders the tile's depth maps and starts a builder thread.
     void startTileBuild();
+    int getNextTileToStart();
     
     // Runs on the merging thread.
     // Merges finished builders into the
@@ -127,7 +130,7 @@ private:
     
     // Computes bounds of the scene in light space.
     // The bounds includes *static* objects only.
-    Bounds sceneBoundsLightSpace() const;
+    Bounds computeSceneBoundsLightSpace() const;
     Bounds tileBoundsLightSpace(int index) const;
     
     // Renders dual shadow maps for the scene.

@@ -21,6 +21,7 @@ public:
     ~Scene();
     
     // The viewers camera
+    const Camera* mainCamera() const { return &cameras_[0]; }
     Camera* mainCamera() { return &cameras_[0]; }
     
     // The shadow casting light

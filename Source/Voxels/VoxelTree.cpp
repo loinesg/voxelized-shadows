@@ -6,6 +6,7 @@
 VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution)
     : uniformManager_(uniformManager),
     scene_(scene),
+    sceneBoundsLightSpace_(computeSceneBoundsLightSpace()),
     pcfKernelSize_(9),
     startedTiles_(0),
     mergedTiles_(0),
@@ -56,6 +57,12 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     
     // Start the tile merging thread
     mergingThread_ = thread(&VoxelTree::mergeTiles, this);
+    
+    // Add every tile to the list of tiles to build
+    for(int tile = 0; tile < totalTiles(); ++tile)
+    {
+        notStartedTiles_.push_back(tile);
+    }
 }
 
 size_t VoxelTree::sizeBytes() const
@@ -108,7 +115,7 @@ void VoxelTree::updateBuild()
 
 void VoxelTree::startTileBuild()
 {
-    int tileIndex = startedTiles_;
+    int tileIndex = getNextTileToStart();
     startedTiles_ ++;
     
     // Compute the light space bounds of the tile
@@ -127,6 +134,50 @@ void VoxelTree::startTileBuild()
     activeTilesMutex_.lock();
     activeTiles_.push_back(builder);
     activeTilesMutex_.unlock();
+}
+
+int VoxelTree::getNextTileToStart()
+{
+    // Check there are tiles waiting to be started
+    assert(notStartedTiles_.empty() == false);
+    
+    // Get the world to light space transformation matrix (without translation)
+    Matrix4x4 worldToLight = scene_->mainLight()->worldToLocal();
+    worldToLight.set(0, 3, 0.0);
+    worldToLight.set(1, 3, 0.0);
+    worldToLight.set(2, 3, 0.0);
+    
+    // Get the camera position in light space
+    Vector4 cameraPosWorld = Vector4(scene_->mainCamera()->position(), 1.0);
+    Vector3 cameraPosLight = (worldToLight * cameraPosWorld).vec3();
+    
+    // Keep track of the best tile
+    float closestDistance = 1000000000000.0;
+    int highestTileIndex = 0;
+    
+    // Check each tile
+    for(unsigned int i = 0; i < notStartedTiles_.size(); ++i)
+    {
+        // Get the tile centre in light space
+        Bounds tileBounds = tileBoundsLightSpace(notStartedTiles_[i]);
+        Vector3 tileCentre = tileBounds.centre();
+        
+        // Get the camera to tile centre sqr distance
+        float distance = (cameraPosLight - tileCentre).sqrMagnitude();
+        
+        // Check if this tile is the new closest one
+        if(distance < closestDistance)
+        {
+            closestDistance = distance;
+            highestTileIndex = i;
+        }
+    }
+    
+    // Remove the tile from the queue + return it
+    int tileIndex = notStartedTiles_[highestTileIndex];
+    std::swap(notStartedTiles_[highestTileIndex], notStartedTiles_.back());
+    notStartedTiles_.pop_back();
+    return tileIndex;
 }
 
 void VoxelTree::mergeTiles()
@@ -193,7 +244,7 @@ void VoxelTree::updateBuffers()
 void VoxelTree::updateUniformBuffer()
 {
     // Cover the scene witht the shadowmap and get the world to shadow matrix
-    shadowMap_.setLightSpaceBounds(sceneBoundsLightSpace());
+    shadowMap_.setLightSpaceBounds(sceneBoundsLightSpace_);
     Matrix4x4 worldToShadow = shadowMap_.worldToShadowMatrix(0);
     
     // Scale the world to shadow matrix by the total voxel resolution
@@ -290,7 +341,7 @@ void VoxelTree::updateTreeBuffer()
     glBufferData(GL_TEXTURE_BUFFER, treeSizeBytes, treeData, GL_STATIC_DRAW);
 }
 
-Bounds VoxelTree::sceneBoundsLightSpace() const
+Bounds VoxelTree::computeSceneBoundsLightSpace() const
 {
     // Get the world to light space transformation matrix (without translation)
     Matrix4x4 worldToLight = scene_->mainLight()->worldToLocal();
@@ -335,8 +386,8 @@ Bounds VoxelTree::sceneBoundsLightSpace() const
 
 Bounds VoxelTree::tileBoundsLightSpace(int index) const
 {
-    // Compute the bounds of the entire scene in light space
-    Bounds sceneBounds = sceneBoundsLightSpace();
+    // Get the bounds of the entire scene in light space
+    Bounds sceneBounds = sceneBoundsLightSpace_;
     
     // Compute the light space size of each tile
     float tileSizeX = sceneBounds.size().x / tileSubdivisions();
