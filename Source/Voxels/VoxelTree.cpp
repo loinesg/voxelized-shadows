@@ -6,6 +6,7 @@
 VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution)
     : uniformManager_(uniformManager),
     scene_(scene),
+    pcfKernelSize_(9),
     startedTiles_(0),
     mergedTiles_(0),
     uploadedTiles_(0),
@@ -76,6 +77,17 @@ size_t VoxelTree::originalSizeBytes() const
 size_t VoxelTree::originalSizeMB() const
 {
     return originalSizeBytes() / (1024 * 1024);
+}
+
+void VoxelTree::setPCFFilterSize(int kernelSize)
+{
+    // Must be either 9 or 17
+    assert(kernelSize == 9 || kernelSize == 17);
+    
+    pcfKernelSize_ = kernelSize;
+    
+    // Recompute PCF kernel data
+    updateUniformBuffer();
 }
 
 void VoxelTree::updateBuild()
@@ -196,13 +208,73 @@ void VoxelTree::updateUniformBuffer()
     buffer.worldToVoxels = worldToShadow;
     buffer.voxelTreeHeight = log2(tileResolution_);
     buffer.tileSubdivisions = tileSubdivisions();
+    buffer.pcfSampleCount = pcfKernelSize_ * pcfKernelSize_;
+    buffer.pcfLookups = ((pcfKernelSize_ + 7) / 8) * ((pcfKernelSize_ + 7) / 8);
     
+    // Set the pointer to the root node of each tile.
     for(int i = 0; i < totalTiles(); ++i)
     {
         buffer.rootAddresses[i*4] = treePointers_[i];
     }
     
+    // Precompute PCF offsets and bitmasks
+    for(int i = 0; i < 64; ++i)
+    {
+        // Get the x and y coords
+        int x = i / 8;
+        int y = i % 8;
+        
+        // Find the leaves used in the lookup
+        int lookupIndex = 0;
+        
+        // Consider a range of possible offsets
+        // Always offset by a full leaf tile (8 places).
+        for(int xOffset = -32; xOffset <= 32; xOffset+= 8)
+        {
+            for(int yOffset = -32; yOffset <= 32; yOffset+= 8)
+            {
+                // Get the bitmask at this offset
+                uint64_t bitmask = pcfBitmask(x - xOffset, y - yOffset);
+                
+                if(bitmask != 0)
+                {
+                    // Bitmask is non-zero. Include it in the filter kernel.
+                    auto offsetData = &buffer.pcfOffsets[i*9 + lookupIndex];
+                    offsetData->xOffset = xOffset + 20;
+                    offsetData->yOffset = yOffset + 20;
+                    offsetData->bitmaskHigh = bitmask >> 32;
+                    offsetData->bitmaskLow = (uint32_t)bitmask;
+                    
+                    lookupIndex ++;
+                }
+            }
+        }
+        
+        // There should be the same number of lookups for each leaf index.
+        assert(lookupIndex == (int)buffer.pcfLookups);
+    }
+    
     uniformManager_->updateVoxelBuffer(&buffer, sizeof(VoxelsUniformBuffer));
+}
+
+uint64_t VoxelTree::pcfBitmask(int kernelX, int kernelY) const
+{
+    uint64_t bitmask = 0;
+    for(int i = 0; i < 64; ++i)
+    {
+        // Get the x and y coords
+        int coordX = i / 8;
+        int coordY = i % 8;
+        
+        // Compute whether the coord is in the filter kernel
+        if(coordX >= kernelX - pcfKernelSize_/2 && coordX <= kernelX + pcfKernelSize_/2
+           && coordY >= kernelY - pcfKernelSize_/2 && coordY <= kernelY + pcfKernelSize_/2)
+        {
+            bitmask |= ((uint64_t)1) << i;
+        }
+    }
+    
+    return bitmask;
 }
 
 void VoxelTree::updateTreeBuffer()

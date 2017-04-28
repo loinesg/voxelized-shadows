@@ -1,4 +1,8 @@
-#version 330
+#version 400
+
+// The maximum number of leaf masks that a single PCF lookup can touch
+// 17x17 PCF can touch up to 3x3=9 leaf nodes
+#define PCF_MAX_LOOKUPS 9
 
 // scene_data uniform buffer
 layout(std140) uniform scene_data
@@ -17,7 +21,21 @@ layout(std140) uniform voxel_data
     uniform mat4x4 _WorldToVoxel;
     uniform uint _VoxelTreeHeight;
     uniform uint _TileSubdivisions;
-    uniform int _RootNodeAddresses[64];
+    
+    // The total number of voxels in the PCF kernel
+    uniform uint _PCFSampleCount;
+    
+    // The number of leaf nodes visited in a PCF kernel
+    uniform uint _PCFLookups;
+    
+    // The bitmask and offset for PCF kernel lookups.
+    // Stores (xOffset, yOffset, bitmask0, bitmask1)
+    // PCF_MAX_LOOKUPS values per original leaf mask index
+    uniform uvec4 _PCFOffsets[64 * PCF_MAX_LOOKUPS];
+    
+    // The root node of each tile
+    // Stored (rootAddress, unused, unused, unused)
+    uniform ivec4 _RootNodeAddresses[16 * 16];
 };
 
 // Scene depth texture
@@ -118,7 +136,7 @@ LeafNodeQuery getLeafNode(uvec3 coord)
     uint tileIndex = (tileX * _TileSubdivisions) + tileY;
     
     // Get the memory address of the first node to visit
-    int memAddress = _RootNodeAddresses[tileIndex];
+    int memAddress = _RootNodeAddresses[tileIndex].x;
 
     // Traverse inner nodes
     for(uint depth = 0u; depth <= _VoxelTreeHeight - 3u; ++depth)
@@ -145,7 +163,7 @@ LeafNodeQuery getLeafNode(uvec3 coord)
         memAddress = int(texelFetch(_VoxelData, childPtr).r);
     }
     
-    // No more inner nodes. Sample the leaf node.
+    // We have reached a leaf node.
     LeafNodeQuery q;
     q.treeDepthReached = _VoxelTreeHeight;
     q.highBits = texelFetch(_VoxelData, memAddress).r;
@@ -153,22 +171,64 @@ LeafNodeQuery getLeafNode(uvec3 coord)
     return q;
 }
 
+/*
+ * Get the shadow attenuation for the voxel with the given coordinate.
+ * Also performs PCF filtering, if enabled.
+ */
 VoxelQuery sampleShadowTree(uvec3 coord)
 {
+    // Get the location of the coord within its leaf
+    uint leafIndex = getVoxelLeafIndex(coord);
+    
+#if !defined(SHADOW_PCF_FILTER)
+    
     // Get the leaf node
     LeafNodeQuery leaf = getLeafNode(coord);
     
-    // Extract the correct location
-    uint leafIndex = getVoxelLeafIndex(coord);
+    // Get the shadowing state of the voxel
     uint shadowing = leafIndex > 31u
         ? (leaf.lowBits >> (leafIndex-32u)) & 1u
         : (leaf.highBits >> leafIndex) & 1u;
     
     // Return the query result
     VoxelQuery q;
-    q.treeDepthReached = _VoxelTreeHeight;
+    q.treeDepthReached = leaf.treeDepthReached;
     q.shadowAttenuation = float(shadowing);
     return q;
+    
+#else
+    
+    // Keep track of how many voxels are unshadowed
+    int unshadowed = 0;
+    
+    // Calculate the sum of the tree depths for debugging overlays
+    uint treeDepthSum = 0u;
+    
+    // Process each PCF lookup
+    for(uint i = 0; i < _PCFLookups; i++)
+    {
+        // Get the lookup data
+        uvec4 lookup = _PCFOffsets[leafIndex * PCF_MAX_LOOKUPS + i];
+        uvec2 offset = lookup.xy;
+        uvec2 bitmask = lookup.zw;
+        
+        // Get the leaf coord
+        uvec3 pcfCoord = uvec3(coord.xy + offset - uvec2(20u), coord.z);
+        
+        // Query the shadow tree
+        LeafNodeQuery leaf = getLeafNode(pcfCoord);
+        unshadowed += bitCount(leaf.highBits & bitmask.x);
+        unshadowed += bitCount(leaf.lowBits & bitmask.y);
+        treeDepthSum = leaf.treeDepthReached;
+    }
+    
+    // Return the query result
+    VoxelQuery q;
+    q.treeDepthReached = treeDepthSum / 4u;
+    q.shadowAttenuation = float(unshadowed) / float(_PCFSampleCount);
+    return q;
+    
+#endif
 }
 
 void main()

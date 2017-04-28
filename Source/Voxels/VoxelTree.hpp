@@ -32,6 +32,10 @@ class VoxelTree
 public:
     VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution);
 
+    // The size of the PCF filter kernel.
+    // Either 9 or 17.
+    int pcfFilterSize() const { return pcfKernelSize_; }
+    
     // The total resolution of the tree
     int resolution() const { return treeResolution_; }
     
@@ -54,6 +58,10 @@ public:
     // The voxels buffer texture id
     GLuint treeBufferTexture() const { return bufferTexture_; }
     
+    // Sets the size of the PCF filter kernel.
+    // Must be either 1, 9 or 17.
+    void setPCFFilterSize(int kernelSize);
+    
     // Carrys out the tree construction process using time slicing.
     // Most of the work is carried out via background threads, but
     // some work (eg openGL rendering) occurs on the main thread
@@ -63,6 +71,9 @@ public:
 private:
     UniformManager* uniformManager_;
     const Scene* scene_;
+    
+    // The size of the PCF filter kernel
+    int pcfKernelSize_;
     
     // The building status
     int startedTiles_;
@@ -109,6 +120,10 @@ private:
     void updateBuffers();
     void updateUniformBuffer();
     void updateTreeBuffer();
+    
+    // Computes the bitmask to use on a leaf for the with
+    // the specified PCF kernel centre coordinates
+    uint64_t pcfBitmask(int kernelX, int kernelY) const;
     
     // Computes bounds of the scene in light space.
     // The bounds includes *static* objects only.

@@ -46,14 +46,32 @@ struct VoxelsUniformBuffer
     static const int BlockID = 3;
     
     Matrix4x4 worldToVoxels;
+    
     uint32_t voxelTreeHeight;
     uint32_t tileSubdivisions;
-    int padding[2];
     
-    // The root address of each subtree
+    // The total number of voxels used in the PCF kernel
+    uint32_t pcfSampleCount;
+    
+    // The number of leaf nodes visited for each PCF kernel.
+    uint32_t pcfLookups;
+    
+    struct PCFOffset
+    {
+        uint32_t xOffset;
+        uint32_t yOffset;
+        uint32_t bitmaskHigh;
+        uint32_t bitmaskLow;
+    };
+    
+    // The precomputed information for each PCF lookup
+    // 9 values per leaf index, as 17x17 PCF uses 9 lookups.
+    PCFOffset pcfOffsets[64*9];
+    
+    // 3 unused ints are placed between each address as
+    // padding, so each value is 16 bytes (GLSL limitation)
     int rootAddresses[16 * 16 * 4];
 };
-
 
 class UniformManager
 {
