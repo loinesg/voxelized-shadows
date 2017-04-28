@@ -28,6 +28,10 @@ public:
     ShadowMask(UniformManager* uniformManager, ShadowMaskMethod method);
     ~ShadowMask();
     
+    // Enable / disable shader features
+    void enableFeature(ShaderFeature feature);
+    void disableFeature(ShaderFeature feature);
+    
     // The currently active method
     ShadowMaskMethod method() const { return method_; }
     

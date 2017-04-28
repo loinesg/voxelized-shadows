@@ -29,6 +29,7 @@ public:
     QObjectList overlayRadios() { return overlayRadios_->children(); }
     QObjectList shadowResolutionRadios() { return shadowResolutionRadios_->children(); }
     QObjectList shadowCascadesRadios() { return shadowCascadesRadios_->children(); }
+    QObjectList voxelPCFFilterSizeRadios() { return voxelPCFFilterSizeRadios_->children(); }
     
 private:
     // Main renderer widget
@@ -48,6 +49,7 @@ private:
     QGroupBox* overlayRadios_;
     QGroupBox* shadowResolutionRadios_;
     QGroupBox* shadowCascadesRadios_;
+    QGroupBox* voxelPCFFilterSizeRadios_;
     
     QLabel* createStatsLabel();
     QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label);
@@ -55,4 +57,5 @@ private:
     QRadioButton* createOverlayRadio(int index, const char* label);
     QRadioButton* createShadowResolutionRadio(int resolution);
     QRadioButton* createShadowCascadesRadio(int cascades);
+    QRadioButton* createVoxelPCFFilterSizeRadio(int kernelSize);
 };

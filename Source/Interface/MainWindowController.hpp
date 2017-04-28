@@ -27,6 +27,7 @@ public slots:
     void overlayToggled();
     void shadowResolutionToggled();
     void shadowCascadesToggled();
+    void voxelPCFFilterSizeToggled();
 
 private:
     MainWindow* window_;

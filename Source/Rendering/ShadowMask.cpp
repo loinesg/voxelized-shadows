@@ -21,11 +21,11 @@ ShadowMask::ShadowMask(UniformManager* uniformManager, ShadowMaskMethod method)
     
     // RenderPass for the ShadowMap method
     shadowMapPass_ = new RenderPass("ShadowSamplingPass", uniformManager);
-    shadowMapPass_->setSupportedFeatures(0);
+    shadowMapPass_->setSupportedFeatures(SF_Shadow_PCF_Filter);
     
     // RenderPass for the VoxelTree method
     voxelTreePass_ = new RenderPass("ShadowSamplingPass-Voxel", uniformManager);
-    voxelTreePass_->setSupportedFeatures(0);
+    voxelTreePass_->setSupportedFeatures(SF_Shadow_PCF_Filter);
 }
 
 ShadowMask::~ShadowMask()
@@ -39,6 +39,18 @@ ShadowMask::~ShadowMask()
     // Delete the render passes
     delete shadowMapPass_;
     delete voxelTreePass_;
+}
+
+void ShadowMask::enableFeature(ShaderFeature feature)
+{
+    shadowMapPass_->enableFeature(feature);
+    voxelTreePass_->enableFeature(feature);
+}
+
+void ShadowMask::disableFeature(ShaderFeature feature)
+{
+    shadowMapPass_->disableFeature(feature);
+    voxelTreePass_->disableFeature(feature);
 }
 
 void ShadowMask::setMethod(ShadowMaskMethod method)

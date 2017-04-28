@@ -41,6 +41,7 @@ public:
     void setShadowRenderMethod(ShadowMaskMethod method);
     void setShadowMapResolution(int resolution);
     void setShadowMapCascades(int cascades);
+    void setVoxelPCFFilterSize(int kernelSize);
     
 private:
     Scene* scene_;

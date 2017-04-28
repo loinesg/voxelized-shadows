@@ -183,5 +183,8 @@ string Shader::createFeatureDefines() const
     if(hasFeature(SF_Debug_ShowProjectedShadowMap)) defines += "\n #define DEBUG_SHOW_SHADOW_MAP_PROJECTION";
     if(hasFeature(SF_Debug_ShowVoxelTreeDepth)) defines += "\n #define DEBUG_SHOW_VOXEL_TREE_DEPTH";
     
+    // Shadow filtering defines
+    if(hasFeature(SF_Shadow_PCF_Filter)) defines += "\n #define SHADOW_PCF_FILTER";
+    
     return defines;
 }

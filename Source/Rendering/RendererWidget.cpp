@@ -27,12 +27,14 @@ RendererWidget::~RendererWidget()
 
 void RendererWidget::enableFeature(ShaderFeature feature)
 {
+    shadowMask_->enableFeature(feature);
     sceneDepthPass_->enableFeature(feature);
     forwardPass_->enableFeature(feature);
 }
 
 void RendererWidget::disableFeature(ShaderFeature feature)
 {
+    shadowMask_->disableFeature(feature);
     sceneDepthPass_->disableFeature(feature);
     forwardPass_->disableFeature(feature);
 }
@@ -55,6 +57,20 @@ void RendererWidget::setShadowMapResolution(int resolution)
 void RendererWidget::setShadowMapCascades(int cascades)
 {
     shadowMap_->setCascades(cascades, shadowMap_->resolution());
+}
+
+void RendererWidget::setVoxelPCFFilterSize(int kernelSize)
+{
+    if(kernelSize == 0)
+    {
+        // Completely disable PCF
+        disableFeature(SF_Shadow_PCF_Filter);
+    }
+    else
+    {
+        enableFeature(SF_Shadow_PCF_Filter);
+        voxelTree_->setPCFFilterSize(kernelSize);
+    }
 }
 
 void RendererWidget::initializeGL()
