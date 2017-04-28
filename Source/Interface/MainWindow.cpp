@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 
 #include <QVariant>
+#include <QScrollArea>
 
 MainWindow::MainWindow(const QGLFormat &format)
 {
@@ -14,6 +15,7 @@ MainWindow::MainWindow(const QGLFormat &format)
     overlayRadios_ = new QGroupBox("Debug Overlay");
     shadowResolutionRadios_ = new QGroupBox("Shadow Map Resolution");
     shadowCascadesRadios_ = new QGroupBox("Shadow Cascades");
+    voxelPCFFilterSizeRadios_ = new QGroupBox("Voxel PCF");
     
     // Use a vertical layout for all groups
     statsGroupBox_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
@@ -22,6 +24,7 @@ MainWindow::MainWindow(const QGLFormat &format)
     overlayRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     shadowResolutionRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     shadowCascadesRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
+    voxelPCFFilterSizeRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     
     // Create stats widgets
     treeResolutionLabel_ = createStatsLabel();
@@ -64,6 +67,10 @@ MainWindow::MainWindow(const QGLFormat &format)
     createShadowCascadesRadio(3);
     createShadowCascadesRadio(4);
     
+    // Create voxel pcf kernel size radios
+    createVoxelPCFFilterSizeRadio(9)->setChecked(true); // Default = 9x9 PCF
+    createVoxelPCFFilterSizeRadio(17);
+    
     // Add widgets to side panel
     QBoxLayout* sidePanelLayout = new QBoxLayout(QBoxLayout::TopToBottom);
     sidePanelLayout->addWidget(statsGroupBox_);
@@ -72,6 +79,7 @@ MainWindow::MainWindow(const QGLFormat &format)
     sidePanelLayout->addWidget(overlayRadios_);
     sidePanelLayout->addWidget(shadowResolutionRadios_);
     sidePanelLayout->addWidget(shadowCascadesRadios_);
+    sidePanelLayout->addWidget(voxelPCFFilterSizeRadios_);
     sidePanelLayout->setSpacing(20);
     sidePanelLayout->addStretch();
     
@@ -79,10 +87,18 @@ MainWindow::MainWindow(const QGLFormat &format)
     sidePanel->setMaximumWidth(200);
     sidePanel->setLayout(sidePanelLayout);
     
+    // Create the scroll area for the side panel
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setMaximumWidth(220);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    scrollArea->setWidget(sidePanel);
+    scrollArea->setWidgetResizable(false);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    
     // Add widgets to main layout
     QBoxLayout* mainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     mainLayout->addWidget(rendererWidget_);
-    mainLayout->addWidget(sidePanel);
+    mainLayout->addWidget(scrollArea);
 }
 
 QLabel* MainWindow::createStatsLabel()
@@ -138,7 +154,7 @@ QRadioButton* MainWindow::createShadowResolutionRadio(int resolution)
     return radio;
 }
 
-QRadioButton* MainWindow::createShadowCascadesRadio(const int cascades)
+QRadioButton* MainWindow::createShadowCascadesRadio(int cascades)
 {
     // Create the radio button
     QString label = QString("%1 Cascades").arg(cascades == 1 ? "No" : QString::number(cascades));
@@ -146,6 +162,18 @@ QRadioButton* MainWindow::createShadowCascadesRadio(const int cascades)
     radio->setProperty("cascades", cascades);
     
     shadowCascadesRadios_->layout()->addWidget(radio);
+    
+    return radio;
+}
+
+QRadioButton* MainWindow::createVoxelPCFFilterSizeRadio(int kernelSize)
+{
+    // Create the radio button
+    QString label = QString("%1 x %1").arg(kernelSize);
+    QRadioButton* radio = new QRadioButton(label);
+    radio->setProperty("kernelSize", kernelSize);
+    
+    voxelPCFFilterSizeRadios_->layout()->addWidget(radio);
     
     return radio;
 }

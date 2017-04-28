@@ -35,6 +35,12 @@ MainWindowController::MainWindowController(MainWindow* window)
     {
         connect(window_->shadowCascadesRadios()[i], SIGNAL(toggled(bool)), SLOT(shadowCascadesToggled()));
     }
+    
+    // Voxel PCF filter size radio button signals
+    for(int i = 1; i < window_->voxelPCFFilterSizeRadios().size(); ++i)
+    {
+        connect(window_->voxelPCFFilterSizeRadios()[i], SIGNAL(toggled(bool)), SLOT(voxelPCFFilterSizeToggled()));
+    }
 }
 
 bool MainWindowController::eventFilter(QObject* obj, QEvent* event)
@@ -126,6 +132,16 @@ void MainWindowController::shadowCascadesToggled()
     
     // Update the shadow map resolution
     window_->rendererWidget()->setShadowMapCascades(cascades);
+}
+
+void MainWindowController::voxelPCFFilterSizeToggled()
+{
+    // The sender is a voxel pcf filter size radio button
+    QRadioButton* radio = (QRadioButton*)QObject::sender();
+    int kernelSize = radio->property("kernelSize").toInt();
+    
+    // Update the shadow map resolution
+    window_->rendererWidget()->setVoxelPCFFilterSize(kernelSize);
 }
 
 void MainWindowController::update(float deltaTime)

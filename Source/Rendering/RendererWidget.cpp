@@ -59,6 +59,11 @@ void RendererWidget::setShadowMapCascades(int cascades)
     shadowMap_->setCascades(cascades, shadowMap_->resolution());
 }
 
+void RendererWidget::setVoxelPCFFilterSize(int kernelSize)
+{
+    voxelTree_->setPCFFilterSize(kernelSize);
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));
