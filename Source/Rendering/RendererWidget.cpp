@@ -191,7 +191,7 @@ void RendererWidget::createRenderPasses()
     string forwardPassName = "ForwardPass";
     forwardPass_ = new RenderPass(forwardPassName, uniformManager_);
     forwardPass_->setSupportedFeatures(~0);
-    forwardPass_->setClearColor(PassClearColor(0.78, 0.93, 0.92, 1.0));
+    forwardPass_->setClearColor(PassClearColor(136.0/256.0, 152.0/256.0, 176.0/256.0, 1.0));
 }
 
 void RendererWidget::createScene()
