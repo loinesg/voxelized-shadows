@@ -38,6 +38,7 @@ MainWindow::MainWindow(const QGLFormat &format)
     createFeatureToggle(SF_Specular, "Specular Highlights");
     createFeatureToggle(SF_NormalMap, "Normal Mapping");
     createFeatureToggle(SF_Cutout, "Cutout Transparency");
+    createFeatureToggle(SF_Fog, "Fog");
     
     // Create shadow method toggles
     createShadowMethodRadio(SMM_ShadowMap, "Shadow Mapping");    createShadowMethodRadio(SMM_VoxelTree, "Voxel Tree");

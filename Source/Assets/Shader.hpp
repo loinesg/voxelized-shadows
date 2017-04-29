@@ -23,23 +23,26 @@ enum ShaderFeature
     // Enables AlphaTest cutout transparency
     SF_Cutout = 8,
     
+    // Enables fog effects
+    SF_Fog = 16,
+    
     // Visualization of shadow maps
-    SF_Debug_ShadowMapTexture = 16,
+    SF_Debug_ShadowMapTexture = 32,
     
     // Visualization of depth textures
-    SF_Debug_DepthTexture = 32,
+    SF_Debug_DepthTexture = 64,
     
     // Visualization of cascade split distances
-    SF_Debug_ShowCascadeSplits = 64,
+    SF_Debug_ShowCascadeSplits = 128,
     
     // Visualization of the projected shadow map
-    SF_Debug_ShowProjectedShadowMap = 128,
+    SF_Debug_ShowProjectedShadowMap = 256,
     
     // Visualization of the voxel tree traversal depth
-    SF_Debug_ShowVoxelTreeDepth = 256,
+    SF_Debug_ShowVoxelTreeDepth = 512,
     
     // Enables voxel PCF filtering
-    SF_Shadow_PCF_Filter = 512,
+    SF_Shadow_PCF_Filter = 1024,
 };
 
 

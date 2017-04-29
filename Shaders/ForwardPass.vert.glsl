@@ -26,7 +26,13 @@ layout(location = 2) in vec4 _tangent;
 layout(location = 3) in vec2 _texcoord;
 
 #ifdef SPECULAR_ON
+    // Direction to the camera, normalized.
     out vec3 viewDir;
+#endif
+
+#ifdef FOG_ON
+    // Distance to the camera
+    out float viewDist;
 #endif
 
 #ifdef NORMAL_MAP_ON
@@ -46,11 +52,22 @@ void main()
 {
     gl_Position = _ModelViewProjection * _position;
     
-#ifdef SPECULAR_ON
-    // Send the view direction to the fragment shader
-    // Used for BlinnPhong specular lighting.
+#if defined(SPECULAR_ON) || defined(FOG_ON)
+    // Compute the vector to the camera
     vec4 worldPosition = _ModelToWorld * _position;
-    viewDir = normalize(_CameraPosition - worldPosition.xyz);
+    vec3 toCamera = _CameraPosition - worldPosition.xyz;
+    float toCameraDist = length(toCamera);
+    
+    #ifdef SPECULAR_ON
+        // Send the view direction to the fragment shader
+        // Used for BlinnPhong specular lighting.
+        viewDir = toCamera / (toCameraDist + 0.000001);
+    #endif
+        
+    #ifdef FOG_ON
+        // Send the view distance for fog calculations.
+        viewDist = toCameraDist;
+    #endif
 #endif
     
 #ifdef NORMAL_MAP_ON

@@ -13,7 +13,13 @@ layout(std140) uniform scene_data
 uniform sampler2D _MainTexture;
 
 #ifdef SPECULAR_ON
+    // Direction to the camera, normalized.
     in vec3 viewDir;
+#endif
+
+#ifdef FOG_ON
+    // Distance to the camera
+    in float viewDist;
 #endif
 
 #ifdef NORMAL_MAP_ON
@@ -135,4 +141,14 @@ void main()
     vec3 ambientLight = col.rgb * _AmbientColor;
     vec3 finalColor = directLight + ambientLight;
     fragColor = vec4(finalColor.rgb, 1.0);
+    
+#ifdef FOG_ON
+    // Compute the fog density using exponential squared
+    float fogDensity = 0.0075 * viewDist;
+    fogDensity = 1.0 - exp2(-fogDensity * fogDensity);
+    
+    // Apply fog to the fragColor
+    vec3 fogColor = vec3(0.5, 0.5, 0.5);
+    fragColor.rgb = (fogColor * fogDensity) + (fragColor.rgb * (1.0 - fogDensity));
+#endif
 }
