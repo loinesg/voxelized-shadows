@@ -168,9 +168,12 @@ bool Scene::loadMeshInstance(ifstream &file)
 
 bool Scene::loadAnimation(ifstream &file)
 {
-    // Rotation speed is stored in the file
+    // Settings are stored sequentially
+    float startTime;
+    float resetInterval;
     Vector3 rotationSpeed;
-    file >> rotationSpeed;
+    Vector3 translationSpeed;
+    file >> startTime >> resetInterval >> rotationSpeed >> translationSpeed;
     
     // The animation component affects the mesh instance
     // most recently found in the file
@@ -178,7 +181,7 @@ bool Scene::loadAnimation(ifstream &file)
     MeshInstance* meshInstance = meshInstances_.back();
     
     // Create the animation instance
-    animations_.push_back(new Animation(meshInstance, rotationSpeed));
+    animations_.push_back(new Animation(meshInstance, startTime, resetInterval,  rotationSpeed, translationSpeed));
     return true;
 }
 

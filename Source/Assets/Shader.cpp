@@ -175,6 +175,8 @@ string Shader::createFeatureDefines() const
     if(hasFeature(SF_NormalMap)) defines += "\n #define NORMAL_MAP_ON";
     if(hasFeature(SF_Specular)) defines += "\n #define SPECULAR_ON";
     if(hasFeature(SF_Cutout)) defines += "\n #define ALPHA_TEST_ON";
+    if(hasFeature(SF_Fog)) defines += "\n #define FOG_ON";
+    
     
     // Debug feature defines
     if(hasFeature(SF_Debug_ShadowMapTexture)) defines += "\n #define DEBUG_SHADOW_MAP_TEXTURE";
