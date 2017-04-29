@@ -188,7 +188,5 @@ string Shader::createFeatureDefines() const
     // Shadow filtering defines
     if(hasFeature(SF_Shadow_PCF_Filter)) defines += "\n #define SHADOW_PCF_FILTER";
     
-    printf(defines.c_str());
-    
     return defines;
 }
