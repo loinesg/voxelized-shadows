@@ -32,10 +32,6 @@ layout(std140) uniform voxel_data
     // Stores (xOffset, yOffset, bitmask0, bitmask1)
     // PCF_MAX_LOOKUPS values per original leaf mask index
     uniform uvec4 _PCFOffsets[64 * PCF_MAX_LOOKUPS];
-    
-    // The root node of each tile
-    // Stored (rootAddress, unused, unused, unused)
-    uniform ivec4 _RootNodeAddresses[16 * 16];
 };
 
 // Scene depth texture
@@ -136,7 +132,7 @@ LeafNodeQuery getLeafNode(uvec3 coord)
     uint tileIndex = (tileX * _TileSubdivisions) + tileY;
     
     // Get the memory address of the first node to visit
-    int memAddress = _RootNodeAddresses[tileIndex].x;
+    int memAddress = int(texelFetch(_VoxelData, int(tileIndex)).r);
 
     // Traverse inner nodes
     for(uint depth = 0u; depth <= _VoxelTreeHeight - 3u; ++depth)

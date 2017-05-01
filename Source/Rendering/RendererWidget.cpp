@@ -92,7 +92,7 @@ void RendererWidget::initializeGL()
     shadowMask_ = new ShadowMask(uniformManager_, SMM_Combined);
     
     // Create and build the voxel tree
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 8192 * 8);
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, 8192 * 16);
     shadowMask_->setVoxelTree(voxelTree_);
     
     // Create RenderPass instances

@@ -67,10 +67,6 @@ struct VoxelsUniformBuffer
     // The precomputed information for each PCF lookup
     // 9 values per leaf index, as 17x17 PCF uses 9 lookups.
     PCFOffset pcfOffsets[64*9];
-    
-    // 3 unused ints are placed between each address as
-    // padding, so each value is 16 bytes (GLSL limitation)
-    int rootAddresses[16 * 16 * 4];
 };
 
 class UniformManager

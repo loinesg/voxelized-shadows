@@ -23,6 +23,34 @@ VoxelWriter::~VoxelWriter()
     delete[] data_;
 }
 
+void VoxelWriter::reserveRootNodePointerSpace(int pointerCount)
+{
+    // Must be an empty buffer with enough space
+    assert(sizeWords_ == 0);
+    assert(pointerCount < maxSizeWords_);
+    
+    // Each pointer occupies 1 word.
+    sizeWords_ = pointerCount;
+    
+    // Create a dummy 100% unshadowed node for the root nodes
+    // to point at until the tiles are properly created
+    VoxelInnerNode node;
+    node.childMask = 21845; // = 0101010101010101 = 8 Unshadowed children
+    VoxelPointer nodePtr = writeNode(node, 0, 0);
+    
+    // Set each of the new pointers to the new address
+    for(int i = 0; i < pointerCount; ++i)
+    {
+        setRootNodePointer(i, nodePtr);
+    }
+}
+
+void VoxelWriter::setRootNodePointer(int index, VoxelPointer value)
+{
+    // The pointers are stored in the words at the start of the buffer.
+    data_[index] = value;
+}
+
 VoxelPointer VoxelWriter::writeNode(const VoxelInnerNode &node, int expandedChildCount, VoxelNodeHash hash)
 {
     // Check if a node with the same hash has already been written

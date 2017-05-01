@@ -21,6 +21,13 @@ public:
     size_t dataSizeBytes() const { return sizeWords_ * 4; }
     size_t dataSizeWords() const { return sizeWords_; }
     
+    // Reserves space for the specified number of root node
+    // pointers at the start of the buffer.
+    void reserveRootNodePointerSpace(int pointerCount);
+    
+    // Sets a root node pointer to the specified index.
+    void setRootNodePointer(int index, VoxelPointer value);
+    
     // Writes an inner node to the buffer.
     // Returns its position pointer.
     VoxelPointer writeNode(const VoxelInnerNode &node, int expandedChildCount, VoxelNodeHash hash);
