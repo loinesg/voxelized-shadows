@@ -33,17 +33,8 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     // Set the correct shadow map resolution
     shadowMap_.setCascades(1, tileResolution_);
     
-    // For now, use a dummy tree consisting of a single, fully
-    // unshadowed inner node
-    VoxelInnerNode node;
-    node.childMask = 21845; // = 0101010101010101 = 8 Unshadowed children
-    VoxelPointer nodePtr = voxelWriter_.writeNode(node, 0, 0);
-    
-    // Set the dummy node as the root for every tile
-    for(int i = 0; i < MaxTileCount; ++i)
-    {
-        treePointers_[i] = nodePtr;
-    }
+    // Create the root pointers in the buffer
+    voxelWriter_.reserveRootNodePointerSpace(totalTiles());
     
     // Create the buffer to hold the tree
     glGenBuffers(1, &buffer_);
@@ -202,7 +193,7 @@ void VoxelTree::mergeTiles()
 
         // Write the tree to the combined tree and store the root node location
         VoxelPointer ptr = voxelWriter_.writeTree(subtree, subtreeRoot, tileResolution_);
-        treePointers_[tile] = ptr;
+        voxelWriter_.setRootNodePointer(tile, ptr);
         
         // The builder is no longer needed
         delete builder;
@@ -261,12 +252,6 @@ void VoxelTree::updateUniformBuffer()
     buffer.tileSubdivisions = tileSubdivisions();
     buffer.pcfSampleCount = pcfKernelSize_ * pcfKernelSize_;
     buffer.pcfLookups = ((pcfKernelSize_ + 7) / 8) * ((pcfKernelSize_ + 7) / 8);
-    
-    // Set the pointer to the root node of each tile.
-    for(int i = 0; i < totalTiles(); ++i)
-    {
-        buffer.rootAddresses[i*4] = treePointers_[i];
-    }
     
     // Precompute PCF offsets and bitmasks
     for(int i = 0; i < 64; ++i)

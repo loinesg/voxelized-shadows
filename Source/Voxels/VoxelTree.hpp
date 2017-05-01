@@ -20,11 +20,8 @@ using namespace std;
 
 class VoxelTree
 {
-    // The maximum resolution supported by a tree
-    const static int MaxResolution = 262144;
-    
     // The maximum tile count. Each tile is up to 16K.
-    const static int MaxTileCount = (MaxResolution / 16384) * (MaxResolution / 16384);
+    const static int MaxTileCount = 32*32;
     
     // The maximum number of tiles that are built simultaneously.
     const static int ConcurrentBuilds = 6;
@@ -94,9 +91,6 @@ private:
     
     // The VoxelWriter containing the entire tree.
     VoxelWriter voxelWriter_;
-    
-    // The pointers to each child tree within the merged structure
-    VoxelPointer treePointers_[MaxTileCount];
     
     // The tiles that are not started yet and those being built
     vector<int> notStartedTiles_;
