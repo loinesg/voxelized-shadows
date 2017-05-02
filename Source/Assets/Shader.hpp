@@ -35,9 +35,6 @@ enum ShaderFeature
     // Visualization of cascade split distances
     SF_Debug_ShowCascadeSplits = 128,
     
-    // Visualization of the projected shadow map
-    SF_Debug_ShowProjectedShadowMap = 256,
-    
     // Visualization of the voxel tree traversal depth
     SF_Debug_ShowVoxelTreeDepth = 512,
     

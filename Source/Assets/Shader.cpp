@@ -182,7 +182,6 @@ string Shader::createFeatureDefines() const
     if(hasFeature(SF_Debug_ShadowMapTexture)) defines += "\n #define DEBUG_SHADOW_MAP_TEXTURE";
     if(hasFeature(SF_Debug_DepthTexture)) defines += "\n #define DEBUG_DEPTH_TEXTURE";
     if(hasFeature(SF_Debug_ShowCascadeSplits)) defines += "\n #define DEBUG_SHOW_CASCADE_SPLITS";
-    if(hasFeature(SF_Debug_ShowProjectedShadowMap)) defines += "\n #define DEBUG_SHOW_SHADOW_MAP_PROJECTION";
     if(hasFeature(SF_Debug_ShowVoxelTreeDepth)) defines += "\n #define DEBUG_SHOW_VOXEL_TREE_DEPTH";
     
     // Shadow filtering defines

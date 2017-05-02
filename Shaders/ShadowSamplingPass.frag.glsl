@@ -86,22 +86,8 @@ void main()
     // Return the cascade colour and blend %
     fragColor = vec4(finalColor, 0.7);
     
-#elif defined(DEBUG_SHOW_SHADOW_MAP_PROJECTION)
-    
-    // Discard samples that are at maximum depth (sky)
-    if(depth == 1.0) discard;
-    
-    // Discard overlay samples on the left half of the screen
-    if(texcoord.x < 0.5) discard;
-
-    // Get the projected shadow map depth
-    float projDepth = texture(_ShadowMapTexture, shadowCoord.xy).r;
-    
-    // Return the projected depth directly
-    fragColor = vec4(projDepth, projDepth, projDepth, 1.0);
-    
 #else
-    
+
     // Sample the shadow map.
     float shadow = textureProj(_ShadowMapTexture, shadowCoord);
 
