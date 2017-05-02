@@ -55,8 +55,7 @@ MainWindow::MainWindow(bool fullScreen, const QGLFormat &format, int voxelResolu
     createOverlayRadio(1, "Scene Depth");
     createOverlayRadio(2, "Shadow Mask");
     createOverlayRadio(3, "Cascade Splits");
-    createOverlayRadio(4, "Projected Shadow Map");
-    createOverlayRadio(5, "Voxel Tree Depth");
+    createOverlayRadio(4, "Voxel Tree Depth");
     
     // Create shadow resolution radios
     createShadowResolutionRadio(512);

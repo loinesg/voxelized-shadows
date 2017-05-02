@@ -243,13 +243,6 @@ void RendererWidget::createOverlays()
     cascadeSplitsOverlay->setTexture(sceneDepthTexture_);
     overlays_.push_back(cascadeSplitsOverlay);
     
-    // Projected shadow map overlay
-    Overlay* projectedShadowMapOverlay = new Overlay("Projected Shadow Map", "ShadowSamplingPass", SF_Debug_ShowProjectedShadowMap);
-    projectedShadowMapOverlay->setFullScreen(true);
-    projectedShadowMapOverlay->setUseBlending(false);
-    projectedShadowMapOverlay->setTexture(sceneDepthTexture_);
-    overlays_.push_back(projectedShadowMapOverlay);
-    
     // Voxel traversal depth overlay
     Overlay* voxelTraverselDepthOverlay = new Overlay("Voxel Traversal Depth", "ShadowSamplingPass-Voxel", SF_Debug_ShowVoxelTreeDepth);
     voxelTraverselDepthOverlay->setFullScreen(true);
