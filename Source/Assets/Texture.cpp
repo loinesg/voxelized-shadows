@@ -110,9 +110,9 @@ Texture* Texture::depth(int width, int height)
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     
-    return new Texture(texture, width, height, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT);
+    return new Texture(texture, width, height, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT);
 }
 
 Texture* Texture::singleChannel(int width, int height)
