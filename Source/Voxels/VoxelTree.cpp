@@ -23,7 +23,7 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     buildTimer_.start();
     
     // Make each tile as small as possible.
-    tileResolution_ = 4096;
+    tileResolution_ = std::min(resolution, 4096);
     while(totalTiles() > MaxTileCount)
     {
         // Double the resolution until under the tile count limit.

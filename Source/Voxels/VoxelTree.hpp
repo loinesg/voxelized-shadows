@@ -23,7 +23,7 @@ using namespace std;
 class VoxelTree
 {
     // The maximum tile count. Each tile is up to 16K.
-    const static int MaxTileCount = 32*32;
+    const static int MaxTileCount = 64*64;
     
     // The maximum number of tiles that are built simultaneously.
     const static int ConcurrentBuilds = 6;
