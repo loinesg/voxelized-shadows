@@ -12,7 +12,7 @@
 class MainWindow : public QWidget
 {
 public:
-    MainWindow(const QGLFormat &format);
+    MainWindow(const QGLFormat &format, int voxelResolution);
 
     RendererWidget* rendererWidget() const { return rendererWidget_; }
 

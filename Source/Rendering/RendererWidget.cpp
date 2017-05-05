@@ -5,10 +5,11 @@
 
 #include <iostream>
 
-RendererWidget::RendererWidget(const QGLFormat &format)
+RendererWidget::RendererWidget(const QGLFormat &format, int voxelResolution)
     : QGLWidget(format),
     overlays_(),
-    currentOverlay_(-1)
+    currentOverlay_(-1),
+    voxelResolution_(voxelResolution)
 {
     sceneDepthTexture_ = NULL;
 }
@@ -100,7 +101,7 @@ void RendererWidget::initializeGL()
     shadowMask_ = new ShadowMask(uniformManager_, SMM_Combined);
     
     // Create and build the voxel tree
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 8192 * 16);
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, voxelResolution_);
     shadowMask_->setVoxelTree(voxelTree_);
     
     // Create RenderPass instances

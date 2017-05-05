@@ -3,10 +3,10 @@
 #include <QVariant>
 #include <QScrollArea>
 
-MainWindow::MainWindow(const QGLFormat &format)
+MainWindow::MainWindow(const QGLFormat &format, int voxelResolution)
 {
     // Create main renderer
-    rendererWidget_ = new RendererWidget(format);
+    rendererWidget_ = new RendererWidget(format, voxelResolution);
     
     // Create groups
     statsGroupBox_ = new QGroupBox("Stats");

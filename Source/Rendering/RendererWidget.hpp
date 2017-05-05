@@ -14,7 +14,7 @@
 class RendererWidget : public QGLWidget
 {
 public:
-    RendererWidget(const QGLFormat &format);
+    RendererWidget(const QGLFormat &format, int voxelResolution);
     ~RendererWidget();
     
     Scene* scene() { return scene_; }
@@ -62,6 +62,8 @@ private:
     
     vector<Overlay*> overlays_;
     int currentOverlay_;
+    
+    int voxelResolution_;
 
     // QGLWidget override methods
     void initializeGL();
