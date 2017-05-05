@@ -1,7 +1,25 @@
 #include <QApplication>
 
+#include <string>
+
 #include "MainWindow.hpp"
 #include "MainWindowController.hpp"
+
+bool flagSet(std::string flag, int argc, char* argv[])
+{
+    for(int i = 0; i < argc; ++i)
+    {
+        // Check if the flag exists
+        std::string actualValue(argv[i]);
+        if(actualValue == flag)
+        {
+            return true;
+        }
+    }
+    
+    // No flag set.
+    return false;
+}
 
 int main(int argc, char* argv[])
 {
@@ -23,6 +41,12 @@ int main(int argc, char* argv[])
     window->resize(1350, 850);
     window->setWindowTitle("Shadow Rendering");
     window->show();
+    
+    // Precompute the voxel tree, if specified
+    if(flagSet("-precompute", argc, argv))
+    {
+        window->rendererWidget()->precomputeTree();
+    }
 
     return app.exec();
 }

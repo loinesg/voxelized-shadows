@@ -73,6 +73,14 @@ void RendererWidget::setVoxelPCFFilterSize(int kernelSize)
     }
 }
 
+void RendererWidget::precomputeTree()
+{
+    while(voxelTree_->completedTiles() < voxelTree_->totalTiles())
+    {
+        voxelTree_->updateBuild();
+    }
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));

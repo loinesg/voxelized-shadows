@@ -43,6 +43,10 @@ public:
     void setShadowMapCascades(int cascades);
     void setVoxelPCFFilterSize(int kernelSize);
     
+    // Forces the voxel tree to be completely built before
+    // starting to render the scene. Used for profiling.
+    void precomputeTree();
+    
 private:
     Scene* scene_;
     UniformManager* uniformManager_;
