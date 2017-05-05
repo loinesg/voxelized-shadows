@@ -3,7 +3,7 @@
 #include <QVariant>
 #include <QScrollArea>
 
-MainWindow::MainWindow(const QGLFormat &format, int voxelResolution)
+MainWindow::MainWindow(bool fullScreen, const QGLFormat &format, int voxelResolution)
 {
     // Create main renderer
     rendererWidget_ = new RendererWidget(format, voxelResolution);
@@ -98,11 +98,22 @@ MainWindow::MainWindow(const QGLFormat &format, int voxelResolution)
     scrollArea->setWidget(sidePanel);
     scrollArea->setWidgetResizable(false);
     scrollArea->setFrameShape(QFrame::NoFrame);
+    sidePanelWidget_ = scrollArea;
     
     // Add widgets to main layout
     QBoxLayout* mainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     mainLayout->addWidget(rendererWidget_);
-    mainLayout->addWidget(scrollArea);
+    
+    if(fullScreen)
+    {
+        // Make sure there is no border around the renderer
+        mainLayout->setContentsMargins(0, 0, 0, 0);
+    }
+    else
+    {
+        // Otherwise add the side panel widget to the window
+        mainLayout->addWidget(sidePanelWidget_);
+    }
 }
 
 QLabel* MainWindow::createStatsLabel()

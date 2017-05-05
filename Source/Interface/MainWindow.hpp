@@ -12,9 +12,11 @@
 class MainWindow : public QWidget
 {
 public:
-    MainWindow(const QGLFormat &format, int voxelResolution);
+    MainWindow(bool fullScreen, const QGLFormat &format, int voxelResolution);
 
+    // Renderer and side panel
     RendererWidget* rendererWidget() const { return rendererWidget_; }
+    QWidget* sidePanelWidget() const { return sidePanelWidget_; }
 
     // Stats widgets
     QLabel* resolutionLabel() const { return resolutionLabel_; }
@@ -35,8 +37,12 @@ public:
     QObjectList voxelPCFFilterSizeRadios() { return voxelPCFFilterSizeRadios_->children(); }
     
 private:
+    
     // Main renderer widget
     RendererWidget* rendererWidget_;
+    
+    // Side panel widget
+    QWidget* sidePanelWidget_;
     
     // Stats labels
     QGroupBox* statsGroupBox_;

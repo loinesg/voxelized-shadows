@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
     format.setProfile(QGLFormat::CoreProfile);
     
     // Create the window and controller
-    MainWindow* window = new MainWindow(format, getTreeResolution(argc, argv));
+    bool fullScreen = flagSet("-fullscreen", argc, argv);
+    MainWindow* window = new MainWindow(fullScreen, format, getTreeResolution(argc, argv));
     MainWindowController* controller = new MainWindowController(window);
 
     // Pass all events to the controller
@@ -57,13 +58,24 @@ int main(int argc, char* argv[])
     // Show the window
     window->resize(1350, 850);
     window->setWindowTitle("Shadow Rendering");
-    window->show();
+    
+    if(fullScreen)
+    {
+        window->showFullScreen();
+        window->sidePanelWidget()->setWindowTitle("Settings");
+        window->sidePanelWidget()->show();
+        window->sidePanelWidget()->setFocus(Qt::ActiveWindowFocusReason);
+    }
+    else
+    {
+        window->show();
+    }
     
     // Precompute the voxel tree, if specified
     if(flagSet("-precompute", argc, argv))
     {
         window->rendererWidget()->precomputeTree();
     }
-
+    
     return app.exec();
 }
