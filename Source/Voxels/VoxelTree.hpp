@@ -8,6 +8,8 @@
 #include <thread>
 #include <mutex>
 
+#include <QElapsedTimer>
+
 using namespace std;
 
 #include "Scene.hpp"
@@ -69,6 +71,9 @@ private:
     UniformManager* uniformManager_;
     const Scene* scene_;
     Bounds sceneBoundsLightSpace_;
+    
+    // A timer used for construction time measurements
+    QElapsedTimer buildTimer_;
     
     // The size of the PCF filter kernel
     int pcfKernelSize_;

@@ -3,10 +3,13 @@
 #include <assert.h>
 #include <math.h>
 
+#include <QElapsedTimer>
+
 VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int resolution)
     : uniformManager_(uniformManager),
     scene_(scene),
     sceneBoundsLightSpace_(computeSceneBoundsLightSpace()),
+    buildTimer_(),
     pcfKernelSize_(9),
     startedTiles_(0),
     mergedTiles_(0),
@@ -17,6 +20,8 @@ VoxelTree::VoxelTree(UniformManager* uniformManager, const Scene* scene, int res
     activeTiles_(),
     activeTilesMutex_()
 {
+    buildTimer_.start();
+    
     // Make each tile as small as possible.
     tileResolution_ = 4096;
     while(totalTiles() > MaxTileCount)
@@ -101,6 +106,13 @@ void VoxelTree::updateBuild()
     if(uploadedTiles_ < mergedTiles_)
     {
         updateBuffers();
+        
+        // Output build stats if now finished
+        if(uploadedTiles_ == totalTiles())
+        {
+            auto time = buildTimer_.elapsed();
+            printf("Tree construction finished in %lld ms \n", time);
+        }
     }
 }
 
