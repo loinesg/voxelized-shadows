@@ -22,6 +22,8 @@ public:
     UniformManager* uniformManager() { return uniformManager_; }
 
     // Current rendering info
+    int resolutionX() const { return shadowMask_->texture()->width(); }
+    int resolutionY() const { return shadowMask_->texture()->height(); }
     const RendererStats* stats() const { return &stats_; }
     
     // Main scene camera

@@ -27,6 +27,7 @@ MainWindow::MainWindow(const QGLFormat &format, int voxelResolution)
     voxelPCFFilterSizeRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     
     // Create stats widgets
+    resolutionLabel_ = createStatsLabel();
     frameRateLabel_ = createStatsLabel();
     shadowRenderingTimeLabel_ = createStatsLabel();
     shadowSamplingTimeLabel_ = createStatsLabel();

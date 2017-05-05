@@ -171,6 +171,10 @@ void MainWindowController::applyCameraMovement(float deltaTime)
 
 void MainWindowController::updateStatsUI()
 {
+    // Get the render resolution
+    int resX = window_->rendererWidget()->resolutionX();
+    int resY = window_->rendererWidget()->resolutionY();
+    
     // Get the performance stats
     const RendererStats* stats = window_->rendererWidget()->stats();
     int frameRate = stats->currentFrameRate();
@@ -187,19 +191,21 @@ void MainWindowController::updateStatsUI()
     size_t treeSizeMB = tree->sizeMB();
     
     // Create the text for each label
+    QString resolutionText = QString("%1 x %2").arg(resX).arg(resY);
     QString frameRateText = QString("Frame Rate: %1 FPS (%2 ms)").arg(frameRate).arg(frameTime);
     QString shadowRenderingText = QString("Shadow Rendering: %1 ms").arg(shadowRenderingTime, 0, 'f', 1);
     QString shadowSamplingText = QString("Shadow Sampling: %1 ms").arg(shadowSamplingTime, 0, 'f', 1);
-    QString resolutionText = QString("Resolution: %1K x %1K").arg(resolution);
+    QString treeResolutionText = QString("Resolution: %1K x %1K").arg(resolution);
     QString tilesText = QString("Tiles: %1 / %2").arg(completedTiles).arg(totalTiles);
     QString originalSizeText = QString("Original Size: %1 MB").arg(originalSizeMB);
     QString treeSizeText = QString("Tree Size: %1 MB").arg(treeSizeMB);
     
     // Update the stats labels
+    window_->resolutionLabel()->setText(resolutionText);
     window_->frameRateLabel()->setText(frameRateText);
     window_->shadowRenderingTimeLabel()->setText(shadowRenderingText);
     window_->shadowSamplingTimeLabel()->setText(shadowSamplingText);
-    window_->treeResolutionLabel()->setText(resolutionText);
+    window_->treeResolutionLabel()->setText(treeResolutionText);
     window_->treeTilesLabel()->setText(tilesText);
     window_->originalSizeLabel()->setText(originalSizeText);
     window_->treeSizeLabel()->setText(treeSizeText);

@@ -17,6 +17,7 @@ public:
     RendererWidget* rendererWidget() const { return rendererWidget_; }
 
     // Stats widgets
+    QLabel* resolutionLabel() const { return resolutionLabel_; }
     QLabel* frameRateLabel() const { return frameRateLabel_; }
     QLabel* shadowRenderingTimeLabel() const { return shadowRenderingTimeLabel_; }
     QLabel* shadowSamplingTimeLabel() const { return shadowSamplingTimeLabel_; }
@@ -39,6 +40,7 @@ private:
     
     // Stats labels
     QGroupBox* statsGroupBox_;
+    QLabel* resolutionLabel_;
     QLabel* frameRateLabel_;
     QLabel* shadowRenderingTimeLabel_;
     QLabel* shadowSamplingTimeLabel_;
