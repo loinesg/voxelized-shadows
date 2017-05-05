@@ -171,6 +171,13 @@ void MainWindowController::applyCameraMovement(float deltaTime)
 
 void MainWindowController::updateStatsUI()
 {
+    // Get the performance stats
+    const RendererStats* stats = window_->rendererWidget()->stats();
+    int frameRate = stats->currentFrameRate();
+    int frameTime = stats->currentFrameTime();
+    int shadowRenderingTime = stats->currentShadowRenderingTime();
+    int shadowSamplingTime = stats->currentShadowSamplingTime();
+    
     // Get the voxel tree stats
     const VoxelTree* tree = window_->rendererWidget()->voxelTree();
     int resolution = tree->resolution() / 1024;
@@ -180,16 +187,20 @@ void MainWindowController::updateStatsUI()
     size_t treeSizeMB = tree->sizeMB();
     
     // Create the text for each label
-    QString resolutionText = QString("Resolution: %1 K^2").arg(resolution);
-    QString totalTilesText = QString("Total Tiles: %1").arg(totalTiles);
-    QString completedTilesText = QString("Completed Tiles: %1").arg(completedTiles);
+    QString frameRateText = QString("Frame Rate: %1 FPS (%2 ms)").arg(frameRate).arg(frameTime);
+    QString shadowRenderingText = QString("Shadow Rendering: %1 ms").arg(shadowRenderingTime);
+    QString shadowSamplingText = QString("Shadow Sampling: %1 ms").arg(shadowSamplingTime);
+    QString resolutionText = QString("Resolution: %1K x %1K").arg(resolution);
+    QString tilesText = QString("Tiles: %1 / %2").arg(completedTiles).arg(totalTiles);
     QString originalSizeText = QString("Original Size: %1 MB").arg(originalSizeMB);
     QString treeSizeText = QString("Tree Size: %1 MB").arg(treeSizeMB);
     
     // Update the stats labels
+    window_->frameRateLabel()->setText(frameRateText);
+    window_->shadowRenderingTimeLabel()->setText(shadowRenderingText);
+    window_->shadowSamplingTimeLabel()->setText(shadowSamplingText);
     window_->treeResolutionLabel()->setText(resolutionText);
-    window_->treeTotalTilesLabel()->setText(totalTilesText);
-    window_->treeCompletedTilesLabel()->setText(completedTilesText);
+    window_->treeTilesLabel()->setText(tilesText);
     window_->originalSizeLabel()->setText(originalSizeText);
     window_->treeSizeLabel()->setText(treeSizeText);
 }

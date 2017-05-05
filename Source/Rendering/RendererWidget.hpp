@@ -3,6 +3,7 @@
 #define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
 #include <QGLWidget> // Links OpenGL Headers
 
+#include "RendererStats.hpp"
 #include "Scene.hpp"
 #include "RenderPass.hpp"
 #include "ShadowMap.hpp"
@@ -20,6 +21,9 @@ public:
     Scene* scene() { return scene_; }
     UniformManager* uniformManager() { return uniformManager_; }
 
+    // Current rendering info
+    const RendererStats* stats() const { return &stats_; }
+    
     // Main scene camera
     Camera* camera() const { return scene_->mainCamera(); }
     
@@ -50,6 +54,9 @@ public:
 private:
     Scene* scene_;
     UniformManager* uniformManager_;
+    
+    // Logs rendering stats for display in the UI
+    RendererStats stats_;
     
     GLuint sceneDepthFBO_;
     Texture* sceneDepthTexture_;

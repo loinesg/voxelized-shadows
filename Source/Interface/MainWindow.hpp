@@ -17,9 +17,11 @@ public:
     RendererWidget* rendererWidget() const { return rendererWidget_; }
 
     // Stats widgets
+    QLabel* frameRateLabel() const { return frameRateLabel_; }
+    QLabel* shadowRenderingTimeLabel() const { return shadowRenderingTimeLabel_; }
+    QLabel* shadowSamplingTimeLabel() const { return shadowSamplingTimeLabel_; }
     QLabel* treeResolutionLabel() const { return treeResolutionLabel_; }
-    QLabel* treeCompletedTilesLabel() const { return treeCompletedTilesLabel_; }
-    QLabel* treeTotalTilesLabel() const { return treeTotalTilesLabel_; }
+    QLabel* treeTilesLabel() const { return treeTilesLabel_; }
     QLabel* originalSizeLabel() const { return originalSizeLabel_; }
     QLabel* treeSizeLabel() const { return treeSizeLabel_; }
     
@@ -37,9 +39,11 @@ private:
     
     // Stats labels
     QGroupBox* statsGroupBox_;
+    QLabel* frameRateLabel_;
+    QLabel* shadowRenderingTimeLabel_;
+    QLabel* shadowSamplingTimeLabel_;
     QLabel* treeResolutionLabel_;
-    QLabel* treeCompletedTilesLabel_;
-    QLabel* treeTotalTilesLabel_;
+    QLabel* treeTilesLabel_;
     QLabel* originalSizeLabel_;
     QLabel* treeSizeLabel_;
     

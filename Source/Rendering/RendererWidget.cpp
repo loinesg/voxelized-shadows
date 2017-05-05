@@ -7,6 +7,7 @@
 
 RendererWidget::RendererWidget(const QGLFormat &format, int voxelResolution)
     : QGLWidget(format),
+    stats_(),
     overlays_(),
     currentOverlay_(-1),
     voxelResolution_(voxelResolution)
@@ -137,6 +138,9 @@ void RendererWidget::resizeGL(int w, int h)
 
 void RendererWidget::paintGL()
 {
+    stats_.frameStarted();
+    
+    // Update animations
     scene_->update(1.0 / 60.0);
     
     // Update scene uniform buffer
@@ -149,12 +153,10 @@ void RendererWidget::paintGL()
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
     uniformManager_->updateSceneBuffer(data);
     
-    if(shadowMask_->method() == SMM_ShadowMap
-       || shadowMask_->method() == SMM_Combined)
-    {
-        // Render shadow depth to the shadow map framebuffer.
-        renderShadowMap();
-    }
+    // Render shadow depth to the shadow map framebuffer.
+    stats_.shadowRenderingStarted();
+    renderShadowMap();
+    stats_.shadowRenderingFinished();
     
     // Update construction of the voxel tree
     voxelTree_->updateBuild();
@@ -164,7 +166,9 @@ void RendererWidget::paintGL()
     
     // Render the screen space shadow mask
     // using the shadow map and scene depth.
+    stats_.shadowSamplingStarted();
     renderShadowMask();
+    stats_.shadowSamplingFinished();
     
     // Final forward pass.
     renderForward();
@@ -256,6 +260,12 @@ void RendererWidget::createOverlays()
 
 void RendererWidget::renderShadowMap()
 {
+    // No shadow maps are needed for VoxelTree mode
+    if(shadowMask_->method() == SMM_VoxelTree)
+    {
+        return;
+    }
+    
     // Update shadow map position
     shadowMap_->updatePosition(scene_->mainCamera());
     

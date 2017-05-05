@@ -27,9 +27,11 @@ MainWindow::MainWindow(const QGLFormat &format, int voxelResolution)
     voxelPCFFilterSizeRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     
     // Create stats widgets
+    frameRateLabel_ = createStatsLabel();
+    shadowRenderingTimeLabel_ = createStatsLabel();
+    shadowSamplingTimeLabel_ = createStatsLabel();
     treeResolutionLabel_ = createStatsLabel();
-    treeCompletedTilesLabel_ = createStatsLabel();
-    treeTotalTilesLabel_ = createStatsLabel();
+    treeTilesLabel_ = createStatsLabel();
     originalSizeLabel_ = createStatsLabel();
     treeSizeLabel_ = createStatsLabel();
     
@@ -85,12 +87,12 @@ MainWindow::MainWindow(const QGLFormat &format, int voxelResolution)
     sidePanelLayout->addStretch();
     
     QWidget* sidePanel = new QWidget();
-    sidePanel->setMaximumWidth(200);
+    sidePanel->setFixedWidth(240);
     sidePanel->setLayout(sidePanelLayout);
     
     // Create the scroll area for the side panel
     QScrollArea* scrollArea = new QScrollArea();
-    scrollArea->setMaximumWidth(220);
+    scrollArea->setMaximumWidth(260);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     scrollArea->setWidget(sidePanel);
     scrollArea->setWidgetResizable(false);
