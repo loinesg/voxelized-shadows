@@ -12,7 +12,8 @@ struct PerObjectUniformBuffer
 {
     static const int BlockID = 0;
     
-    Matrix4x4 localToWorld;
+    // Up to 256 values to allow instancing
+    Matrix4x4 localToWorld[256];
 };
 
 

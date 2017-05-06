@@ -97,11 +97,11 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance*>* instances, 
         
         // Apply per object uniform data
         PerObjectUniformBuffer data;
-        data.localToWorld = transform;
+        data.localToWorld[0] = transform;
         uniformManager_->updatePerObjectBuffer(data);
         
         // Draw the mesh
-        glDrawElements(GL_TRIANGLES, mesh->elementsCount(), GL_UNSIGNED_SHORT, (void*)0);
+        glDrawElementsInstanced(GL_TRIANGLES, mesh->elementsCount(), GL_UNSIGNED_SHORT, (void*)0, 1);
         
         prevShaderFeatures = shaderFeatures;
         prevTexture = texture;

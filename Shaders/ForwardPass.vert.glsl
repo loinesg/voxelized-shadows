@@ -20,7 +20,7 @@ layout(std140) uniform camera_data
 // Per-object uniform buffer.
 layout(std140) uniform per_object_data
 {
-    uniform mat4x4 _ModelToWorld;
+    uniform mat4x4 _ModelToWorldPerInstance[256];
 };
 
 // Vertex attributes
@@ -54,6 +54,7 @@ out vec2 texcoord;
 
 void main()
 {
+    mat4x4 _ModelToWorld = _ModelToWorldPerInstance[gl_InstanceID];
     gl_Position = _ViewProjectionMatrix * (_ModelToWorld * _position);
     
 #if defined(SPECULAR_ON) || defined(FOG_ON)

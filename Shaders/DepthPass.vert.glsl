@@ -11,7 +11,7 @@ layout(std140) uniform camera_data
 
 layout(std140) uniform per_object_data
 {
-    uniform mat4x4 _ModelToWorld;
+    uniform mat4x4 _ModelToWorldPerInstance[256];
 };
 
 layout(location = 0) in vec4 _position;
@@ -24,6 +24,7 @@ layout(location = 0) in vec4 _position;
 
 void main()
 {
+    mat4x4 _ModelToWorld = _ModelToWorldPerInstance[gl_InstanceID];
     gl_Position = _ViewProjectionMatrix * (_ModelToWorld * _position);
     
 #ifdef ALPHA_TEST_ON
