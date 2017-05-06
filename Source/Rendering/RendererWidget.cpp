@@ -148,9 +148,6 @@ void RendererWidget::paintGL()
     
     // Update scene uniform buffer
     SceneUniformBuffer data;
-    data.screenResolution = Vector4(camera()->pixelWidth(), camera()->pixelHeight(), 0.0, 0.0);
-    data.cameraPosition = Vector4(scene_->mainCamera()->position(), 1.0);
-    data.clipToWorld = camera()->cameraToWorldMatrix();
     data.ambientLightColor = Vector4(scene_->mainLight()->ambient(), 1.0);
     data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
     data.lightDirection = -1.0 * scene_->mainLight()->forward();

@@ -13,7 +13,6 @@ struct PerObjectUniformBuffer
     static const int BlockID = 0;
     
     Matrix4x4 localToWorld;
-    Matrix4x4 modelViewProjection;
 };
 
 
@@ -22,12 +21,21 @@ struct SceneUniformBuffer
 {
     static const int BlockID = 1;
     
-    Vector4 screenResolution;
-    Vector4 cameraPosition;
-    Matrix4x4 clipToWorld;
     Vector4 ambientLightColor;
     Vector4 lightColor;
     Vector4 lightDirection; // To light. Normalized
+};
+
+
+// Uniform buffer for camera settings
+struct CameraUniformBuffer
+{
+    static const int BlockID = 4;
+    
+    Vector4 screenResolution;
+    Vector4 cameraPosition;
+    Matrix4x4 viewProjection;
+    Matrix4x4 clipToWorld;
 };
 
 
@@ -77,12 +85,14 @@ public:
     
     void updatePerObjectBuffer(const PerObjectUniformBuffer &buffer);
     void updateSceneBuffer(const SceneUniformBuffer &buffer);
+    void updateCameraBuffer(const CameraUniformBuffer &buffer);
     void updateShadowBuffer(const ShadowUniformBuffer &buffer);
     void updateVoxelBuffer(const void* data, int sizeBytes);
     
 private:
     GLuint perObjectBlockID_;
     GLuint sceneBlockID_;
+    GLuint cameraBlockID_;
     GLuint shadowBlockID_;
     GLuint voxelBlockID_;
     

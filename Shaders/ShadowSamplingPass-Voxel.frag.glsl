@@ -4,15 +4,13 @@
 // 17x17 PCF can touch up to 3x3=9 leaf nodes
 #define PCF_MAX_LOOKUPS 9
 
-// scene_data uniform buffer
-layout(std140) uniform scene_data
+// Camera uniform buffer
+layout(std140) uniform camera_data
 {
     uniform vec2 _ScreenResolution;
     uniform vec3 _CameraPosition;
+    uniform mat4x4 _ViewProjectionMatrix;
     uniform mat4x4 _ClipToWorld;
-    uniform vec3 _AmbientColor;
-    uniform vec3 _LightColor;
-    uniform vec3 _LightDirection;
 };
 
 // voxel_data uniform buffer

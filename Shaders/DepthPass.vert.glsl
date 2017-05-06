@@ -1,9 +1,17 @@
 #version 330
 
+// Camera uniform buffer
+layout(std140) uniform camera_data
+{
+    uniform vec2 _ScreenResolution;
+    uniform vec3 _CameraPosition;
+    uniform mat4x4 _ViewProjectionMatrix;
+    uniform mat4x4 _ClipToWorld;
+};
+
 layout(std140) uniform per_object_data
 {
     uniform mat4x4 _ModelToWorld;
-    uniform mat4x4 _ModelViewProjection;
 };
 
 layout(location = 0) in vec4 _position;
@@ -16,7 +24,7 @@ layout(location = 0) in vec4 _position;
 
 void main()
 {
-    gl_Position = _ModelViewProjection * _position;
+    gl_Position = _ViewProjectionMatrix * (_ModelToWorld * _position);
     
 #ifdef ALPHA_TEST_ON
     // Texcoord only needed for alpha test texture lookups

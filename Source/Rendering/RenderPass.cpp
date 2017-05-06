@@ -43,6 +43,14 @@ void RenderPass::setSupportedFeatures(ShaderFeatureList supportedFeatures)
 
 void RenderPass::submit(Camera* camera, const vector<MeshInstance*>* instances, bool drawStatic, bool drawDynamic)
 {
+    // Setup the camera uniform buffer
+    CameraUniformBuffer cub;
+    cub.screenResolution = Vector4(camera->pixelWidth(), camera->pixelHeight(), 0.0, 0.0);
+    cub.cameraPosition = Vector4(camera->position(), 1.0);
+    cub.viewProjection = camera->worldToCameraMatrix();
+    cub.clipToWorld = camera->cameraToWorldMatrix();
+    uniformManager_->updateCameraBuffer(cub);
+    
     // Clear the screen
     glClearColor(clearColor_.x, clearColor_.y, clearColor_.z, clearColor_.w);
     glClear(clearFlags_);
@@ -90,7 +98,6 @@ void RenderPass::submit(Camera* camera, const vector<MeshInstance*>* instances, 
         // Apply per object uniform data
         PerObjectUniformBuffer data;
         data.localToWorld = transform;
-        data.modelViewProjection = camera->worldToCameraMatrix() * transform;
         uniformManager_->updatePerObjectBuffer(data);
         
         // Draw the mesh
