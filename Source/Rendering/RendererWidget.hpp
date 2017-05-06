@@ -3,6 +3,7 @@
 #define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
 #include <QGLWidget> // Links OpenGL Headers
 
+#include "RendererStats.hpp"
 #include "Scene.hpp"
 #include "RenderPass.hpp"
 #include "ShadowMap.hpp"
@@ -14,12 +15,17 @@
 class RendererWidget : public QGLWidget
 {
 public:
-    RendererWidget(const QGLFormat &format);
+    RendererWidget(const QGLFormat &format, int voxelResolution);
     ~RendererWidget();
     
     Scene* scene() { return scene_; }
     UniformManager* uniformManager() { return uniformManager_; }
 
+    // Current rendering info
+    int resolutionX() const { return shadowMask_->texture()->width(); }
+    int resolutionY() const { return shadowMask_->texture()->height(); }
+    const RendererStats* stats() const { return stats_; }
+    
     // Main scene camera
     Camera* camera() const { return scene_->mainCamera(); }
     
@@ -43,9 +49,16 @@ public:
     void setShadowMapCascades(int cascades);
     void setVoxelPCFFilterSize(int kernelSize);
     
+    // Forces the voxel tree to be completely built before
+    // starting to render the scene. Used for profiling.
+    void precomputeTree();
+    
 private:
     Scene* scene_;
     UniformManager* uniformManager_;
+    
+    // Logs rendering stats for display in the UI
+    RendererStats* stats_;
     
     GLuint sceneDepthFBO_;
     Texture* sceneDepthTexture_;
@@ -58,6 +71,8 @@ private:
     
     vector<Overlay*> overlays_;
     int currentOverlay_;
+    
+    int voxelResolution_;
 
     // QGLWidget override methods
     void initializeGL();

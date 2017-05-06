@@ -8,6 +8,8 @@
 #include <thread>
 #include <mutex>
 
+#include <QElapsedTimer>
+
 using namespace std;
 
 #include "Scene.hpp"
@@ -21,7 +23,7 @@ using namespace std;
 class VoxelTree
 {
     // The maximum tile count. Each tile is up to 16K.
-    const static int MaxTileCount = 32*32;
+    const static int MaxTileCount = 64*64;
     
     // The maximum number of tiles that are built simultaneously.
     const static int ConcurrentBuilds = 6;
@@ -69,6 +71,9 @@ private:
     UniformManager* uniformManager_;
     const Scene* scene_;
     Bounds sceneBoundsLightSpace_;
+    
+    // A timer used for construction time measurements
+    QElapsedTimer buildTimer_;
     
     // The size of the PCF filter kernel
     int pcfKernelSize_;

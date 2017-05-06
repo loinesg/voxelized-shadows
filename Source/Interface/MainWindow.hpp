@@ -12,14 +12,19 @@
 class MainWindow : public QWidget
 {
 public:
-    MainWindow(const QGLFormat &format);
+    MainWindow(bool fullScreen, const QGLFormat &format, int voxelResolution);
 
+    // Renderer and side panel
     RendererWidget* rendererWidget() const { return rendererWidget_; }
+    QWidget* sidePanelWidget() const { return sidePanelWidget_; }
 
     // Stats widgets
+    QLabel* resolutionLabel() const { return resolutionLabel_; }
+    QLabel* frameRateLabel() const { return frameRateLabel_; }
+    QLabel* shadowRenderingTimeLabel() const { return shadowRenderingTimeLabel_; }
+    QLabel* shadowSamplingTimeLabel() const { return shadowSamplingTimeLabel_; }
     QLabel* treeResolutionLabel() const { return treeResolutionLabel_; }
-    QLabel* treeCompletedTilesLabel() const { return treeCompletedTilesLabel_; }
-    QLabel* treeTotalTilesLabel() const { return treeTotalTilesLabel_; }
+    QLabel* treeTilesLabel() const { return treeTilesLabel_; }
     QLabel* originalSizeLabel() const { return originalSizeLabel_; }
     QLabel* treeSizeLabel() const { return treeSizeLabel_; }
     
@@ -32,14 +37,21 @@ public:
     QObjectList voxelPCFFilterSizeRadios() { return voxelPCFFilterSizeRadios_->children(); }
     
 private:
+    
     // Main renderer widget
     RendererWidget* rendererWidget_;
     
+    // Side panel widget
+    QWidget* sidePanelWidget_;
+    
     // Stats labels
     QGroupBox* statsGroupBox_;
+    QLabel* resolutionLabel_;
+    QLabel* frameRateLabel_;
+    QLabel* shadowRenderingTimeLabel_;
+    QLabel* shadowSamplingTimeLabel_;
     QLabel* treeResolutionLabel_;
-    QLabel* treeCompletedTilesLabel_;
-    QLabel* treeTotalTilesLabel_;
+    QLabel* treeTilesLabel_;
     QLabel* originalSizeLabel_;
     QLabel* treeSizeLabel_;
     

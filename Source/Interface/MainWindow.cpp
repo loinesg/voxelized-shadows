@@ -3,10 +3,10 @@
 #include <QVariant>
 #include <QScrollArea>
 
-MainWindow::MainWindow(const QGLFormat &format)
+MainWindow::MainWindow(bool fullScreen, const QGLFormat &format, int voxelResolution)
 {
     // Create main renderer
-    rendererWidget_ = new RendererWidget(format);
+    rendererWidget_ = new RendererWidget(format, voxelResolution);
     
     // Create groups
     statsGroupBox_ = new QGroupBox("Stats");
@@ -27,9 +27,12 @@ MainWindow::MainWindow(const QGLFormat &format)
     voxelPCFFilterSizeRadios_->setLayout(new QBoxLayout(QBoxLayout::TopToBottom));
     
     // Create stats widgets
+    resolutionLabel_ = createStatsLabel();
+    frameRateLabel_ = createStatsLabel();
+    shadowRenderingTimeLabel_ = createStatsLabel();
+    shadowSamplingTimeLabel_ = createStatsLabel();
     treeResolutionLabel_ = createStatsLabel();
-    treeCompletedTilesLabel_ = createStatsLabel();
-    treeTotalTilesLabel_ = createStatsLabel();
+    treeTilesLabel_ = createStatsLabel();
     originalSizeLabel_ = createStatsLabel();
     treeSizeLabel_ = createStatsLabel();
     
@@ -85,21 +88,32 @@ MainWindow::MainWindow(const QGLFormat &format)
     sidePanelLayout->addStretch();
     
     QWidget* sidePanel = new QWidget();
-    sidePanel->setMaximumWidth(200);
+    sidePanel->setFixedWidth(240);
     sidePanel->setLayout(sidePanelLayout);
     
     // Create the scroll area for the side panel
     QScrollArea* scrollArea = new QScrollArea();
-    scrollArea->setMaximumWidth(220);
+    scrollArea->setMaximumWidth(260);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     scrollArea->setWidget(sidePanel);
     scrollArea->setWidgetResizable(false);
     scrollArea->setFrameShape(QFrame::NoFrame);
+    sidePanelWidget_ = scrollArea;
     
     // Add widgets to main layout
     QBoxLayout* mainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     mainLayout->addWidget(rendererWidget_);
-    mainLayout->addWidget(scrollArea);
+    
+    if(fullScreen)
+    {
+        // Make sure there is no border around the renderer
+        mainLayout->setContentsMargins(0, 0, 0, 0);
+    }
+    else
+    {
+        // Otherwise add the side panel widget to the window
+        mainLayout->addWidget(sidePanelWidget_);
+    }
 }
 
 QLabel* MainWindow::createStatsLabel()

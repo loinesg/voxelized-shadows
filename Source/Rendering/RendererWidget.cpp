@@ -5,16 +5,18 @@
 
 #include <iostream>
 
-RendererWidget::RendererWidget(const QGLFormat &format)
+RendererWidget::RendererWidget(const QGLFormat &format, int voxelResolution)
     : QGLWidget(format),
     overlays_(),
-    currentOverlay_(-1)
+    currentOverlay_(-1),
+    voxelResolution_(voxelResolution)
 {
     sceneDepthTexture_ = NULL;
 }
 
 RendererWidget::~RendererWidget()
 {
+    delete stats_;
     delete scene_;
     delete uniformManager_;
     delete shadowMap_;
@@ -73,6 +75,14 @@ void RendererWidget::setVoxelPCFFilterSize(int kernelSize)
     }
 }
 
+void RendererWidget::precomputeTree()
+{
+    while(voxelTree_->completedTiles() < voxelTree_->totalTiles())
+    {
+        voxelTree_->updateBuild();
+    }
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));
@@ -84,6 +94,9 @@ void RendererWidget::initializeGL()
     // Load the scene
     createScene();
     
+    // Create the stats manager
+    stats_ = new RendererStats();
+    
     // Create uniform buffers
     uniformManager_ = new UniformManager();
     
@@ -92,7 +105,7 @@ void RendererWidget::initializeGL()
     shadowMask_ = new ShadowMask(uniformManager_, SMM_Combined);
     
     // Create and build the voxel tree
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 8192 * 16);
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, voxelResolution_);
     shadowMask_->setVoxelTree(voxelTree_);
     
     // Create RenderPass instances
@@ -128,6 +141,9 @@ void RendererWidget::resizeGL(int w, int h)
 
 void RendererWidget::paintGL()
 {
+    stats_->frameStarted();
+    
+    // Update animations
     scene_->update(1.0 / 60.0);
     
     // Update scene uniform buffer
@@ -140,12 +156,10 @@ void RendererWidget::paintGL()
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
     uniformManager_->updateSceneBuffer(data);
     
-    if(shadowMask_->method() == SMM_ShadowMap
-       || shadowMask_->method() == SMM_Combined)
-    {
-        // Render shadow depth to the shadow map framebuffer.
-        renderShadowMap();
-    }
+    // Render shadow depth to the shadow map framebuffer.
+    stats_->shadowRenderingStarted();
+    renderShadowMap();
+    stats_->shadowRenderingFinished();
     
     // Update construction of the voxel tree
     voxelTree_->updateBuild();
@@ -155,7 +169,9 @@ void RendererWidget::paintGL()
     
     // Render the screen space shadow mask
     // using the shadow map and scene depth.
+    stats_->shadowSamplingStarted();
     renderShadowMask();
+    stats_->shadowSamplingFinished();
     
     // Final forward pass.
     renderForward();
@@ -247,6 +263,12 @@ void RendererWidget::createOverlays()
 
 void RendererWidget::renderShadowMap()
 {
+    // No shadow maps are needed for VoxelTree mode
+    if(shadowMask_->method() == SMM_VoxelTree)
+    {
+        return;
+    }
+    
     // Update shadow map position
     shadowMap_->updatePosition(scene_->mainCamera());
     
