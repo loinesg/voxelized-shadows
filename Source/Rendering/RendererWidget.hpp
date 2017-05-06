@@ -24,7 +24,7 @@ public:
     // Current rendering info
     int resolutionX() const { return shadowMask_->texture()->width(); }
     int resolutionY() const { return shadowMask_->texture()->height(); }
-    const RendererStats* stats() const { return &stats_; }
+    const RendererStats* stats() const { return stats_; }
     
     // Main scene camera
     Camera* camera() const { return scene_->mainCamera(); }
@@ -58,7 +58,7 @@ private:
     UniformManager* uniformManager_;
     
     // Logs rendering stats for display in the UI
-    RendererStats stats_;
+    RendererStats* stats_;
     
     GLuint sceneDepthFBO_;
     Texture* sceneDepthTexture_;

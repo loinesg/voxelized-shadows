@@ -1,12 +1,16 @@
 #pragma once
 
-#include <QGLWidget>
-#include <QElapsedTimer>
+#define GL_GLEXT_PROTOTYPES 1 // Enables OpenGL 3 Features
+#include <QGLWidget> // Links OpenGL Headers
 
-class RendererStats
+#include <QElapsedTimer>
+#include <QOpenGLFunctions_3_3_Core>
+
+class RendererStats : protected QOpenGLFunctions_3_3_Core
 {
 public:
     RendererStats();
+    ~RendererStats();
     
     // Get the averaged results from the last samples
     double currentFrameRate() const { return avgFrameRate_; }
@@ -21,14 +25,13 @@ public:
     void shadowSamplingStarted();
     void shadowSamplingFinished();
     
-    // Updates the stats with new measurements (in milliseconds)
-    // The stat changes take a few frames to be shown in the averages
-    void sample(int frameTime, int shadowRenderingTime, int shadowSamplingTime);
-    
 private:
     
     // The timer used for measuring rendering times
     QElapsedTimer timer_;
+    
+    // The queries used for measuring shadow rendering and sampling times
+    GLuint queries_[4];
     
     // The last set of samples
     // These values are the ones currently displayed
@@ -40,8 +43,6 @@ private:
     // The samples being gathered
     int samplesCount_;
     qint64 sampleStartTime_;
-    qint64 shadowRenderingStartTime_;
-    qint64 shadowSamplingStartTime_;
     qint64 shadowRenderingTime_;
     qint64 shadowSamplingTime_;
 };

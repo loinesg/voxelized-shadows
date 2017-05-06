@@ -8,12 +8,22 @@ RendererStats::RendererStats()
     avgShadowSamplingTime_(-1),
     samplesCount_(0),
     sampleStartTime_(0),
-    shadowRenderingStartTime_(0),
-    shadowSamplingStartTime_(0),
     shadowRenderingTime_(0),
     shadowSamplingTime_(0)
 {
+    // Start the frame time timer
     timer_.start();
+    
+    // Enable support for opengl 3.3 features
+    initializeOpenGLFunctions();
+    
+    // Create the query objects
+    glGenQueries(4, queries_);
+}
+
+RendererStats::~RendererStats()
+{
+    glDeleteQueries(4, queries_);
 }
 
 void RendererStats::frameStarted()
@@ -21,8 +31,19 @@ void RendererStats::frameStarted()
     // Add to the frame count
     samplesCount_ ++;
     
+    // Get the times from the previous frame
+    uint64_t renderingStart, renderingEnd, samplingStart, samplingEnd;
+    glGetQueryObjectui64v(queries_[0], GL_QUERY_RESULT, &renderingStart);
+    glGetQueryObjectui64v(queries_[1], GL_QUERY_RESULT, &renderingEnd);
+    glGetQueryObjectui64v(queries_[2], GL_QUERY_RESULT, &samplingStart);
+    glGetQueryObjectui64v(queries_[3], GL_QUERY_RESULT, &samplingEnd);
+    
+    // Add the rendering / sampling times to the total
+    shadowRenderingTime_ += (renderingEnd - renderingStart);
+    shadowSamplingTime_ += (samplingEnd - samplingStart);
+    
     // Check if enough frames have been recorded to create new averages
-    if(samplesCount_ > 20)
+    if(samplesCount_ > 200)
     {
         // Create the new averages
         quint64 time = timer_.elapsed() - sampleStartTime_;
@@ -30,6 +51,10 @@ void RendererStats::frameStarted()
         avgFrameTime_ = time / (double)samplesCount_;
         avgShadowRenderingTime_ = shadowRenderingTime_ / (double)samplesCount_;
         avgShadowSamplingTime_ = shadowSamplingTime_ / (double)samplesCount_;
+        
+        // The rendering and sampling times are in nanoseconds
+        avgShadowRenderingTime_ /= 1000000.0;
+        avgShadowSamplingTime_ /= 1000000.0;
         
         // Reset the samples
         samplesCount_ = 0;
@@ -41,38 +66,24 @@ void RendererStats::frameStarted()
 
 void RendererStats::shadowRenderingStarted()
 {
-    // Flush existing commands
-    glFinish();
-    
-    // Record the current time
-    shadowRenderingStartTime_ = timer_.elapsed();
+    // Request the GPU timestamp at this point
+    glQueryCounter(queries_[0], GL_TIMESTAMP);
 }
 
 void RendererStats::shadowRenderingFinished()
 {
-    // Flush existing commands
-    glFinish();
-    
-    // Add the interval to the stats
-    qint64 interval = timer_.elapsed() - shadowRenderingStartTime_;
-    shadowRenderingTime_ += interval;
+    // Request the GPU timestamp at this point
+    glQueryCounter(queries_[1], GL_TIMESTAMP);
 }
 
 void RendererStats::shadowSamplingStarted()
 {
-    // Flush existing commands
-    glFinish();
-    
-    // Record the current time
-    shadowSamplingStartTime_ = timer_.elapsed();
+    // Request the GPU timestamp at this point
+    glQueryCounter(queries_[2], GL_TIMESTAMP);
 }
 
 void RendererStats::shadowSamplingFinished()
 {
-    // Flush existing commands
-    glFinish();
-    
-    // Add the interval to the stats
-    qint64 interval = timer_.elapsed() - shadowSamplingStartTime_;
-    shadowSamplingTime_ += interval;
+    // Request the GPU timestamp at this point
+    glQueryCounter(queries_[3], GL_TIMESTAMP);
 }

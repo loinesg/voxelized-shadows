@@ -7,7 +7,6 @@
 
 RendererWidget::RendererWidget(const QGLFormat &format, int voxelResolution)
     : QGLWidget(format),
-    stats_(),
     overlays_(),
     currentOverlay_(-1),
     voxelResolution_(voxelResolution)
@@ -17,6 +16,7 @@ RendererWidget::RendererWidget(const QGLFormat &format, int voxelResolution)
 
 RendererWidget::~RendererWidget()
 {
+    delete stats_;
     delete scene_;
     delete uniformManager_;
     delete shadowMap_;
@@ -94,6 +94,9 @@ void RendererWidget::initializeGL()
     // Load the scene
     createScene();
     
+    // Create the stats manager
+    stats_ = new RendererStats();
+    
     // Create uniform buffers
     uniformManager_ = new UniformManager();
     
@@ -138,7 +141,7 @@ void RendererWidget::resizeGL(int w, int h)
 
 void RendererWidget::paintGL()
 {
-    stats_.frameStarted();
+    stats_->frameStarted();
     
     // Update animations
     scene_->update(1.0 / 60.0);
@@ -154,9 +157,9 @@ void RendererWidget::paintGL()
     uniformManager_->updateSceneBuffer(data);
     
     // Render shadow depth to the shadow map framebuffer.
-    stats_.shadowRenderingStarted();
+    stats_->shadowRenderingStarted();
     renderShadowMap();
-    stats_.shadowRenderingFinished();
+    stats_->shadowRenderingFinished();
     
     // Update construction of the voxel tree
     voxelTree_->updateBuild();
@@ -166,9 +169,9 @@ void RendererWidget::paintGL()
     
     // Render the screen space shadow mask
     // using the shadow map and scene depth.
-    stats_.shadowSamplingStarted();
+    stats_->shadowSamplingStarted();
     renderShadowMask();
-    stats_.shadowSamplingFinished();
+    stats_->shadowSamplingFinished();
     
     // Final forward pass.
     renderForward();
