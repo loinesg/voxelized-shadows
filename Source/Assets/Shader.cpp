@@ -40,6 +40,7 @@ Shader::Shader(const string &name, ShaderFeatureList features)
     // Set uniform block binding
     setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
     setUniformBlockBinding("scene_data", SceneUniformBuffer::BlockID);
+    setUniformBlockBinding("camera_data", CameraUniformBuffer::BlockID);
     setUniformBlockBinding("shadow_data", ShadowUniformBuffer::BlockID);
     setUniformBlockBinding("voxel_data", VoxelsUniformBuffer::BlockID);
     

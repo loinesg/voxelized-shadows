@@ -13,7 +13,7 @@ ShadowMap::ShadowMap(const Scene* scene, UniformManager* uniformManager, int cas
     
     // Create a pass for rendering the shadow map.
     // Depth only, so no features are needed except cutout.
-    string shadowCasterPassName = "ShadowCasterPass";
+    string shadowCasterPassName = "DepthPass";
     shadowCasterPass_ = new RenderPass(shadowCasterPassName, uniformManager_);
     shadowCasterPass_->setSupportedFeatures(SF_Cutout);
     shadowCasterPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);

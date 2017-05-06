@@ -1,22 +1,26 @@
 #version 330
 
 // Scene uniform buffer
-// Used for camera position.
 layout(std140) uniform scene_data
 {
-    uniform vec2 _ScreenResolution;
-    uniform vec3 _CameraPosition;
-    uniform mat4x4 _ClipToWorld;
     uniform vec3 _AmbientColor;
     uniform vec3 _LightColor;
     uniform vec3 _LightDirection;
 };
 
+// Camera uniform buffer
+layout(std140) uniform camera_data
+{
+    uniform vec2 _ScreenResolution;
+    uniform vec3 _CameraPosition;
+    uniform mat4x4 _ViewProjectionMatrix;
+    uniform mat4x4 _ClipToWorld;
+};
+
 // Per-object uniform buffer.
 layout(std140) uniform per_object_data
 {
-    uniform mat4x4 _ModelToWorld;
-    uniform mat4x4 _ModelViewProjection;
+    uniform mat4x4 _ModelToWorldPerInstance[256];
 };
 
 // Vertex attributes
@@ -50,7 +54,8 @@ out vec2 texcoord;
 
 void main()
 {
-    gl_Position = _ModelViewProjection * _position;
+    mat4x4 _ModelToWorld = _ModelToWorldPerInstance[gl_InstanceID];
+    gl_Position = _ViewProjectionMatrix * (_ModelToWorld * _position);
     
 #if defined(SPECULAR_ON) || defined(FOG_ON)
     // Compute the vector to the camera
