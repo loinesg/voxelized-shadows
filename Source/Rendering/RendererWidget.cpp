@@ -197,7 +197,7 @@ void RendererWidget::createRenderPasses()
 {
     // Pass for rendering depth from the main camera
     // Depth only, so no features are needed except cutout.
-    string sceneDepthPassName = "SceneDepthPass";
+    string sceneDepthPassName = "DepthPass";
     sceneDepthPass_ = new RenderPass(sceneDepthPassName, uniformManager_);
     sceneDepthPass_->setSupportedFeatures(SF_Cutout);
     sceneDepthPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
