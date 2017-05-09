@@ -1,5 +1,5 @@
 # Voxelized Shadows
-This is a research project investigating Voxelized Shadows for compressing precomputed shadow map textures for large outdoor scenes. It allows very high resolution shadow maps to be stored with high compression rates, while retaining the ability to sample filtered shadows in real time.
+This is a final year research project investigating Voxelized Shadows for compressing precomputed shadow map textures for large outdoor scenes. It allows very high resolution shadow maps to be stored with compression rates of up to 4000 to 1, while retaining the ability to sample filtered shadows in real time.
 
 This is based on the work by Sintorn et al in "Compact Precomputed Voxelized Shadows" (ACM Transactions on Graphics 2014).
 
