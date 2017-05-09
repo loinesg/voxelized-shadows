@@ -1,7 +1,6 @@
 qmake -project \
-    TARGET=VoxelShadows \
-    CONFIG+=debug_and_release \
     CONFIG+=c++11 \
+    CONFIG-=app_bundle \
     QT+=opengl \
     QT+=gui \
     "INCLUDEPATH += . Source/" \
@@ -13,3 +12,4 @@ qmake -project \
     "INCLUDEPATH += . Source/Scene"
 
 qmake
+make
