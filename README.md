@@ -3,7 +3,7 @@ This is a research project investigating Voxelized Shadows for compressing preco
 
 This is based on the work by Sintorn et al in "Compact Precomputed Voxelized Shadows" (ACM Transactions on Graphics 2014).
 
-![screenshot of the application](Readme/screenshot-top.png?raw=true)
+![screenshot of the application](Readme/screenshot-top.jpg?raw=true)
 
 ## Development
 
