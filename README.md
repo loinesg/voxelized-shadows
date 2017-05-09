@@ -15,6 +15,7 @@ This project was created using C++ with the OpenGL and Qt libraries. It runs on 
 - Static Shadow Maps compressed using Voxelised Shadows
 - "Combined" shadowing mode mixing static and dynamic shadows
 - Extensive configuration of the above techniques from the user interface
+- A number of debugging modes to visualize the rendering techniques 
 
 ## How To Run
 
