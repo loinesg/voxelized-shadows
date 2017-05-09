@@ -1,16 +1,14 @@
 #pragma once
 
-enum InputKey
-{
-    IK_None = 0,
-    IK_MoveForward = 1,
-    IK_MoveBackwards = 2,
-    IK_MoveLeft = 4,
-    IK_MoveRight = 8,
-    IK_MoveUp = 16,
-    IK_MoveDown = 32,
-    IK_MoveFast = 64
-};
+#include <QEvent>
+#include <QKeyEvent>
+
+#include <vector>
+
+using namespace std;
+
+// Use Qt keys for input keys
+typedef Qt::Key InputKey;
 
 class InputManager
 {
@@ -26,11 +24,14 @@ public:
     float getForwardsMovement() const;
     float getSidewaysMovement() const;
     float getVerticalMovement() const;
-    float getAxisMovement(InputKey positiveDir, InputKey negativeDir) const;
+    float getMovementSpeed() const;
     
+    // Updates key press state
     void keyPressed(InputKey key);
     void keyReleased(InputKey key);
     
 private:
-    unsigned int pressedKeys_;
+    vector<InputKey> pressedKeys_;
+    
+    float getAxisMovement(InputKey positiveDir, InputKey negativeDir) const;
 };

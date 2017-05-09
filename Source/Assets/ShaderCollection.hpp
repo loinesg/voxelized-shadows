@@ -17,6 +17,9 @@ public:
     ShaderCollection(const string &name);
     ~ShaderCollection();
     
+    // The currently enabled features
+    ShaderFeatureList enabledFeatures() const;
+    
     // Feature toggling
     void enableFeature(ShaderFeature feature);
     void disableFeature(ShaderFeature feature);

@@ -40,6 +40,7 @@ Shader::Shader(const string &name, ShaderFeatureList features)
     // Set uniform block binding
     setUniformBlockBinding("per_object_data", PerObjectUniformBuffer::BlockID);
     setUniformBlockBinding("scene_data", SceneUniformBuffer::BlockID);
+    setUniformBlockBinding("camera_data", CameraUniformBuffer::BlockID);
     setUniformBlockBinding("shadow_data", ShadowUniformBuffer::BlockID);
     setUniformBlockBinding("voxel_data", VoxelsUniformBuffer::BlockID);
     
@@ -175,12 +176,17 @@ string Shader::createFeatureDefines() const
     if(hasFeature(SF_NormalMap)) defines += "\n #define NORMAL_MAP_ON";
     if(hasFeature(SF_Specular)) defines += "\n #define SPECULAR_ON";
     if(hasFeature(SF_Cutout)) defines += "\n #define ALPHA_TEST_ON";
+    if(hasFeature(SF_Fog)) defines += "\n #define FOG_ON";
+    
     
     // Debug feature defines
     if(hasFeature(SF_Debug_ShadowMapTexture)) defines += "\n #define DEBUG_SHADOW_MAP_TEXTURE";
     if(hasFeature(SF_Debug_DepthTexture)) defines += "\n #define DEBUG_DEPTH_TEXTURE";
     if(hasFeature(SF_Debug_ShowCascadeSplits)) defines += "\n #define DEBUG_SHOW_CASCADE_SPLITS";
     if(hasFeature(SF_Debug_ShowVoxelTreeDepth)) defines += "\n #define DEBUG_SHOW_VOXEL_TREE_DEPTH";
+    
+    // Shadow filtering defines
+    if(hasFeature(SF_Shadow_PCF_Filter)) defines += "\n #define SHADOW_PCF_FILTER";
     
     return defines;
 }

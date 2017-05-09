@@ -9,6 +9,7 @@ UniformManager::~UniformManager()
 {
     glDeleteBuffers(1, &perObjectBlockID_);
     glDeleteBuffers(1, &sceneBlockID_);
+    glDeleteBuffers(1, &cameraBlockID_);
     glDeleteBuffers(1, &shadowBlockID_);
     glDeleteBuffers(1, &voxelBlockID_);
 }
@@ -26,6 +27,14 @@ void UniformManager::updateSceneBuffer(const SceneUniformBuffer &buffer)
     glBindBuffer(GL_UNIFORM_BUFFER, sceneBlockID_);
     GLvoid* map = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
     memcpy(map, &buffer, sizeof(SceneUniformBuffer));
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+}
+
+void UniformManager::updateCameraBuffer(const CameraUniformBuffer &buffer)
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, cameraBlockID_);
+    GLvoid* map = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    memcpy(map, &buffer, sizeof(CameraUniformBuffer));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
@@ -58,6 +67,12 @@ void UniformManager::createBuffers()
     glBindBuffer(GL_UNIFORM_BUFFER, sceneBlockID_);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneUniformBuffer), NULL, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, SceneUniformBuffer::BlockID, sceneBlockID_);
+    
+    // Camera buffer
+    glGenBuffers(1, &cameraBlockID_);
+    glBindBuffer(GL_UNIFORM_BUFFER, cameraBlockID_);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(CameraUniformBuffer), NULL, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, CameraUniformBuffer::BlockID, cameraBlockID_);
     
     // Shadow buffer
     glGenBuffers(1, &shadowBlockID_);

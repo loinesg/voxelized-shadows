@@ -16,7 +16,10 @@ enum ShadowMaskMethod
     SMM_ShadowMap,
   
     // Sampling the voxelized shadow tree
-    SMM_VoxelTree
+    SMM_VoxelTree,
+    
+    // Shadow map for dynamics + voxel tree for statics
+    SMM_Combined
 };
 
 class ShadowMask
@@ -24,6 +27,10 @@ class ShadowMask
 public:
     ShadowMask(UniformManager* uniformManager, ShadowMaskMethod method);
     ~ShadowMask();
+    
+    // Enable / disable shader features
+    void enableFeature(ShaderFeature feature);
+    void disableFeature(ShaderFeature feature);
     
     // The currently active method
     ShadowMaskMethod method() const { return method_; }

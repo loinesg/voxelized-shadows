@@ -8,6 +8,17 @@ typedef uint32_t VoxelPointer;
 // Use 64-bit hashes
 typedef uint64_t VoxelNodeHash;
 
+// Subsection of the voxel structure
+struct VoxelTile
+{
+    int x;
+    int y;
+    int z;
+    
+    int width; // x and y size
+    int depth; // z size
+};
+
 // First bit = Mixed / Uniform flag
 // Second bit = Shadowed / Unshadowed flag
 enum VoxelShadowing : int
@@ -31,16 +42,14 @@ struct VoxelInnerNode
     // 32 bits per child
     VoxelPointer childPositions[8];
     
-    // The number of children that were VS_Mixed and expanded.
-    // Not serialized.
-    int expandedChildCount;
-    
     // Returns true if the specified child index is expanded.
     bool isChildExpanded(int index) const;
-    
-    // Compute a hash based on the child information
-    VoxelNodeHash hash() const;
 };
+
+// Computes the hash of an inner node from the nodes of its children.
+// The childHashes array is size 8 regardless of the number of expanded child nodes.
+// Non-expanded child hashes are filled with the parent's childmask.
+VoxelNodeHash computeInnerNodeHash(VoxelNodeHash* childHashes);
 
 // Leaf node.
 // Contains an 8x8 voxel plane.
@@ -49,7 +58,4 @@ struct VoxelLeafNode
     // 1 bit per voxel
     // 64 voxels = 64 bits
     uint64_t leafMask;
-    
-    // Compute a hash based on voxel values
-    VoxelNodeHash hash() const;
 };

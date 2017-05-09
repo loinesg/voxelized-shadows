@@ -2,18 +2,29 @@
 
 layout(std140) uniform scene_data
 {
-    uniform vec2 _ScreenResolution;
-    uniform vec3 _CameraPosition;
-    uniform mat4x4 _ClipToWorld;
     uniform vec3 _AmbientColor;
     uniform vec3 _LightColor;
     uniform vec3 _LightDirection;
 };
 
+layout(std140) uniform camera_data
+{
+    uniform vec2 _ScreenResolution;
+    uniform vec3 _CameraPosition;
+    uniform mat4x4 _ViewProjectionMatrix;
+    uniform mat4x4 _ClipToWorld;
+};
+
 uniform sampler2D _MainTexture;
 
 #ifdef SPECULAR_ON
+    // Direction to the camera, normalized.
     in vec3 viewDir;
+#endif
+
+#ifdef FOG_ON
+    // Distance to the camera
+    in float viewDist;
 #endif
 
 #ifdef NORMAL_MAP_ON
@@ -51,7 +62,7 @@ vec3 BlinnPhongLight(vec4 surface, vec3 worldNormal, vec3 viewDirection)
 {
     vec3 h = normalize(_LightDirection + viewDirection);
     float ndoth = max(0.0, dot(worldNormal, h));
-    float spec = pow(ndoth, 45.0) * 0.35;
+    float spec = pow(ndoth, 25.0) * surface.a;
     
     return LambertLight(surface, worldNormal) + spec * _LightColor;
 }
@@ -135,4 +146,14 @@ void main()
     vec3 ambientLight = col.rgb * _AmbientColor;
     vec3 finalColor = directLight + ambientLight;
     fragColor = vec4(finalColor.rgb, 1.0);
+    
+#ifdef FOG_ON
+    // Compute the fog density using exponential squared
+    float fogDensity = 0.0075 * viewDist;
+    fogDensity = 1.0 - exp2(-fogDensity * fogDensity);
+    
+    // Apply fog to the fragColor
+    vec3 fogColor = vec3(0.5, 0.5, 0.5);
+    fragColor.rgb = (fogColor * fogDensity) + (fragColor.rgb * (1.0 - fogDensity));
+#endif
 }

@@ -1,22 +1,26 @@
 #version 330
 
 // Scene uniform buffer
-// Used for camera position.
 layout(std140) uniform scene_data
 {
-    uniform vec2 _ScreenResolution;
-    uniform vec3 _CameraPosition;
-    uniform mat4x4 _ClipToWorld;
     uniform vec3 _AmbientColor;
     uniform vec3 _LightColor;
     uniform vec3 _LightDirection;
 };
 
+// Camera uniform buffer
+layout(std140) uniform camera_data
+{
+    uniform vec2 _ScreenResolution;
+    uniform vec3 _CameraPosition;
+    uniform mat4x4 _ViewProjectionMatrix;
+    uniform mat4x4 _ClipToWorld;
+};
+
 // Per-object uniform buffer.
 layout(std140) uniform per_object_data
 {
-    uniform mat4x4 _ModelToWorld;
-    uniform mat4x4 _ModelViewProjection;
+    uniform mat4x4 _ModelToWorldPerInstance[256];
 };
 
 // Vertex attributes
@@ -26,7 +30,13 @@ layout(location = 2) in vec4 _tangent;
 layout(location = 3) in vec2 _texcoord;
 
 #ifdef SPECULAR_ON
+    // Direction to the camera, normalized.
     out vec3 viewDir;
+#endif
+
+#ifdef FOG_ON
+    // Distance to the camera
+    out float viewDist;
 #endif
 
 #ifdef NORMAL_MAP_ON
@@ -44,13 +54,25 @@ out vec2 texcoord;
 
 void main()
 {
-    gl_Position = _ModelViewProjection * _position;
+    mat4x4 _ModelToWorld = _ModelToWorldPerInstance[gl_InstanceID];
+    gl_Position = _ViewProjectionMatrix * (_ModelToWorld * _position);
     
-#ifdef SPECULAR_ON
-    // Send the view direction to the fragment shader
-    // Used for BlinnPhong specular lighting.
+#if defined(SPECULAR_ON) || defined(FOG_ON)
+    // Compute the vector to the camera
     vec4 worldPosition = _ModelToWorld * _position;
-    viewDir = normalize(_CameraPosition - worldPosition.xyz);
+    vec3 toCamera = _CameraPosition - worldPosition.xyz;
+    float toCameraDist = length(toCamera);
+    
+    #ifdef SPECULAR_ON
+        // Send the view direction to the fragment shader
+        // Used for BlinnPhong specular lighting.
+        viewDir = toCamera / (toCameraDist + 0.000001);
+    #endif
+        
+    #ifdef FOG_ON
+        // Send the view distance for fog calculations.
+        viewDist = toCameraDist;
+    #endif
 #endif
     
 #ifdef NORMAL_MAP_ON

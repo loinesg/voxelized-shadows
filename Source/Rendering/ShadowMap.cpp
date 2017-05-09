@@ -13,7 +13,7 @@ ShadowMap::ShadowMap(const Scene* scene, UniformManager* uniformManager, int cas
     
     // Create a pass for rendering the shadow map.
     // Depth only, so no features are needed except cutout.
-    string shadowCasterPassName = "ShadowCasterPass";
+    string shadowCasterPassName = "DepthPass";
     shadowCasterPass_ = new RenderPass(shadowCasterPassName, uniformManager_);
     shadowCasterPass_->setSupportedFeatures(SF_Cutout);
     shadowCasterPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
@@ -75,8 +75,8 @@ void ShadowMap::setCascades(int cascadesCount, int resolution)
         
         // Use a negative near plane so the camera volume
         // is centered on the camera position.
-        cascades_[i].camera.setNearPlane(-100.0);
-        cascades_[i].camera.setFarPlane(100.0);
+        cascades_[i].camera.setNearPlane(-250.0);
+        cascades_[i].camera.setFarPlane(250.0);
         
         // Use the framebuffer as the shadow camera render target
         cascades_[i].camera.setFramebuffer(framebuffer_);
@@ -169,7 +169,8 @@ void ShadowMap::setLightSpaceBounds(Bounds lightSpaceBounds)
 
     // Size the cascade camera to cover the bounds.
     Vector3 size = lightSpaceBounds.size();
-    cascades_[0].camera.setOrthographicSize(max(size.x, size.y));
+    cascades_[0].camera.setOrthographicWidth(size.x);
+    cascades_[0].camera.setOrthographicHeight(size.y);
     
     // Set the near and far planes to cover the bounds
     cascades_[0].camera.setNearPlane(-size.z / 2.0);
@@ -195,11 +196,14 @@ void ShadowMap::updateUniformBuffer() const
     uniformManager_->updateShadowBuffer(shadowData);
 }
 
-void ShadowMap::renderCascades()
+void ShadowMap::renderCascades(bool drawStatic, bool drawDynamic, bool depthBias)
 {
     // Enable depth biasing to prevent shadow acne
-    glPolygonOffset(2.5, 10.0);
-    glEnable(GL_POLYGON_OFFSET_FILL);
+    if(depthBias)
+    {
+        glPolygonOffset(2.5, 10.0);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+    }
     
     // Write to the depth buffer only.
     glEnable(GL_DEPTH_TEST);
@@ -217,7 +221,7 @@ void ShadowMap::renderCascades()
         shadowCasterPass_->setClearFlags(c == 0 ? GL_DEPTH_BUFFER_BIT : GL_NONE);
         
         // Render the scene using the camera.
-        shadowCasterPass_->submit(&cascades_[c].camera, scene_->meshInstances());
+        shadowCasterPass_->submit(&cascades_[c].camera, scene_->meshInstances(), drawStatic, drawDynamic);
     }
     
     // Disable depth biasing

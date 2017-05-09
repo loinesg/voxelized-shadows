@@ -17,6 +17,12 @@ ShaderCollection::~ShaderCollection()
     }
 }
 
+ShaderFeatureList ShaderCollection::enabledFeatures() const
+{
+    // Only include features that are both enabled and supported
+    return enabledFeatures_ & supportedFeatures_;
+}
+
 void ShaderCollection::enableFeature(ShaderFeature feature)
 {
     enabledFeatures_ |= feature;

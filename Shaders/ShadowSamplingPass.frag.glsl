@@ -1,14 +1,12 @@
 #version 330
 
-// scene_data uniform buffer
-layout(std140) uniform scene_data
+// Camera uniform buffer
+layout(std140) uniform camera_data
 {
     uniform vec2 _ScreenResolution;
     uniform vec3 _CameraPosition;
+    uniform mat4x4 _ViewProjectionMatrix;
     uniform mat4x4 _ClipToWorld;
-    uniform vec3 _AmbientColor;
-    uniform vec3 _LightColor;
-    uniform vec3 _LightDirection;
 };
 
 // shadow_data uniform buffer
@@ -21,8 +19,13 @@ layout(std140) uniform shadow_data
 // Scene depth texture
 uniform sampler2D _MainTexture;
 
-// Shadow map texture
-uniform sampler2DShadow _ShadowMapTexture;
+#ifdef DEBUG_SHOW_SHADOW_MAP_PROJECTION
+    // Projection visualization requires the actual depth values
+    uniform sampler2D _ShadowMapTexture;
+#else
+    // Otherwise use a sampler2DShadow to get 2x2 PCF
+    uniform sampler2DShadow _ShadowMapTexture;
+#endif
 
 in vec2 texcoord;
 
@@ -54,7 +57,11 @@ void main()
     // Weights will have one component set to 1 and all others set to 0.
     vec4 weights = vec4(lessThan(_CascadeDistancesSqr, vec4(sqrDistance)));
     weights.xyz -= weights.yzw;
-
+    
+    // Compute the final shadow coord
+    vec4 shadowCoord = (coord0 * weights.x) + (coord1 * weights.y)
+    + (coord2 * weights.z) + (coord3 * weights.w);
+    
 #ifdef DEBUG_SHOW_CASCADE_SPLITS
 
     // Discard samples that are at maximum depth (sky)
@@ -78,15 +85,11 @@ void main()
     fragColor = vec4(finalColor, 0.7);
     
 #else
-    
-    // Compute the final shadow coord
-    vec4 shadowCoord = (coord0 * weights.x) + (coord1 * weights.y)
-                     + (coord2 * weights.z) + (coord3 * weights.w);
-    
+
     // Sample the shadow map.
     float shadow = textureProj(_ShadowMapTexture, shadowCoord);
 
-    // Return the shadow
+    // Return the shadow attenuation
     fragColor = vec4(shadow, 0.0, 0.0, 0.0);
     
 #endif

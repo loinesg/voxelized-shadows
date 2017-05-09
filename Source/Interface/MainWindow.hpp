@@ -1,102 +1,73 @@
 #pragma once
 
-#include <vector>
-
 #include <QWidget>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QRadioButton>
-
-using namespace std;
+#include <QtWidgets/QLabel>
 
 #include "RendererWidget.hpp"
 
 class MainWindow : public QWidget
 {
 public:
-    MainWindow(const QGLFormat &format);
+    MainWindow(bool fullScreen, const QGLFormat &format, int voxelResolution);
 
+    // Renderer and side panel
     RendererWidget* rendererWidget() const { return rendererWidget_; }
+    QWidget* sidePanelWidget() const { return sidePanelWidget_; }
 
-    // Shader features
-    QCheckBox* textureToggle() const { return textureToggle_; }
-    QCheckBox* specularToggle() const { return specularToggle_; }
-    QCheckBox* normalMapToggle() const { return normalMapToggle_; }
-    QCheckBox* cutoutToggle() const { return cutoutToggle_; }
+    // Stats widgets
+    QLabel* resolutionLabel() const { return resolutionLabel_; }
+    QLabel* frameRateLabel() const { return frameRateLabel_; }
+    QLabel* shadowRenderingTimeLabel() const { return shadowRenderingTimeLabel_; }
+    QLabel* shadowSamplingTimeLabel() const { return shadowSamplingTimeLabel_; }
+    QLabel* treeResolutionLabel() const { return treeResolutionLabel_; }
+    QLabel* treeTilesLabel() const { return treeTilesLabel_; }
+    QLabel* originalSizeLabel() const { return originalSizeLabel_; }
+    QLabel* treeSizeLabel() const { return treeSizeLabel_; }
     
-    // Shadow render method radio buttons
-    QRadioButton* shadowMapMethodRadio() const { return shadowMapMethodRadio_; }
-    QRadioButton* voxelTreeMethodRadio() const { return voxelTreeMethodRadio_; }
-    
-    // Debug overlay radio buttons
-    QRadioButton* noOverlayRadio() const { return noOverlayRadio_; }
-    QRadioButton* shadowMapOverlayRadio() const { return shadowMapOverlayRadio_; }
-    QRadioButton* sceneDepthOverlayRadio() const { return sceneDepthOverlayRadio_; }
-    QRadioButton* shadowMaskOverlayRadio() const { return shadowMaskOverlayRadio_; }
-    QRadioButton* cascadeSplitsOverlayRadio() const { return cascadeSplitsOverlayRadio_; }
-    QRadioButton* voxelTreeDepthOverlayRadio() const { return voxelTreeDepthOverlayRadio_; }
-    
-    // Shadow map resolution radio buttons
-    QRadioButton* shadowResolution512Radio() const { return shadowResolution512Radio_; }
-    QRadioButton* shadowResolution1024Radio() const { return shadowResolution1024Radio_; }
-    QRadioButton* shadowResolution2048Radio() const { return shadowResolution2048Radio_; }
-    QRadioButton* shadowResolution4096Radio() const { return shadowResolution4096Radio_; }
-    
-    // Shadow cascade count radio buttons
-    QRadioButton* shadowCascades1() const { return shadowCascades1_; }
-    QRadioButton* shadowCascades2() const { return shadowCascades2_; }
-    QRadioButton* shadowCascades3() const { return shadowCascades3_; }
-    QRadioButton* shadowCascades4() const { return shadowCascades4_; }
+    // Render setting widget lists
+    QObjectList shaderFeatureToggles() { return featureToggles_->children(); }
+    QObjectList shadowMethodRadios() { return shadowMethodRadios_->children(); }
+    QObjectList overlayRadios() { return overlayRadios_->children(); }
+    QObjectList shadowResolutionRadios() { return shadowResolutionRadios_->children(); }
+    QObjectList shadowCascadesRadios() { return shadowCascadesRadios_->children(); }
+    QObjectList voxelPCFFilterSizeRadios() { return voxelPCFFilterSizeRadios_->children(); }
     
 private:
+    
     // Main renderer widget
     RendererWidget* rendererWidget_;
     
-    // Shader feature toggles
+    // Side panel widget
+    QWidget* sidePanelWidget_;
+    
+    // Stats labels
+    QGroupBox* statsGroupBox_;
+    QLabel* resolutionLabel_;
+    QLabel* frameRateLabel_;
+    QLabel* shadowRenderingTimeLabel_;
+    QLabel* shadowSamplingTimeLabel_;
+    QLabel* treeResolutionLabel_;
+    QLabel* treeTilesLabel_;
+    QLabel* originalSizeLabel_;
+    QLabel* treeSizeLabel_;
+    
+    // Render setting widget groups
     QGroupBox* featureToggles_;
-    QCheckBox* textureToggle_;
-    QCheckBox* specularToggle_;
-    QCheckBox* normalMapToggle_;
-    QCheckBox* cutoutToggle_;
-    
-    // Shadow method radio buttons
     QGroupBox* shadowMethodRadios_;
-    QRadioButton* shadowMapMethodRadio_;
-    QRadioButton* voxelTreeMethodRadio_;
-    
-    // Debug texture radio buttons
     QGroupBox* overlayRadios_;
-    QRadioButton* noOverlayRadio_;
-    QRadioButton* shadowMapOverlayRadio_;
-    QRadioButton* sceneDepthOverlayRadio_;
-    QRadioButton* shadowMaskOverlayRadio_;
-    QRadioButton* cascadeSplitsOverlayRadio_;
-    QRadioButton* voxelTreeDepthOverlayRadio_;
-    
-    // Shadow resolution radio buttons
     QGroupBox* shadowResolutionRadios_;
-    QRadioButton* shadowResolution512Radio_;
-    QRadioButton* shadowResolution1024Radio_;
-    QRadioButton* shadowResolution2048Radio_;
-    QRadioButton* shadowResolution4096Radio_;
-    
-    // Shadow cascades count radio buttons
     QGroupBox* shadowCascadesRadios_;
-    QRadioButton* shadowCascades1_;
-    QRadioButton* shadowCascades2_;
-    QRadioButton* shadowCascades3_;
-    QRadioButton* shadowCascades4_;
+    QGroupBox* voxelPCFFilterSizeRadios_;
     
-    void createFeatureToggles();
-    void createShadowMethodRadios();
-    void createOverlayRadios();
-    void createShadowResolutionRadios();
-    void createShadowCascadesRadios();
-    
-    QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label, bool on);
-    QRadioButton* createShadowMethodRadio(const char* label);
-    QRadioButton* createOverlayRadio(const char* label);
-    QRadioButton* createShadowResolutionRadio(const char* label);
-    QRadioButton* createShadowCascadesRadio(const char* label);
+    QLabel* createStatsLabel();
+    QCheckBox* createFeatureToggle(ShaderFeature feature, const char* label);
+    QRadioButton* createShadowMethodRadio(ShadowMaskMethod method, const char* label);
+    QRadioButton* createOverlayRadio(int index, const char* label);
+    QRadioButton* createShadowResolutionRadio(int resolution);
+    QRadioButton* createShadowCascadesRadio(int cascades);
+    QRadioButton* createVoxelPCFFilterSizeRadio(int kernelSize);
 };

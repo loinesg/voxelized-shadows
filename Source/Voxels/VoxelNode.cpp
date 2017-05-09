@@ -15,22 +15,19 @@ bool VoxelInnerNode::isChildExpanded(int index) const
     return (shadowing == VS_Mixed);
 }
 
-VoxelNodeHash VoxelInnerNode::hash() const
+VoxelNodeHash computeInnerNodeHash(VoxelNodeHash* childHashes)
 {
-    // xor the child positions
-    uint64_t childrenHash = 0;
-    for(int i = 0; i < expandedChildCount; ++i)
+    VoxelNodeHash hash = 0;
+    
+    // Add each child hash
+    for(int i = 0; i < 8; ++i)
     {
-        int offset = (32 + i * 20) % 64;
-        childrenHash ^= ((uint64_t)childPositions[i] << offset);
+        // Get the child hash
+        VoxelNodeHash childHash = childHashes[i];
+        
+        // Shift the hash and combine the child hash
+        hash = (hash >> 10) + (hash << 10) + childHash;
     }
     
-    // Combine with the child mask
-    return childrenHash ^ ((uint64_t)childMask << 12) ^ (uint64_t)expandedChildCount;
-}
-
-VoxelNodeHash VoxelLeafNode::hash() const
-{
-    // Directly use the leafmask
-    return leafMask;
+    return hash;
 }

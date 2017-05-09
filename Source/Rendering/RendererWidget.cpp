@@ -5,16 +5,18 @@
 
 #include <iostream>
 
-RendererWidget::RendererWidget(const QGLFormat &format)
+RendererWidget::RendererWidget(const QGLFormat &format, int voxelResolution)
     : QGLWidget(format),
     overlays_(),
-    currentOverlay_(-1)
+    currentOverlay_(-1),
+    voxelResolution_(voxelResolution)
 {
     sceneDepthTexture_ = NULL;
 }
 
 RendererWidget::~RendererWidget()
 {
+    delete stats_;
     delete scene_;
     delete uniformManager_;
     delete shadowMap_;
@@ -27,12 +29,14 @@ RendererWidget::~RendererWidget()
 
 void RendererWidget::enableFeature(ShaderFeature feature)
 {
+    shadowMask_->enableFeature(feature);
     sceneDepthPass_->enableFeature(feature);
     forwardPass_->enableFeature(feature);
 }
 
 void RendererWidget::disableFeature(ShaderFeature feature)
 {
+    shadowMask_->disableFeature(feature);
     sceneDepthPass_->disableFeature(feature);
     forwardPass_->disableFeature(feature);
 }
@@ -57,6 +61,28 @@ void RendererWidget::setShadowMapCascades(int cascades)
     shadowMap_->setCascades(cascades, shadowMap_->resolution());
 }
 
+void RendererWidget::setVoxelPCFFilterSize(int kernelSize)
+{
+    if(kernelSize == 0)
+    {
+        // Completely disable PCF
+        disableFeature(SF_Shadow_PCF_Filter);
+    }
+    else
+    {
+        enableFeature(SF_Shadow_PCF_Filter);
+        voxelTree_->setPCFFilterSize(kernelSize);
+    }
+}
+
+void RendererWidget::precomputeTree()
+{
+    while(voxelTree_->completedTiles() < voxelTree_->totalTiles())
+    {
+        voxelTree_->updateBuild();
+    }
+}
+
 void RendererWidget::initializeGL()
 {
     printf("Initializing OpenGL %s \n", glGetString(GL_VERSION));
@@ -68,16 +94,18 @@ void RendererWidget::initializeGL()
     // Load the scene
     createScene();
     
+    // Create the stats manager
+    stats_ = new RendererStats();
+    
     // Create uniform buffers
     uniformManager_ = new UniformManager();
     
     // Create assets
     shadowMap_ = new ShadowMap(scene_, uniformManager_, 2, 4096);
-    shadowMask_ = new ShadowMask(uniformManager_, SMM_ShadowMap);
+    shadowMask_ = new ShadowMask(uniformManager_, SMM_Combined);
     
     // Create and build the voxel tree
-    voxelTree_ = new VoxelTree(uniformManager_, scene_, 2048*2);
-    voxelTree_->build();
+    voxelTree_ = new VoxelTree(uniformManager_, scene_, voxelResolution_);
     shadowMask_->setVoxelTree(voxelTree_);
     
     // Create RenderPass instances
@@ -113,28 +141,34 @@ void RendererWidget::resizeGL(int w, int h)
 
 void RendererWidget::paintGL()
 {
+    stats_->frameStarted();
+    
+    // Update animations
+    scene_->update(1.0 / 60.0);
+    
     // Update scene uniform buffer
     SceneUniformBuffer data;
-    data.screenResolution = Vector4(camera()->pixelWidth(), camera()->pixelHeight(), 0.0, 0.0);
-    data.cameraPosition = Vector4(scene_->mainCamera()->position(), 1.0);
-    data.clipToWorld = camera()->cameraToWorldMatrix();
     data.ambientLightColor = Vector4(scene_->mainLight()->ambient(), 1.0);
     data.lightColor = Vector4(scene_->mainLight()->color(), 1.0);
     data.lightDirection = -1.0 * scene_->mainLight()->forward();
     uniformManager_->updateSceneBuffer(data);
     
-    if(shadowMask_->method() == SMM_ShadowMap)
-    {
-        // Render shadow depth to the shadow map framebuffer.
-        renderShadowMap();
-    }
+    // Render shadow depth to the shadow map framebuffer.
+    stats_->shadowRenderingStarted();
+    renderShadowMap();
+    stats_->shadowRenderingFinished();
+    
+    // Update construction of the voxel tree
+    voxelTree_->updateBuild();
     
     // Render scene depth to the main framebuffer.
     renderSceneDepth();
     
     // Render the screen space shadow mask
     // using the shadow map and scene depth.
+    stats_->shadowSamplingStarted();
     renderShadowMask();
+    stats_->shadowSamplingFinished();
     
     // Final forward pass.
     renderForward();
@@ -160,7 +194,7 @@ void RendererWidget::createRenderPasses()
 {
     // Pass for rendering depth from the main camera
     // Depth only, so no features are needed except cutout.
-    string sceneDepthPassName = "SceneDepthPass";
+    string sceneDepthPassName = "DepthPass";
     sceneDepthPass_ = new RenderPass(sceneDepthPassName, uniformManager_);
     sceneDepthPass_->setSupportedFeatures(SF_Cutout);
     sceneDepthPass_->setClearFlags(GL_DEPTH_BUFFER_BIT);
@@ -170,7 +204,7 @@ void RendererWidget::createRenderPasses()
     string forwardPassName = "ForwardPass";
     forwardPass_ = new RenderPass(forwardPassName, uniformManager_);
     forwardPass_->setSupportedFeatures(~0);
-    forwardPass_->setClearColor(PassClearColor(0.78, 0.93, 0.92, 1.0));
+    forwardPass_->setClearColor(PassClearColor(136.0/256.0, 152.0/256.0, 176.0/256.0, 1.0));
 }
 
 void RendererWidget::createScene()
@@ -219,6 +253,12 @@ void RendererWidget::createOverlays()
 
 void RendererWidget::renderShadowMap()
 {
+    // No shadow maps are needed for VoxelTree mode
+    if(shadowMask_->method() == SMM_VoxelTree)
+    {
+        return;
+    }
+    
     // Update shadow map position
     shadowMap_->updatePosition(scene_->mainCamera());
     
@@ -226,7 +266,9 @@ void RendererWidget::renderShadowMap()
     shadowMap_->updateUniformBuffer();
     
     // Render all cascades
-    shadowMap_->renderCascades();
+    bool renderStaticObjects = (shadowMask_->method() == SMM_ShadowMap);
+    bool renderDynamicObjects = true;
+    shadowMap_->renderCascades(renderStaticObjects, renderDynamicObjects);
 }
 
 void RendererWidget::renderSceneDepth()

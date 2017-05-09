@@ -7,34 +7,40 @@ MainWindowController::MainWindowController(MainWindow* window)
     mousePosition_(Vector2(0, 0))
 {
     // Shader feature toggle signals
-    connect(window_->textureToggle(), SIGNAL(stateChanged(int)), this, SLOT(textureFeatureToggled(int)));
-    connect(window_->specularToggle(), SIGNAL(stateChanged(int)), this, SLOT(specularFeatureToggled(int)));
-    connect(window_->normalMapToggle(), SIGNAL(stateChanged(int)), this, SLOT(normalMapsFeatureToggled(int)));
-    connect(window_->cutoutToggle(), SIGNAL(stateChanged(int)), this, SLOT(cutoutFeatureToggled(int)));
+    for(int i = 1; i < window_->shaderFeatureToggles().size(); ++i)
+    {
+        connect(window_->shaderFeatureToggles()[i], SIGNAL(stateChanged(int)), this, SLOT(shaderFeatureToggled()));
+    }
     
     // Shadow method radio button signals
-    connect(window_->shadowMapMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMappingMethodToggled()));
-    connect(window_->voxelTreeMethodRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeMethodToggled()));
+    for(int i = 1; i < window_->shadowMethodRadios().size(); ++i)
+    {
+        connect(window_->shadowMethodRadios()[i], SIGNAL(toggled(bool)), this, SLOT(shadowMethodToggled()));
+    }
     
     // Debug overlay radio button signals
-    connect(window_->noOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(noOverlayToggled()));
-    connect(window_->shadowMapOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMapOverlayToggled()));
-    connect(window_->sceneDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(sceneDepthOverlayToggled()));
-    connect(window_->shadowMaskOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(shadowMaskOverlayToggled()));
-    connect(window_->cascadeSplitsOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(cascadeSplitsOverlayToggled()));
-    connect(window_->voxelTreeDepthOverlayRadio(), SIGNAL(toggled(bool)), this, SLOT(voxelTreeDepthOverlayToggled()));
+    for(int i = 1; i < window_->overlayRadios().size(); ++i)
+    {
+        connect(window_->overlayRadios()[i], SIGNAL(toggled(bool)), this, SLOT(overlayToggled()));
+    }
     
     // Shadow map resolution radio button signals
-    connect(window_->shadowResolution512Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution512Toggled()));
-    connect(window_->shadowResolution1024Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution1024Toggled()));
-    connect(window_->shadowResolution2048Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution2048Toggled()));
-    connect(window_->shadowResolution4096Radio(), SIGNAL(toggled(bool)), SLOT(shadowResolution4096Toggled()));
+    for(int i = 1; i < window_->shadowResolutionRadios().size(); ++i)
+    {
+        connect(window_->shadowResolutionRadios()[i], SIGNAL(toggled(bool)), SLOT(shadowResolutionToggled()));
+    }
     
     // Shadow map cascades radio button signals
-    connect(window_->shadowCascades1(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades1Toggled()));
-    connect(window_->shadowCascades2(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades2Toggled()));
-    connect(window_->shadowCascades3(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades3Toggled()));
-    connect(window_->shadowCascades4(), SIGNAL(toggled(bool)), this, SLOT(shadowCascades4Toggled()));
+    for(int i = 1; i < window_->shadowCascadesRadios().size(); ++i)
+    {
+        connect(window_->shadowCascadesRadios()[i], SIGNAL(toggled(bool)), SLOT(shadowCascadesToggled()));
+    }
+    
+    // Voxel PCF filter size radio button signals
+    for(int i = 1; i < window_->voxelPCFFilterSizeRadios().size(); ++i)
+    {
+        connect(window_->voxelPCFFilterSizeRadios()[i], SIGNAL(toggled(bool)), SLOT(voxelPCFFilterSizeToggled()));
+    }
 }
 
 bool MainWindowController::eventFilter(QObject* obj, QEvent* event)
@@ -55,121 +61,99 @@ bool MainWindowController::eventFilter(QObject* obj, QEvent* event)
     {
         mouseMoveEvent(static_cast<QMouseEvent*>(event));
     }
-    else if(event->type() == QEvent::KeyPress)
+    
+    // InputManager handles key press / release events
+    if(event->type() == QEvent::KeyPress)
     {
-        keyPressEvent(static_cast<QKeyEvent*>(event));
-        return true;
+        inputManager_.keyPressed((InputKey)static_cast<QKeyEvent*>(event)->key());
     }
     else if(event->type() == QEvent::KeyRelease)
     {
-        keyReleaseEvent(static_cast<QKeyEvent*>(event));
-        return true;
+        inputManager_.keyReleased((InputKey)static_cast<QKeyEvent*>(event)->key());
     }
     
+    // Unhandled events are passed back to Qt
     return QObject::eventFilter(obj, event);
 }
 
-void MainWindowController::textureFeatureToggled(int state)
+void MainWindowController::shaderFeatureToggled()
 {
-    updateShaderFeature(SF_Texture, state);
+    // The sender is a shader feature checkbox
+    QCheckBox* sender = (QCheckBox*)QObject::sender();
+    ShaderFeature feature = (ShaderFeature)sender->property("featureID").toInt();
+    
+    // Enable / disable based on check box state
+    if(sender->isChecked())
+    {
+        window_->rendererWidget()->enableFeature(feature);
+    }
+    else
+    {
+        window_->rendererWidget()->disableFeature(feature);
+    }
 }
 
-void MainWindowController::specularFeatureToggled(int state)
+void MainWindowController::shadowMethodToggled()
 {
-    updateShaderFeature(SF_Specular, state);
+    // The sender is a shadow method radio button
+    QRadioButton* sender = (QRadioButton*)QObject::sender();
+    ShadowMaskMethod method = (ShadowMaskMethod)sender->property("method").toInt();
+    
+    // Update the shadow method
+    window_->rendererWidget()->setShadowRenderMethod(method);
 }
 
-void MainWindowController::normalMapsFeatureToggled(int state)
+void MainWindowController::overlayToggled()
 {
-    updateShaderFeature(SF_NormalMap, state);
+    // The sender is a overlay radio button
+    QRadioButton* radio = (QRadioButton*)QObject::sender();
+    int overlay = radio->property("overlay").toInt();
+    
+    // Update the overlay index
+    window_->rendererWidget()->setOverlay(overlay);
+
 }
 
-void MainWindowController::cutoutFeatureToggled(int state)
+void MainWindowController::shadowResolutionToggled()
 {
-    updateShaderFeature(SF_Cutout, state);
+    // The sender is a shadow resolution radio button
+    QRadioButton* radio = (QRadioButton*)QObject::sender();
+    int resolution = radio->property("resolution").toInt();
+    
+    // Update the shadow map resolution
+    window_->rendererWidget()->setShadowMapResolution(resolution);
 }
 
-void MainWindowController::shadowMappingMethodToggled()
+void MainWindowController::shadowCascadesToggled()
 {
-    window_->rendererWidget()->setShadowRenderMethod(SMM_ShadowMap);
+    // The sender is a shadow cascades radio button
+    QRadioButton* radio = (QRadioButton*)QObject::sender();
+    int cascades = radio->property("cascades").toInt();
+    
+    // Update the shadow map resolution
+    window_->rendererWidget()->setShadowMapCascades(cascades);
 }
 
-void MainWindowController::voxelTreeMethodToggled()
+void MainWindowController::voxelPCFFilterSizeToggled()
 {
-    window_->rendererWidget()->setShadowRenderMethod(SMM_VoxelTree);
-}
-
-void MainWindowController::noOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(-1);
-}
-
-void MainWindowController::shadowMapOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(0);
-}
-
-void MainWindowController::sceneDepthOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(1);
-}
-
-void MainWindowController::shadowMaskOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(2);
-}
-
-void MainWindowController::cascadeSplitsOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(3);
-}
-
-void MainWindowController::voxelTreeDepthOverlayToggled()
-{
-    window_->rendererWidget()->setOverlay(4);
-}
-
-void MainWindowController::shadowResolution512Toggled()
-{
-    window_->rendererWidget()->setShadowMapResolution(512);
-}
-
-void MainWindowController::shadowResolution1024Toggled()
-{
-    window_->rendererWidget()->setShadowMapResolution(1024);
-}
-
-void MainWindowController::shadowResolution2048Toggled()
-{
-    window_->rendererWidget()->setShadowMapResolution(2048);
-}
-
-void MainWindowController::shadowResolution4096Toggled()
-{
-    window_->rendererWidget()->setShadowMapResolution(4096);
-}
-
-void MainWindowController::shadowCascades1Toggled()
-{
-    window_->rendererWidget()->setShadowMapCascades(1);
-}
-
-void MainWindowController::shadowCascades2Toggled()
-{
-    window_->rendererWidget()->setShadowMapCascades(2);
-}
-
-void MainWindowController::shadowCascades3Toggled()
-{
-    window_->rendererWidget()->setShadowMapCascades(3);
-}
-
-void MainWindowController::shadowCascades4Toggled()
-{
-    window_->rendererWidget()->setShadowMapCascades(4);
+    // The sender is a voxel pcf filter size radio button
+    QRadioButton* radio = (QRadioButton*)QObject::sender();
+    int kernelSize = radio->property("kernelSize").toInt();
+    
+    // Update the shadow map resolution
+    window_->rendererWidget()->setVoxelPCFFilterSize(kernelSize);
 }
 
 void MainWindowController::update(float deltaTime)
+{
+    // Move the camera with user input
+    applyCameraMovement(deltaTime);
+    
+    // Update the statistics ui
+    updateStatsUI();
+}
+
+void MainWindowController::applyCameraMovement(float deltaTime)
 {
     Camera* camera = window_->rendererWidget()->camera();
 
@@ -178,11 +162,53 @@ void MainWindowController::update(float deltaTime)
     movement.x = inputManager_.getSidewaysMovement();
     movement.z = inputManager_.getForwardsMovement();
     movement.y = inputManager_.getVerticalMovement();
+    movement = movement * inputManager_.getMovementSpeed();
     movement = camera->localToWorldVector(movement);
     
     // Apply movement to camera (frame rate independent)
-    float speed = (inputManager_.isKeyDown(IK_MoveFast)) ? 20.0 : 5.0;
-    camera->translate(movement * speed * deltaTime);
+    camera->translate(movement * deltaTime);
+}
+
+void MainWindowController::updateStatsUI()
+{
+    // Get the render resolution
+    int resX = window_->rendererWidget()->resolutionX();
+    int resY = window_->rendererWidget()->resolutionY();
+    
+    // Get the performance stats
+    const RendererStats* stats = window_->rendererWidget()->stats();
+    int frameRate = stats->currentFrameRate();
+    int frameTime = stats->currentFrameTime();
+    double shadowRenderingTime = stats->currentShadowRenderingTime();
+    double shadowSamplingTime = stats->currentShadowSamplingTime();
+    
+    // Get the voxel tree stats
+    const VoxelTree* tree = window_->rendererWidget()->voxelTree();
+    int resolution = tree->resolution() / 1024;
+    int totalTiles = tree->totalTiles();
+    int completedTiles = tree->completedTiles();
+    size_t originalSizeMB = tree->originalSizeMB();
+    size_t treeSizeMB = tree->sizeMB();
+    
+    // Create the text for each label
+    QString resolutionText = QString("%1 x %2").arg(resX).arg(resY);
+    QString frameRateText = QString("Frame Rate: %1 FPS (%2 ms)").arg(frameRate).arg(frameTime);
+    QString shadowRenderingText = QString("Shadow Rendering: %1 ms").arg(shadowRenderingTime, 0, 'f', 1);
+    QString shadowSamplingText = QString("Shadow Sampling: %1 ms").arg(shadowSamplingTime, 0, 'f', 1);
+    QString treeResolutionText = QString("Resolution: %1K x %1K").arg(resolution);
+    QString tilesText = QString("Tiles: %1 / %2").arg(completedTiles).arg(totalTiles);
+    QString originalSizeText = QString("Original Size: %1 MB").arg(originalSizeMB);
+    QString treeSizeText = QString("Tree Size: %1 MB").arg(treeSizeMB);
+    
+    // Update the stats labels
+    window_->resolutionLabel()->setText(resolutionText);
+    window_->frameRateLabel()->setText(frameRateText);
+    window_->shadowRenderingTimeLabel()->setText(shadowRenderingText);
+    window_->shadowSamplingTimeLabel()->setText(shadowSamplingText);
+    window_->treeResolutionLabel()->setText(treeResolutionText);
+    window_->treeTilesLabel()->setText(tilesText);
+    window_->originalSizeLabel()->setText(originalSizeText);
+    window_->treeSizeLabel()->setText(treeSizeText);
 }
 
 void MainWindowController::mousePressEvent(QMouseEvent* event)
@@ -225,53 +251,5 @@ void MainWindowController::mouseMoveEvent(QMouseEvent *event)
     
         // Apply rotation, vertical first
         camera->setRotation(horizontal * vertical * camera->rotation());
-    }
-}
-
-void MainWindowController::keyPressEvent(QKeyEvent* event)
-{
-    if(event->key() == Qt::Key::Key_W)
-        inputManager_.keyPressed(IK_MoveForward);
-    else if(event->key() == Qt::Key::Key_A)
-        inputManager_.keyPressed(IK_MoveLeft);
-    else if(event->key() == Qt::Key::Key_S)
-        inputManager_.keyPressed(IK_MoveBackwards);
-    else if(event->key() == Qt::Key::Key_D)
-        inputManager_.keyPressed(IK_MoveRight);
-    else if(event->key() == Qt::Key::Key_E)
-        inputManager_.keyPressed(IK_MoveUp);
-    else if(event->key() == Qt::Key::Key_Q)
-        inputManager_.keyPressed(IK_MoveDown);
-    else if(event->key() == Qt::Key::Key_Shift)
-        inputManager_.keyPressed(IK_MoveFast);
-}
-
-void MainWindowController::keyReleaseEvent(QKeyEvent* event)
-{
-    if(event->key() == Qt::Key::Key_W)
-        inputManager_.keyReleased(IK_MoveForward);
-    else if(event->key() == Qt::Key::Key_A)
-        inputManager_.keyReleased(IK_MoveLeft);
-    else if(event->key() == Qt::Key::Key_S)
-        inputManager_.keyReleased(IK_MoveBackwards);
-    else if(event->key() == Qt::Key::Key_D)
-        inputManager_.keyReleased(IK_MoveRight);
-    else if(event->key() == Qt::Key::Key_E)
-        inputManager_.keyReleased(IK_MoveUp);
-    else if(event->key() == Qt::Key::Key_Q)
-        inputManager_.keyReleased(IK_MoveDown);
-    else if(event->key() == Qt::Key::Key_Shift)
-        inputManager_.keyReleased(IK_MoveFast);
-}
-
-void MainWindowController::updateShaderFeature(ShaderFeature feature, int state)
-{
-    if(state == Qt::CheckState::Checked)
-    {
-        window_->rendererWidget()->enableFeature(feature);
-    }
-    else
-    {
-        window_->rendererWidget()->disableFeature(feature);
     }
 }
