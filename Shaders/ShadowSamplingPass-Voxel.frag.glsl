@@ -243,6 +243,12 @@ void main()
     
 #ifdef DEBUG_SHOW_VOXEL_TREE_DEPTH
     
+    // Discard samples that are at maximum depth (sky)
+    if(depth == 1.0) discard;
+    
+    // Discard overlay samples on the left half of the screen
+    if(texcoord.x < 0.5) discard;
+    
     // Determine the % of the tree traversed
     float traversalDepth = float(result.treeDepthReached) / (float(_VoxelTreeHeight));
     
