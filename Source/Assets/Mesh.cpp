@@ -6,8 +6,8 @@
 
 Mesh::Mesh(vector<Vector3> positions, vector<Vector3> normals, vector<Vector4> tangents, vector<Vector2> texcoords, vector<MeshElementIndex> elements)
     : positions_(positions),
-    verticesCount_(positions.size()),
-    elementsCount_(elements.size())
+    verticesCount_((int)positions.size()),
+    elementsCount_((int)elements.size())
 {
     // Create vertex array
     glGenVertexArrays(1, &vertexArray_);
