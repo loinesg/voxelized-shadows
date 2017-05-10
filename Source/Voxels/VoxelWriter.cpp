@@ -27,7 +27,7 @@ void VoxelWriter::reserveRootNodePointerSpace(int pointerCount)
 {
     // Must be an empty buffer with enough space
     assert(sizeWords_ == 0);
-    assert(pointerCount < maxSizeWords_);
+    assert(pointerCount < (int)maxSizeWords_);
     
     // Each pointer occupies 1 word.
     sizeWords_ = pointerCount;
