@@ -24,6 +24,12 @@ This project was created using C++ with the OpenGL and Qt libraries. It runs on 
 - Run the install.sh script
 - The voxelised-shadows application can now be run from the terminal
 
+## Settings
+
+- Specify the voxel tree resolution from the terminal (eg ./voxelised-shadows 64k)
+- Add the -precompute flag to build the tree before the application starts. This is faster. (eg ./voxelised-shadows 128k -precompute)
+- Other settings can be toggled from the UI
+
 ## Camera Controls
 
 - Click and drag to rotate the camera
