@@ -19,6 +19,11 @@ This project was created using C++ with the OpenGL and Qt libraries. It runs on 
 
 ## How To Run
 
+- Clone the project
+- Ensure qt is enabled (In DEC-10 use module add qt/5.3.1)
+- Run the install.sh script
+- The voxelised-shadows application can now be run from the terminal
+
 ## Camera Controls
 
 - Click and drag to rotate the camera
